@@ -1,0 +1,23 @@
+<!-- templates/register.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription</title>
+</head>
+<body>
+    <h2>Inscription</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ user_form.as_p }}
+        <label for="role">Rôle:</label>
+        <select name="role" required>
+            <option value="student">Étudiant</option>
+            <option value="teacher">Enseignant</option>
+            <option value="admin">Administrateur</option>
+        </select>
+        <button type="submit">S'inscrire</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!-- home.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de bord</title>
+</head>
+<body>
+    <h1>Bienvenue sur votre tableau de bord</h1>
+    <p>Bonjour {{ user.username }} !</p>
+
+    <ul>
+        <li><a href="{% url 'register' %}">S'inscrire</a></li>
+        <li><a href="{% url 'login' %}">Se connecter</a></li>
+        <li><a href="{% url 'home' %}">Page d'accueil</a></li>
+    </ul>
+
+    <p>Nous sommes heureux de vous avoir parmi nous. Explorez les fonctionnalités et commencez à utiliser l'application.</p>
+</body>
+</html>
