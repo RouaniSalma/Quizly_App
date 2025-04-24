@@ -15,9 +15,6 @@ const TeacherOrStudent = () => {
         <button className="btn" onClick={() => navigate('/signup-form', { state: { role: 'student' } })}>
           I'm a student
         </button>
-        <button className="btn" onClick={() => navigate('/signup-form', { state: { role: 'admin' } })}>
-          I'm an administrator
-        </button>
       </div>
     </div>
   );
