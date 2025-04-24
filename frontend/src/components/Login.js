@@ -13,7 +13,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:8000/api/auth/login/', {
-        username: email,  // Utilisez l'email complet comme username
+        username: email,
         password,
       }, {
         headers: {
@@ -21,29 +21,30 @@ const Login = () => {
         }
       });
   
-      console.log('Full response:', response);  // Debug log
-  
+      console.log('Full response:', response);
+      
       const token = response.data.access;
       localStorage.setItem('token', token);
-  
-      const decoded = jwtDecode(token);
-      console.log('Decoded token:', decoded);  // Debug log
-  
-      const role = decoded.role;
       
+      // Utilisez le rôle depuis la réponse API directement
+      const role = response.data.user.role;
+      console.log('User role:', role);
+  
       // Redirection basée sur le rôle
       if (role === 'teacher') {
         navigate('/teacher-dashboard');
       } else if (role === 'admin') {
         navigate('/admin-dashboard');
-      } else {
+      } else if (role === 'student') {
         navigate('/student-dashboard');
+      } else {
+        console.error('Unknown role:', role);
+        navigate('/default-dashboard');
       }
       
     } catch (error) {
-      console.error("Full error details:", error);
-      console.error("Error response data:", error.response?.data);
-      alert(`Login failed: ${error.response?.data?.detail || 'Please check your credentials and try again.'}`);
+      console.error("Login error:", error);
+      alert(`Login failed: ${error.response?.data?.detail || error.message}`);
     }
   };
 

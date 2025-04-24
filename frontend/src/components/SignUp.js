@@ -7,7 +7,7 @@ import './SignUp.css';
 const SignUp = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const role = location.state?.role || 'student';
+  const role = location.state?.role;
 
   const [formData, setFormData] = useState({
     first_name: '',
