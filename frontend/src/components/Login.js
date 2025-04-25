@@ -13,7 +13,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:8000/api/auth/login/', {
-        username: email,
+        email: email,  // Changé de username à email
         password,
       }, {
         headers: {
@@ -61,7 +61,7 @@ const Login = () => {
             <label htmlFor="email">Email</label>
             <input type="email" id="email" value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your university email" required />
+              placeholder="Enter your email" required />
           </div>
           <div className="form-group">
             <label htmlFor="password">Password</label>

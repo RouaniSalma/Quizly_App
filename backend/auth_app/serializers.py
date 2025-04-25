@@ -5,40 +5,35 @@ from django.contrib.auth import authenticate
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['username', 'first_name', 'last_name', 'email', 'password', 'role']
+        fields = ['first_name', 'last_name', 'email', 'password', 'role']  # Retiré username
         extra_kwargs = {
             'password': {'write_only': True},
-            'email': {'required': True},
-            'username': {'required': True}
+            'email': {'required': True}
         }
-
-        
 
     def create(self, validated_data):
         user = CustomUser.objects.create_user(
-            username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password'],
             first_name=validated_data.get('first_name', ''),
             last_name=validated_data.get('last_name', ''),
             role=validated_data.get('role', 'student'),
-
-           
         )
         return user
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
+    email = serializers.EmailField()  # Changé de username à email
     password = serializers.CharField(write_only=True)
 
     def validate(self, data):
-        username = data.get('username')
+        email = data.get('email')  # Changé de username à email
         password = data.get('password')
 
-        if username and password:
-            user = authenticate(username=username, password=password)
+        if email and password:
+            user = authenticate(request=self.context.get('request'),
+                               email=email, password=password)  # Authentification par email
             
             if user:
                 if not user.is_active:
@@ -51,4 +46,4 @@ class LoginSerializer(serializers.Serializer):
             else:
                 raise serializers.ValidationError("Unable to log in with provided credentials.")
         else:
-            raise serializers.ValidationError("Must include 'username' and 'password'.")
+            raise serializers.ValidationError("Must include 'email' and 'password'.")
