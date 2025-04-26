@@ -6,7 +6,8 @@ import TeacherOrStudent from './components/TeacherOrStudent';
 import TeacherDashboard from './components/TeacherDashboard';
 
 
-import ModuleForm from './components/ModuleForm';
+import TeacherModules from './components/TeacherModules';
+import ModuleCreation from './components/ModuleCreation';
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
@@ -24,7 +25,11 @@ function App() {
         {/* Formulaire d’inscription selon le rôle */}
         <Route path="/signup-form" element={<SignUp />} />
 
-        <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
+        <Route path="/teacher/modules" element={<TeacherModules />} />
+        
+        <Route path="/teacher-create-module" element={<ModuleCreation />} />
+
+        {/*<Route path="/teacher/dashboard" element={<TeacherDashboard /> } />*/}
          {/* <Route path="/create-module" element={<ModuleForm />} />*/}
         </Routes>
       </div>

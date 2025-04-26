@@ -182,3 +182,4 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     # Add any custom backends if you're using them
 ]
+LOGIN_REDIRECT_URL = '/after-login/' 

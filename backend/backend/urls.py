@@ -25,6 +25,7 @@ urlpatterns = [
     
 
      path('', views.index, name='index'),  # la landing page
+     path('api/teacher/', include('teacher_space.urls')),
 ]
 
 

@@ -31,16 +31,37 @@ const Login = () => {
       console.log('User role:', role);
   
       // Redirection basée sur le rôle
-      if (role === 'teacher') {
-        navigate('/teacher-dashboard');
-      } else if (role === 'admin') {
-        navigate('/admin-dashboard');
-      } else if (role === 'student') {
-        navigate('/student-dashboard');
-      } else {
-        console.error('Unknown role:', role);
-        navigate('/default-dashboard');
+if (role === 'teacher') {
+  try {
+    // Appel API pour vérifier les modules du teacher
+    const modulesResponse = await axios.get('http://localhost:8000/api/teacher/modules/check/', {
+      headers: {
+        'Authorization': `Bearer ${token}`,  // Utilise le token pour authentifier la requête
       }
+    });
+
+    const hasModules = modulesResponse.data.has_modules; // On suppose que ton API retourne { has_modules: true/false }
+
+    if (hasModules) {
+      navigate('/teacher/modules'); // Interface liste des modules
+    } else {
+      navigate('/teacher-create-module'); // Interface de création de module
+    }
+
+  } catch (modulesError) {
+    console.error('Error checking modules:', modulesError);
+    alert('Error checking modules. Please try again.');
+  }
+
+} else if (role === 'admin') {
+  navigate('/admin-dashboard');
+} else if (role === 'student') {
+  navigate('/student-dashboard');
+} else {
+  console.error('Unknown role:', role);
+  navigate('/default-dashboard');
+}
+
       
     } catch (error) {
       console.error("Login error:", error);
