@@ -45,7 +45,6 @@ const TeacherModules = () => {
     setError(null);
     
     try {
-      // 1. Création du module
       await axios.post(
         'http://localhost:8000/api/teacher/modules/create/', 
         { name: moduleName },
@@ -57,10 +56,7 @@ const TeacherModules = () => {
         }
       );
 
-      // 2. Recharger la liste des modules
       await fetchModules();
-      
-      // 3. Fermer le modal et réinitialiser
       setShowModal(false);
       setModuleName('');
       
@@ -70,6 +66,12 @@ const TeacherModules = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Fonction pour gérer le logout
+  const handleLogout = () => {
+    localStorage.removeItem('token'); // Supprimer le token
+    navigate('/login'); // Rediriger vers la page de connexion
   };
 
   return (
@@ -86,6 +88,12 @@ const TeacherModules = () => {
             disabled={isLoading}
           >
             {isLoading ? '...' : '+'}
+          </button>
+          <button 
+            className="logout-btn"
+            onClick={handleLogout}
+          >
+            Logout
           </button>
         </div>
       </nav>
@@ -114,7 +122,7 @@ const TeacherModules = () => {
               <div 
                 className="module-card" 
                 key={module.id}
-                onClick={() => navigate(`/teacher/modules/${module.id}`)} // Navigation vers le détail
+                onClick={() => navigate(`/teacher/modules/${module.id}`)}
               >
                 <h3>{module.name}</h3>
                 <p>Created: {new Date(module.created_at).toLocaleDateString()}</p>

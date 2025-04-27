@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import './ModuleCreation.css';
 import { useNavigate } from 'react-router-dom';
 
 const ModuleCreation = () => {
   const navigate = useNavigate();
+  const [moduleName, setModuleName] = useState(''); // Ajout d'un état pour le nom
 
   const handleCreateMaterial = async () => {
     const token = localStorage.getItem('token');
@@ -15,10 +16,15 @@ const ModuleCreation = () => {
       return;
     }
 
+    if (!moduleName.trim()) {
+      alert('Please enter a module name.');
+      return;
+    }
+
     try {
       const response = await axios.post(
         'http://localhost:8000/api/teacher/modules/create/',
-        { name: 'New Module' }, // <-- tu peux améliorer pour demander un vrai nom
+        { name: moduleName }, // <-- Utilise ce que l'utilisateur a tapé
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -28,8 +34,6 @@ const ModuleCreation = () => {
       );
       console.log('Module created:', response.data);
       alert('Module created successfully!');
-      
-      // Redirige vers la liste des modules par exemple
       navigate('/teacher/modules');
     } catch (error) {
       console.error('Error creating module:', error);
@@ -47,7 +51,7 @@ const ModuleCreation = () => {
           <button className="add-button" onClick={handleCreateMaterial}>+</button>
         </div>
       </nav>
-      
+
       <div className="content">
         <div className="empty-state">
           <div className="book-icon">
@@ -58,6 +62,16 @@ const ModuleCreation = () => {
           </div>
           <h2>Add a material to get started</h2>
           <p>Create your first material to begin organizing your content</p>
+          
+          {/* Champ pour saisir le nom du module */}
+          <input
+            type="text"
+            placeholder="Enter module name"
+            value={moduleName}
+            onChange={(e) => setModuleName(e.target.value)}
+            className="input-module-name"
+          />
+          
           <button className="create-button" onClick={handleCreateMaterial}>Create material</button>
         </div>
       </div>
