@@ -2,7 +2,7 @@ import LandingPage from './components/LandingPage';
 import Login from './components/Login';
 import SignUp from './components/SignUp';
 import TeacherOrStudent from './components/TeacherOrStudent';
-
+import TeacherModuleDetail from './components/TeacherModuleDetail';
 import TeacherDashboard from './components/TeacherDashboard';
 
 
@@ -28,7 +28,9 @@ function App() {
         <Route path="/teacher/modules" element={<TeacherModules />} />
         
         <Route path="/teacher-create-module" element={<ModuleCreation />} />
+       
 
+        <Route path="/teacher/modules/:id" element={<TeacherModuleDetail />} />
         {/*<Route path="/teacher/dashboard" element={<TeacherDashboard /> } />*/}
          {/* <Route path="/create-module" element={<ModuleForm />} />*/}
         </Routes>
