@@ -3,11 +3,10 @@ import Login from './components/Login';
 import SignUp from './components/SignUp';
 import TeacherOrStudent from './components/TeacherOrStudent';
 import TeacherModuleDetail from './components/TeacherModuleDetail';
-import TeacherDashboard from './components/TeacherDashboard';
-
-
 import TeacherModules from './components/TeacherModules';
 import ModuleCreation from './components/ModuleCreation';
+import TeacherQuizHistory from './components/TeacherQuizHistory';
+import TeacherQuizDetail from './components/TeacherQuizDetail';
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
@@ -31,8 +30,11 @@ function App() {
        
 
         <Route path="/teacher/modules/:id" element={<TeacherModuleDetail />} />
-        {/*<Route path="/teacher/dashboard" element={<TeacherDashboard /> } />*/}
-         {/* <Route path="/create-module" element={<ModuleForm />} />*/}
+        <Route path="/teacher/modules/:id/quizzes" element={<TeacherQuizHistory />} />
+        <Route path="/teacher/modules/:id/quizzes/:quizId" element={<TeacherQuizDetail />} />
+        
+       
+        
         </Routes>
       </div>
     </Router>

@@ -45,12 +45,13 @@
     box-shadow: var(--shadow);
   }
   
-  .logo {
+  .landing-page .navbar .logo {
     font-size: 2.4rem;
-    font-weight: 700;
+    font-weight: 750;
     color: var(--primary);
     margin: 0;
     letter-spacing: -0.5px;
+    margin-left: 20px;
   }
   
   .auth-buttons {
@@ -81,6 +82,7 @@
     background: var(--primary);
     color: white;
     border: 2px solid var(--primary);
+    margin-right: 20px;
   }
   
   .signup-btn:hover {

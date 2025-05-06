@@ -12,7 +12,7 @@ class Module(models.Model):
         return self.name
 
 
-"""
+
 class PDF(models.Model):
     module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name="pdfs")
     titre = models.CharField(max_length=100)
@@ -25,8 +25,11 @@ class Quiz(models.Model):
     titre = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     date_creation = models.DateTimeField(auto_now_add=True)
-
-
+    is_generated = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return self.titre
+    
 class Question(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="questions")
     enonce = models.TextField()
@@ -37,4 +40,7 @@ class Question(models.Model):
 class Choix(models.Model):
     question = models.ForeignKey("Question", on_delete=models.CASCADE, related_name="choix")
     texte = models.CharField(max_length=200)
-"""
+    is_correct = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.texte

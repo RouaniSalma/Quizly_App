@@ -100,7 +100,7 @@ const TeacherModules = () => {
 
       {/* Modules List */}
       <div className="modules-container">
-        <h2 className="modules-title">Your Modules</h2>
+        <h2 className="modules-title">My Modules</h2>
         
         {isLoading && !modules.length ? (
           <p>Loading modules...</p>

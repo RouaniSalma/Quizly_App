@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -182,4 +183,17 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     # Add any custom backends if you're using them
 ]
+
+
+GEMINI_API_KEY = config('GEMINI_API_KEY')
 LOGIN_REDIRECT_URL = '/after-login/' 
+
+# Configuration optionnelle
+GEMINI_CONFIG = {
+    "MODEL_NAME": "gemini-1.5-pro-latest",
+    "RATE_LIMIT_DELAY": 1,  # secondes entre les requêtes
+    "DEFAULT_QUESTION_COUNT": 3,
+    "MAX_RETRIES": 3
+}
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

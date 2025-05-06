@@ -7,40 +7,25 @@ const TeacherModuleDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [module, setModule] = useState(null);
-  const [quizzes, setQuizzes] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(null);
-  const [pdfFiles, setPdfFiles] = useState([]);
-  const [selectedPdf, setSelectedPdf] = useState(null);
+  const [pdfFile, setPdfFile] = useState(null);
+  const [isUploaded, setIsUploaded] = useState(false);
+  const [generatedQuiz, setGeneratedQuiz] = useState(null);
+  const [showQuizModal, setShowQuizModal] = useState(false);
+  const [editedQuestions, setEditedQuestions] = useState([]);
 
-  // Charger les détails du module et les quiz associés
   const fetchModuleData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const [moduleRes, quizzesRes, pdfsRes] = await Promise.all([
-        axios.get(`http://localhost:8000/api/teacher/modules/${id}/`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          }
-        }),
-        axios.get(`http://localhost:8000/api/teacher/modules/${id}/quizzes/`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          }
-        }),
-        axios.get(`http://localhost:8000/api/teacher/modules/${id}/pdfs/`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          }
-        })
-      ]);
-      
-      setModule(moduleRes.data);
-      setQuizzes(quizzesRes.data);
-      setPdfFiles(pdfsRes.data);
+      const response = await axios.get(`http://localhost:8000/api/teacher/modules/${id}/`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+      });
+      setModule(response.data);
+      setPdfFile(null); // Toujours initialiser sans PDF
     } catch (error) {
       console.error('Error fetching module data:', error);
       setError('Failed to load module data');
@@ -48,12 +33,6 @@ const TeacherModuleDetail = () => {
       setIsLoading(false);
     }
   }, [id]);
-
-  useEffect(() => {
-    fetchModuleData();
-  }, [fetchModuleData]);
-
-  // Gestion du drag and drop
   const handleDragOver = (e) => {
     e.preventDefault();
     setIsDragOver(true);
@@ -63,103 +42,77 @@ const TeacherModuleDetail = () => {
     setIsDragOver(false);
   };
 
-  const handleDrop = async (e) => {
+  const handleDrop = (e) => {
     e.preventDefault();
     setIsDragOver(false);
-    
-    const files = Array.from(e.dataTransfer.files).filter(file => 
-      file.type === 'application/pdf'
-    );
-
+    const files = Array.from(e.dataTransfer.files).filter(file => file.type === 'application/pdf');
     if (files.length === 0) {
       setError('Please upload only PDF files');
       return;
     }
-
-    await handleFiles(files);
+    handleFile(files[0]);
   };
 
-  const handleFileSelect = async (e) => {
-    const files = Array.from(e.target.files).filter(file => 
-      file.type === 'application/pdf'
-    );
-
+  const handleFileSelect = (e) => {
+    const files = Array.from(e.target.files).filter(file => file.type === 'application/pdf');
     if (files.length === 0) {
       setError('Please upload only PDF files');
       return;
     }
-
-    await handleFiles(files);
+    handleFile(files[0]);
   };
 
-  // Prévisualisation des fichiers avant upload
-  const handleFiles = (files) => {
-    const newFiles = files.map(file => ({
+  const handleFile = (file) => {
+    setPdfFile({
       file,
-      id: `local-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `local-${Date.now()}`,
       name: file.name,
       url: URL.createObjectURL(file),
-      isNew: true // Pour distinguer les fichiers non encore uploadés
-    }));
-    
-    setPdfFiles(prev => [...prev, ...newFiles]);
-    setSelectedPdf(newFiles[0]);
+      isNew: true
+    });
+    setIsUploaded(false);
+    setError(null);
+    setGeneratedQuiz(null);
   };
 
-  // Supprimer un PDF
-  const deletePdf = async (pdfId) => {
-    if (pdfId.startsWith('local-')) {
-      // Fichier non encore uploadé
-      setPdfFiles(prev => prev.filter(pdf => pdf.id !== pdfId));
-      if (selectedPdf?.id === pdfId) {
-        setSelectedPdf(pdfFiles.length > 1 ? pdfFiles[0] : null);
-      }
-      return;
-    }
-
-    // Fichier déjà uploadé
+  const deletePdf = async () => {
+    if (!pdfFile) return;
+  
     setIsLoading(true);
     try {
-      await axios.delete(
-        `http://localhost:8000/api/teacher/modules/${id}/pdfs/${pdfId}/`,
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          }
-        }
-      );
-      
-      setPdfFiles(prev => prev.filter(pdf => pdf.id !== pdfId));
-      if (selectedPdf?.id === pdfId) {
-        const updatedPdfs = pdfFiles.filter(pdf => pdf.id !== pdfId);
-        setPdfFiles(updatedPdfs);
-        setSelectedPdf(updatedPdfs.length > 0 ? updatedPdfs[0] : null);
-
+      if (!pdfFile.isNew) {
+        await axios.delete(`http://localhost:8000/api/teacher/modules/${id}/pdfs/${pdfFile.id}/`, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        });
       }
+      
+      // Libérer l'URL de l'objet blob
+      if (pdfFile.url && pdfFile.isNew) {
+        URL.revokeObjectURL(pdfFile.url);
+      }
+      
+      setPdfFile(null);
+      setIsUploaded(false);
+      setGeneratedQuiz(null);
       setUploadSuccess('PDF deleted successfully');
       setTimeout(() => setUploadSuccess(null), 3000);
     } catch (error) {
-      console.error('Error deleting PDF:', error);
-      setError('Failed to delete PDF');
+      setError(error.response?.data?.error || 'Failed to delete PDF');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Upload des fichiers PDF
-  const uploadFiles = async () => {
-    const filesToUpload = pdfFiles.filter(pdf => pdf.isNew);
-    if (filesToUpload.length === 0) return;
-
+  const uploadFile = async () => {
+    if (!pdfFile || !pdfFile.isNew) return;
+  
     setIsLoading(true);
     setError(null);
-    
+  
     try {
       const formData = new FormData();
-      filesToUpload.forEach(pdf => {
-        formData.append('files', pdf.file);
-      });
-
+      formData.append('file', pdfFile.file);
+  
       const response = await axios.post(
         `http://localhost:8000/api/teacher/modules/${id}/upload/`,
         formData,
@@ -170,46 +123,36 @@ const TeacherModuleDetail = () => {
           }
         }
       );
-
-      // Mettre à jour la liste des PDFs avec les versions uploadées
-      setPdfFiles(prev => [
-        ...prev.filter(pdf => !pdf.isNew),
-        ...response.data.map(pdf => ({
-          ...pdf,
-          url: `http://localhost:8000${pdf.file}` // URL du serveur
-        }))
-      ]);
+  
+      // Mettre à jour avec le PDF sauvegardé
+      const pdfUrl = `http://localhost:8000${response.data.fichier}`;
+      setPdfFile({
+        id: response.data.id,
+        name: response.data.titre,
+        url: pdfUrl,
+        isNew: false
+      });
       
-      setUploadSuccess(`${filesToUpload.length} PDF(s) uploaded successfully!`);
+      setIsUploaded(true);
+      setUploadSuccess('PDF uploaded successfully!');
       setTimeout(() => setUploadSuccess(null), 3000);
     } catch (error) {
-      console.error('Error uploading files:', error);
-      setError(error.response?.data?.error || 'Failed to upload PDFs');
+      setError(error.response?.data?.error || 'Upload failed');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Générer un quiz
   const generateQuiz = async () => {
-    if (pdfFiles.length === 0) {
-      setError('Please upload at least one PDF file');
-      return;
-    }
-
-    // S'assurer que tous les fichiers sont uploadés
-    if (pdfFiles.some(pdf => pdf.isNew)) {
-      setError('Please upload all PDF files before generating quiz');
-      return;
-    }
-
+    if (!isUploaded) return;
+    
     setIsLoading(true);
     setError(null);
     
     try {
       const response = await axios.post(
-        `http://localhost:8000/api/teacher/modules/${id}/generate-quiz/`,
-        { pdf_ids: pdfFiles.map(pdf => pdf.id) },
+        `http://localhost:8000/api/teacher/modules/${id}/generate_quiz/`, 
+        null,
         {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -217,20 +160,141 @@ const TeacherModuleDetail = () => {
         }
       );
 
-      setQuizzes(prev => [response.data, ...prev]);
-      setUploadSuccess('Quiz generated successfully!');
-      setTimeout(() => setUploadSuccess(null), 3000);
+      setGeneratedQuiz(response.data);
+      setEditedQuestions(response.data.questions);
+      setShowQuizModal(true);
     } catch (error) {
-      console.error('Error generating quiz:', error);
+      console.error("Quiz generation failed:", error);
       setError(error.response?.data?.error || 'Failed to generate quiz');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Navigation
-  const handleBackToModules = () => {
-    navigate('/modules');
+  const handleQuestionChange = (index, field, value) => {
+    const updatedQuestions = [...editedQuestions];
+    updatedQuestions[index] = {
+      ...updatedQuestions[index],
+      [field]: value
+    };
+    setEditedQuestions(updatedQuestions);
+  };
+
+  const handleChoiceChange = (qIndex, cIndex, value) => {
+    const updatedQuestions = [...editedQuestions];
+    updatedQuestions[qIndex].choices[cIndex].text = value;
+    setEditedQuestions(updatedQuestions);
+  };
+
+  const handleCorrectAnswerChange = (qIndex, cIndex) => {
+    const updatedQuestions = [...editedQuestions];
+    updatedQuestions[qIndex].choices.forEach((choice, index) => {
+      choice.is_correct = (index === cIndex);
+    });
+    setEditedQuestions(updatedQuestions);
+  };
+
+  const addQuestion = () => {
+    setEditedQuestions([
+      ...editedQuestions,
+      {
+        text: '',
+        choices: [
+          { text: '', is_correct: false },
+          { text: '', is_correct: false },
+          { text: '', is_correct: false },
+          { text: '', is_correct: false }
+        ]
+      }
+    ]);
+  };
+
+  const removeQuestion = async (index) => {
+    const questionToRemove = editedQuestions[index];
+    
+    try {
+      setIsLoading(true);
+      
+      // Si la question a un ID, elle existe dans le backend
+      if (questionToRemove.id) {
+        await axios.delete(
+          `http://localhost:8000/api/teacher/questions/${questionToRemove.id}/delete/`,
+          {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            }
+          }
+        );
+      }
+      
+      // Mettre à jour le state local après suppression réussie
+      const updatedQuestions = [...editedQuestions];
+      updatedQuestions.splice(index, 1);
+      setEditedQuestions(updatedQuestions);
+      
+    } catch (error) {
+      console.error('Error deleting question:', error);
+      setError(error.response?.data?.error || 'Failed to delete question');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const saveQuiz = async () => {
+    if (!generatedQuiz) return;
+  
+    setIsLoading(true);
+    setError(null);
+  
+    try {
+      const quizData = {
+        title: generatedQuiz.title,
+        description: generatedQuiz.description,
+        questions: editedQuestions.map((q, qIndex) => ({
+          id: q.id || null,
+          text: q.text,
+          choices: q.choices.map((c, cIndex) => ({
+            id: c.id || null,
+            text: c.text,
+            is_correct: q.choices.some(choice => choice.is_correct) 
+              ? c.is_correct 
+              : cIndex === 0 // Par défaut, première option si aucune sélection
+          }))
+        }))
+      };
+  
+      const response = await axios.put(
+        `http://localhost:8000/api/teacher/quizzes/${generatedQuiz.id}/update/`,
+        quizData,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+  
+      // Rafraîchir les données après sauvegarde
+      const updatedQuiz = await axios.get(
+        `http://localhost:8000/api/teacher/quizzes/${generatedQuiz.id}/`,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+  
+      setGeneratedQuiz(updatedQuiz.data);
+      setEditedQuestions(updatedQuiz.data.questions);
+      setShowQuizModal(false);
+      setUploadSuccess('Quiz saved successfully!');
+      setTimeout(() => setUploadSuccess(null), 3000);
+    } catch (error) {
+      console.error('Error saving quiz:', error);
+      setError(error.response?.data?.error || error.message || 'Failed to save quiz');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleLogout = () => {
@@ -238,17 +302,18 @@ const TeacherModuleDetail = () => {
     navigate('/login');
   };
 
-  if (isLoading && !module) {
-    return <div className="loading">Loading module details...</div>;
-  }
+  useEffect(() => {
+    fetchModuleData();
+    return () => {
+      if (pdfFile && pdfFile.url) {
+        URL.revokeObjectURL(pdfFile.url);
+      }
+    };
+  }, [fetchModuleData]);
 
-  if (error) {
-    return <div className="error">{error}</div>;
-  }
-
-  if (!module) {
-    return <div className="error">Module not found</div>;
-  }
+  if (isLoading && !module) return <div className="loading">Loading module details...</div>;
+  if (error) return <div className="error">{error}</div>;
+  if (!module) return <div className="error">Module not found</div>;
 
   return (
     <div className="module-detail-container">
@@ -258,155 +323,213 @@ const TeacherModuleDetail = () => {
         </div>
         <div className="navbar-right">
           <button 
-            className="back-button"
-            onClick={handleBackToModules}
+            className="history-btn"
+            onClick={() => navigate(`/teacher/modules/${id}/quizzes`)}
+          >
+            View Quiz History
+          </button>
+          <button 
+            className="back-button" 
+            onClick={() => navigate('/teacher/modules')}
           >
             Back to Modules
           </button>
-          <button 
-            className="logout-btn"
-            onClick={handleLogout}
-          >
-            Logout
-          </button>
+          <button className="logout-btn" onClick={handleLogout}>Logout</button>
         </div>
       </nav>
 
       <div className="module-content">
         <h1 className="module-title">{module.name}</h1>
-        
+
         <div className="pdf-section">
           <div className="pdf-upload-section">
-            <h2>Upload PDF Files</h2>
-            <div 
-              className={`drop-zone ${isDragOver ? 'drag-over' : ''}`}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              onClick={() => document.getElementById('file-input').click()}
-            >
-              <input 
-                id="file-input"
-                type="file" 
-                multiple 
-                accept="application/pdf" 
-                onChange={handleFileSelect}
-                style={{ display: 'none' }}
-              />
-              <div className="drop-zone-content">
-                <p>Drag & drop your PDF files here or click to select</p>
-                <p className="hint">(Only PDF files are accepted)</p>
+            <h2>Upload PDF File</h2>
+            {!pdfFile && (
+              <div
+                className={`drop-zone ${isDragOver ? 'drag-over' : ''}`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={() => document.getElementById('file-input').click()}
+              >
+                <input
+                  id="file-input"
+                  type="file"
+                  accept="application/pdf"
+                  onChange={handleFileSelect}
+                  style={{ display: 'none' }}
+                />
+                <div className="drop-zone-content">
+                  <p>Drag & drop your PDF file here or click to select</p>
+                  <p className="hint">(Only one PDF file at a time)</p>
+                </div>
               </div>
-            </div>
-
-            {uploadSuccess && (
-              <div className="success-message">{uploadSuccess}</div>
             )}
 
-            {pdfFiles.length > 0 && (
+            {uploadSuccess && <div className="success-message">{uploadSuccess}</div>}
+            {error && <div className="error-message">{error}</div>}
+
+            {pdfFile && (
               <div className="pdf-actions">
-                <button 
-                  className="upload-btn"
-                  onClick={uploadFiles}
-                  disabled={isLoading || !pdfFiles.some(pdf => pdf.isNew)}
-                >
-                  {isLoading ? 'Uploading...' : 'Upload All PDFs'}
-                </button>
-                <button 
-                  className="generate-quiz-btn"
-                  onClick={generateQuiz}
-                  disabled={isLoading || pdfFiles.some(pdf => pdf.isNew)}
-                >
-                  {isLoading ? 'Generating...' : 'Generate Quiz'}
-                </button>
+                {pdfFile.isNew ? (
+                  <button
+                    className="upload-btn"
+                    onClick={uploadFile}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Uploading...' : 'Upload PDF'}
+                  </button>
+                ) : (
+                  <button
+  className="generate-quiz-btn"
+  onClick={generateQuiz}
+  disabled={isLoading || !isUploaded}
+>
+  {isLoading ? 'Generating...' : 'Generate Quiz'}
+</button>
+                )}
               </div>
             )}
           </div>
 
           <div className="pdf-preview-section">
-            {pdfFiles.length > 0 ? (
+            {pdfFile ? (
               <div className="pdf-preview-container">
                 <div className="pdf-list">
-                  <h3>Uploaded Files:</h3>
-                  <ul>
-                    {pdfFiles.map((pdf) => (
-                      <li 
-                        key={pdf.id} 
-                        className={selectedPdf?.id === pdf.id ? 'active' : ''}
-                        onClick={() => setSelectedPdf(pdf)}
-                      >
-                        <span>{pdf.name}</span>
-                        <button 
-                          className="delete-pdf-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deletePdf(pdf.id);
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
+                  <h3>Selected File:</h3>
+                  <div className="pdf-item">
+                    <span className="pdf-name">{pdfFile.name}</span>
+                    <button 
+                      className="delete-btn" 
+                      onClick={deletePdf}
+                      disabled={isLoading}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
-                
                 <div className="pdf-viewer">
-                  {selectedPdf && (
-                    <>
-                      <h3>Preview: {selectedPdf.name}</h3>
-                      <iframe 
-                        src={selectedPdf.url} 
-                        title="PDF Preview"
-                        width="100%" 
-                        height="500px"
-                      />
-                    </>
-                  )}
-                </div>
+  {pdfFile && (
+    <iframe 
+      src={pdfFile.url} 
+      title="PDF Preview" 
+      width="100%" 
+      height="500px"
+      frameBorder="0"
+    ></iframe>
+  )}
+</div>
               </div>
             ) : (
-              <div className="no-pdfs">
-                <p>No PDFs uploaded yet. Add a PDF to get started!</p>
-              </div>
+              <div className="no-pdf">No file selected</div>
             )}
           </div>
         </div>
 
-        <div className="quiz-history-section">
-          <h2>Quiz History</h2>
-
-          {quizzes.length === 0 ? (
-            <div className="empty-quiz-history">
-              <p>No quizzes generated yet for this module. Add a PDF to get started!</p>
-            </div>
-          ) : (
-            <div className="quiz-list">
-              {quizzes.map(quiz => (
-                <div className="quiz-card" key={quiz.id}>
-                  <div className="quiz-info">
-                    <h3>Quiz #{quiz.id}</h3>
-                    <p>Generated on: {new Date(quiz.created_at).toLocaleString()}</p>
-                    <p>Questions: {quiz.question_count || 'N/A'}</p>
-                  </div>
-                  <div className="quiz-actions">
-                    <button 
-                      className="view-quiz-btn"
-                      onClick={() => navigate(`/modules/${id}/quizzes/${quiz.id}`)}
-                    >
-                      View
-                    </button>
-                    <button 
-                      className="retake-quiz-btn"
-                      onClick={() => navigate(`/modules/${id}/quizzes/${quiz.id}/retake`)}
-                    >
-                      Retake
-                    </button>
-                  </div>
+        {/* Quiz Modal */}
+        {showQuizModal && generatedQuiz && (
+          <div className="quiz-modal-overlay">
+            <div className="quiz-modal">
+              <div className="modal-header">
+                <h2>Edit Generated Quiz</h2>
+                <button 
+                  className="close-modal"
+                  onClick={() => setShowQuizModal(false)}
+                >
+                  &times;
+                </button>
+              </div>
+              
+              <div className="modal-body">
+                <div className="quiz-info">
+                  <input
+                    type="text"
+                    value={generatedQuiz.title}
+                    onChange={(e) => setGeneratedQuiz({
+                      ...generatedQuiz,
+                      title: e.target.value
+                    })}
+                    placeholder="Quiz Title"
+                  />
+                  <textarea
+                    value={generatedQuiz.description}
+                    onChange={(e) => setGeneratedQuiz({
+                      ...generatedQuiz,
+                      description: e.target.value
+                    })}
+                    placeholder="Quiz Description"
+                  />
                 </div>
-              ))}
+
+                <div className="questions-container">
+                  {editedQuestions.map((question, qIndex) => (
+                    <div key={qIndex} className="question-card">
+                      <div className="question-header">
+                        <h3>Question {qIndex + 1}</h3>
+                        <button 
+  className="remove-question"
+  onClick={() => removeQuestion(qIndex)}
+  disabled={isLoading}
+>
+  {isLoading ? 'Deleting...' : 'Remove'}
+</button>
+                      </div>
+                      
+                      <textarea
+                        value={question.text}
+                        onChange={(e) => handleQuestionChange(qIndex, 'text', e.target.value)}
+                        placeholder="Enter question text..."
+                      />
+                      
+                      <div className="choices-container">
+                        <h4>Options:</h4>
+                        {question.choices.map((choice, cIndex) => (
+                          <div key={cIndex} className="choice-item">
+                            <input
+                              type="radio"
+                              name={`correct-answer-${qIndex}`}
+                              checked={choice.is_correct}
+                              onChange={() => handleCorrectAnswerChange(qIndex, cIndex)}
+                            />
+                            <input
+                              type="text"
+                              value={choice.text}
+                              onChange={(e) => handleChoiceChange(qIndex, cIndex, e.target.value)}
+                              placeholder={`Option ${cIndex + 1}`}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  
+                  <button 
+                    className="add-question"
+                    onClick={addQuestion}
+                  >
+                    + Add Question
+                  </button>
+                </div>
+              </div>
+              
+              <div className="modal-actions">
+                <button 
+                  className="save-quiz"
+                  onClick={saveQuiz}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Saving...' : 'Save Quiz'}
+                </button>
+                <button 
+                  className="cancel-quiz"
+                  onClick={() => setShowQuizModal(false)}
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
