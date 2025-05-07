@@ -8,4 +8,5 @@ venv/           # <-- Le / final est CRUCIAL pour les dossiers
 env/
 
 # Fichiers spécifiques
-db.sqlite3backend\.env 
+db.sqlite3
+backend/.env
