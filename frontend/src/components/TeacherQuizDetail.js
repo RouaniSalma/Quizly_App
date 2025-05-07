@@ -9,6 +9,12 @@ const TeacherQuizDetail = () => {
   const [quiz, setQuiz] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [shareData, setShareData] = useState(null);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [restrictions, setRestrictions] = useState({
+    expiry_date: '',
+    max_participants: ''
+  });
 
   useEffect(() => {
     const fetchQuiz = async () => {
@@ -35,6 +41,25 @@ const TeacherQuizDetail = () => {
 
   const handleBack = () => {
     navigate(`/teacher/modules/${id}/quizzes`);
+  };
+
+  const handleShareQuiz = async () => {
+    try {
+      const response = await axios.post(
+        `http://localhost:8000/api/teacher/quizzes/${quizId}/share/`,  // Ajoutez le préfixe
+        { restrictions },
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      setShareData(response.data);
+    } catch (error) {
+      console.error('Sharing failed:', error);
+      setError(error.response?.data?.error || 'Failed to share quiz');
+    }
   };
 
   if (isLoading) return <div className="loading">Loading quiz...</div>;
@@ -79,6 +104,97 @@ const TeacherQuizDetail = () => {
             </div>
           ))}
         </div>
+
+        <div className="quiz-actions">
+          <button 
+            className="share-button"
+            onClick={() => setShowShareModal(true)}
+          >
+            Partager le Quiz
+          </button>
+        </div>
+
+        {showShareModal && (
+          <div className="share-modal">
+            <div className="modal-content">
+              <h2>Partager le Quiz</h2>
+              
+              <div className="restrictions-form">
+                <label>
+                  Date d'expiration:
+                  <input
+                    type="datetime-local"
+                    value={restrictions.expiry_date}
+                    onChange={(e) => setRestrictions({
+                      ...restrictions,
+                      expiry_date: e.target.value
+                    })}
+                  />
+                </label>
+                
+                <label>
+                  Nombre max de participants:
+                  <input
+                    type="number"
+                    value={restrictions.max_participants}
+                    onChange={(e) => setRestrictions({
+                      ...restrictions,
+                      max_participants: e.target.value
+                    })}
+                  />
+                </label>
+              </div>
+
+              {shareData && (
+                <div className="share-results">
+                  <div className="qr-code-container">
+                  {shareData.qr_code_url && (
+    <img 
+        src={shareData.qr_code_url} 
+        alt="QR Code"
+        onError={(e) => {
+            console.error("Failed to load QR code image:", e);
+            e.target.style.display = 'none';
+        }}
+    />
+)}
+                  </div>
+                  <div className="share-link">
+                    <p>Lien de partage :</p>
+                    <input
+                      type="text"
+                      value={shareData.share_url}
+                      readOnly
+                    />
+                    <button 
+                      onClick={() => {
+                        navigator.clipboard.writeText(shareData.share_url);
+                        alert('Lien copié !');
+                      }}
+                    >
+                      Copier
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="modal-actions">
+                <button
+                  className="share-confirm"
+                  onClick={handleShareQuiz}
+                >
+                  Générer le lien
+                </button>
+                <button
+                  className="close-modal"
+                  onClick={() => setShowShareModal(false)}
+                >
+                  Fermer
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

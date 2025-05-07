@@ -443,3 +443,108 @@ def delete_question(request, question_id):
         return Response(status=status.HTTP_204_NO_CONTENT)
     except Question.DoesNotExist:
         return Response({'error': 'Question not found or not yours'}, status=status.HTTP_404_NOT_FOUND)
+    
+################## View pour gerer le partage du quiz
+from django.utils import timezone
+import qrcode
+from io import BytesIO
+from django.core.files.base import ContentFile
+from rest_framework.decorators import api_view
+from django.utils import timezone
+from django.core.files.base import ContentFile
+from django.urls import reverse
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from io import BytesIO
+import qrcode
+from .models import Quiz
+import os
+from django.conf import settings 
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def share_quiz(request, quiz_id):
+    try:
+        # Récupération du quiz avec vérification des permissions
+        quiz = Quiz.objects.get(id=quiz_id, module__teacher=request.user)
+        
+        # Traitement des restrictions - modification ici
+        restrictions = request.data.get('restrictions', {})
+        expiry_date = restrictions.get('expiry_date')
+        max_participants = restrictions.get('max_participants')
+        
+        if expiry_date:
+            quiz.expiry_date = expiry_date
+        if max_participants is not None:
+            quiz.max_participants = int(max_participants)
+            quiz.current_participants = 0  # Réinitialisation du compteur
+        
+        # Génération de l'URL de partage
+        share_url = request._request.build_absolute_uri(
+            reverse('quiz_access_view', kwargs={
+                'quiz_id': quiz.id,
+                'token': str(quiz.share_token)
+            })
+        )
+        
+        # Génération du QR Code
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(share_url)
+        qr.make(fit=True)
+        
+        img = qr.make_image(fill_color="black", back_color="white")
+        buffer = BytesIO()
+        img.save(buffer, format="PNG")
+        
+        # Sauvegarde du QR Code (correction de l'indentation ici)
+        filename = f'qr_code_{quiz.id}.png'
+        qr_path = os.path.join(settings.MEDIA_ROOT, 'qr_codes')
+        os.makedirs(qr_path, exist_ok=True)
+
+        quiz.qr_code.save(filename, ContentFile(buffer.getvalue()), save=True)
+        
+        # Mise à jour des métadonnées
+        quiz.last_shared = timezone.now()
+        quiz.access_restricted = bool(expiry_date or max_participants)
+        quiz.save()
+        
+        # Construction de la réponse
+        response_data = {
+            'status': 'success',
+            'share_url': share_url,
+            'qr_code_url': request._request.build_absolute_uri(quiz.qr_code.url),
+            'expiry_date': quiz.expiry_date,
+            'max_participants': quiz.max_participants,
+            'current_participants': quiz.current_participants
+        }
+        
+        return Response(response_data)
+        
+    except Quiz.DoesNotExist:
+        return Response({'error': 'Quiz not found or access denied'}, status=404)
+    except ValueError as e:
+        return Response({'error': f'Invalid data format: {str(e)}'}, status=400)
+    except Exception as e:
+        return Response({'error': f'Server error: {str(e)}'}, status=500)
+    
+
+# Dans views.py
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny  # Nouvel import
+
+@api_view(['GET'])
+@permission_classes([AllowAny])  # Autorise l'accès sans token
+def quiz_access_view(request, quiz_id, token):
+    try:
+        quiz = Quiz.objects.get(id=quiz_id, share_token=token)
+        if not quiz.is_accessible():
+            return Response({'error': 'Quiz no longer available'}, status=403)
+        return Response(QuizSerializer(quiz).data)
+    except Quiz.DoesNotExist:
+        return Response({'error': 'Invalid quiz link'}, status=404)

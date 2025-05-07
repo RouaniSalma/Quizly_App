@@ -19,10 +19,9 @@ urlpatterns = [
     path('quizzes/<int:quiz_id>/', views.get_quiz_detail, name='quiz-detail'),
      # url pour suppression des questions
     path('questions/<int:question_id>/delete/', views.delete_question, name='delete_question'),
-
-    path('api/teacher/quizzes/<int:quiz_id>/delete/', views.delete_quiz, name='delete-quiz'),
-    # PDF endpoints
-    path('api/teacher/modules/<int:module_id>/pdfs/', views.module_pdfs, name='module-pdfs-list'),
-    path('api/teacher/modules/<int:module_id>/has_pdf/', views.check_pdf_uploaded, name='check-pdf'),
+    # url pour partager les quizzes
+    path('quizzes/<int:quiz_id>/share/', views.share_quiz, name='share_quiz'),
+    path('quiz/<int:quiz_id>/access/<uuid:token>/', views.quiz_access_view, name='quiz_access_view'),
+    
    
 ]
