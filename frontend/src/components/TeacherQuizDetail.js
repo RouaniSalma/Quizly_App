@@ -110,18 +110,18 @@ const TeacherQuizDetail = () => {
             className="share-button"
             onClick={() => setShowShareModal(true)}
           >
-            Partager le Quiz
+            Share the quiz
           </button>
         </div>
 
         {showShareModal && (
           <div className="share-modal">
             <div className="modal-content">
-              <h2>Partager le Quiz</h2>
+              <h2>Share</h2>
               
               <div className="restrictions-form">
                 <label>
-                  Date d'expiration:
+                  Expiration date:
                   <input
                     type="datetime-local"
                     value={restrictions.expiry_date}
@@ -133,7 +133,7 @@ const TeacherQuizDetail = () => {
                 </label>
                 
                 <label>
-                  Nombre max de participants:
+                  Number of max participants:
                   <input
                     type="number"
                     value={restrictions.max_participants}
@@ -160,7 +160,7 @@ const TeacherQuizDetail = () => {
 )}
                   </div>
                   <div className="share-link">
-                    <p>Lien de partage :</p>
+                    <p>The link to share</p>
                     <input
                       type="text"
                       value={shareData.share_url}
@@ -169,10 +169,10 @@ const TeacherQuizDetail = () => {
                     <button 
                       onClick={() => {
                         navigator.clipboard.writeText(shareData.share_url);
-                        alert('Lien copié !');
+                        alert('Link copied!');
                       }}
                     >
-                      Copier
+                      Copy
                     </button>
                   </div>
                 </div>
@@ -183,13 +183,13 @@ const TeacherQuizDetail = () => {
                   className="share-confirm"
                   onClick={handleShareQuiz}
                 >
-                  Générer le lien
+                  Generate the link
                 </button>
                 <button
                   className="close-modal"
                   onClick={() => setShowShareModal(false)}
                 >
-                  Fermer
+                  Close
                 </button>
               </div>
             </div>
