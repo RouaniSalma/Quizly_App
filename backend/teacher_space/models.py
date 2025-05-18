@@ -4,13 +4,19 @@ from auth_app.models import CustomUser
 
 # Create your models here.
 class Module(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)  # Version normalisée (minuscules)
+    display_name = models.CharField(max_length=255)  # Version originale
     teacher = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.name
+        return self.display_name
 
+    def save(self, *args, **kwargs):
+        if not self.pk:  # Seulement à la création
+            self.display_name = self.display_name.strip()
+            self.name = self.display_name.lower()
+        super().save(*args, **kwargs)
 
 
 class PDF(models.Model):

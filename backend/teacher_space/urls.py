@@ -5,7 +5,11 @@ urlpatterns = [
     path('after-login/', views.after_login_redirect, name='after_login'),
     path('modules/check/', views.check_teacher_modules, name='check_teacher_modules'),
     path('modules/create/', views.create_module, name='create_module'),
+    path('modules/check-unique/', views.check_module_unique, name='check-module-unique'),
     path('modules/', views.teacher_modules, name='teacher_modules'),
+     # Add these new paths for update and delete functionality
+    path('modules/<int:module_id>/update/', views.update_module, name='update_module'),
+    path('modules/<int:module_id>/delete/', views.delete_module, name='delete_module'),
     path('modules/<int:pk>/', views.module_detail, name='module-detail'),  # Changé 'id' en 'pk'
     path('modules/<int:module_id>/latest_pdf/', views.get_latest_pdf, name='latest-pdf'),
     path('modules/<int:module_id>/upload/', views.upload_pdfs, name='upload-pdfs'),

@@ -28,6 +28,7 @@ urlpatterns = [
 
      path('', views.index, name='index'),  # la landing page
      path('api/teacher/', include('teacher_space.urls')),
+     path('api/student/', include('student_space.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

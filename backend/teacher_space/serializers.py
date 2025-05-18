@@ -2,10 +2,33 @@ from rest_framework import serializers
 from .models import Module, PDF, Quiz, Question, Choix
 
 class ModuleSerializer(serializers.ModelSerializer):
-    teacher = serializers.StringRelatedField()
     class Meta:
         model = Module
-        fields = ['id', 'name', 'teacher', 'created_at']
+        fields = ['id', 'name', 'display_name', 'teacher', 'created_at']
+        extra_kwargs = {
+            'teacher': {'read_only': True},
+            'name': {'write_only': True}  # Hide the lowercase version from API responses
+        }
+
+    def to_representation(self, instance):
+        """Use display_name for all output representations"""
+        return {
+            'id': instance.id,
+            'name': instance.display_name,  # Always show the properly formatted name
+            'teacher': instance.teacher.id,
+            'created_at': instance.created_at
+        }
+
+    def update(self, instance, validated_data):
+        """Handle both name and display_name during updates"""
+        if 'name' in validated_data:
+            # Store the original input in display_name
+            validated_data['display_name'] = validated_data['name']
+            # Store lowercase version in name
+            validated_data['name'] = validated_data['name'].lower()
+        return super().update(instance, validated_data)
+    
+    
 
 class PDFSerializer(serializers.ModelSerializer):
     class Meta:

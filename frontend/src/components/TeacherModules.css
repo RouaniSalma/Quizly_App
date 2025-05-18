@@ -19,11 +19,14 @@
 }
 
 .navbar .navbar-left .logo {
-    color: #7e57c2;
-    font-size: 2rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    margin-left: 20px;
+  font-family: "Times New Roman", Times, serif; 
+  font-size: 24px; /* Ajustez selon la taille de votre navbar */
+  font-weight: 700; 
+  font-style: italic; /* Italique subtile */
+  color: #7e57c2; /* Violet de Quizly */
+  text-transform: uppercase; /* "QUIZLY" en majuscules */
+  letter-spacing: 0.5px; 
+  text-rendering: optimizeLegibility;
 }
 
 .navbar-right .logout-btn {
@@ -309,5 +312,74 @@
     background-color: #7e57c2;
     color: #ffffff;
   }
-  
+ /*added for crud module
+ /* Add these styles to your existing CSS */
+
+.module-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.module-actions {
+  display: flex;
+  gap: 8px; /* Consistent spacing between buttons */
+}
+
+/* Updated button styles */
+.edit-btn {
+  background-color: #9575cd; /* Lighter purple */
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.edit-btn:hover {
+  background-color: #7e57c2; /* Your primary purple */
+}
+
+.delete-btn {
+  background-color: #d32f2f; /* Softer red */
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.delete-btn:hover {
+  background-color: #b71c1c; /* Darker red */
+}
+
+.warning-text {
+  color: #dc3545;
+  font-weight: bold;
+  margin: 0.5rem 0;
+}
+
+.delete-confirm-btn {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
+
+.delete-confirm-btn:hover {
+  background-color: #c82333 !important;
+} 
+/* Add subtle shadow for depth */
+.module-actions button {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Smooth transitions */
+.module-actions button {
+  transition: all 0.2s ease-in-out;
+}
+
     

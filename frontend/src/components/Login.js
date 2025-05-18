@@ -13,7 +13,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:8000/api/auth/login/', {
-        email: email,  // Changé de username à email
+        email: email,
         password,
       }, {
         headers: {
@@ -26,42 +26,58 @@ const Login = () => {
       const token = response.data.access;
       localStorage.setItem('token', token);
       
-      // Utilisez le rôle depuis la réponse API directement
       const role = response.data.user.role;
       console.log('User role:', role);
   
       // Redirection basée sur le rôle
-if (role === 'teacher') {
-  try {
-    // Appel API pour vérifier les modules du teacher
-    const modulesResponse = await axios.get('http://localhost:8000/api/teacher/modules/check/', {
-      headers: {
-        'Authorization': `Bearer ${token}`,  // Utilise le token pour authentifier la requête
+      if (role === 'teacher') {
+        try {
+          const modulesResponse = await axios.get('http://localhost:8000/api/teacher/modules/check/', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            }
+          });
+
+          const hasModules = modulesResponse.data.has_modules;
+
+          if (hasModules) {
+            navigate('/teacher/modules');
+          } else {
+            navigate('/teacher-create-module');
+          }
+
+        } catch (modulesError) {
+          console.error('Error checking modules:', modulesError);
+          alert('Error checking modules. Please try again.');
+        }
+
+      } else if (role === 'admin') {
+        navigate('/admin-dashboard');
+      } else if (role === 'student') {
+        try {
+          // Appel API pour vérifier les catégories de l'étudiant
+          const categoriesResponse = await axios.get('http://localhost:8000/api/student/categories/check/', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            }
+          });
+
+          const hasCategories = categoriesResponse.data.has_modules;
+
+          if (hasCategories) {
+            navigate('/student/categories'); // Liste des catégories
+          } else {
+            navigate('/student-create-category'); // Création de première catégorie
+          }
+
+        } catch (categoriesError) {
+          console.error('Error checking categories:', categoriesError);
+          alert('Error checking your categories. Please try again.');
+        }
+      } else {
+        console.error('Unknown role:', role);
+        navigate('/default-dashboard');
       }
-    });
-
-    const hasModules = modulesResponse.data.has_modules; // On suppose que ton API retourne { has_modules: true/false }
-
-    if (hasModules) {
-      navigate('/teacher/modules'); // Interface liste des modules
-    } else {
-      navigate('/teacher-create-module'); // Interface de création de module
-    }
-
-  } catch (modulesError) {
-    console.error('Error checking modules:', modulesError);
-    alert('Error checking modules. Please try again.');
-  }
-
-} else if (role === 'admin') {
-  navigate('/admin-dashboard');
-} else if (role === 'student') {
-  navigate('/student-dashboard');
-} else {
-  console.error('Unknown role:', role);
-  navigate('/default-dashboard');
-}
-
       
     } catch (error) {
       console.error("Login error:", error);
@@ -74,21 +90,31 @@ if (role === 'teacher') {
       <div className="login-card">
         <Link to="/" className="back-to-home">← Back to home</Link>
         <div className="login-header">
-          <h2>Welcome back to <span className="quizly-logo">Quizly</span></h2>
+          <h2>Welcome back to <span className="quizly-logo">QUIZLY</span></h2>
           <p>Sign in to access your quizzes and learning materials</p>
         </div>
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
             <label htmlFor="email">Email</label>
-            <input type="email" id="email" value={email}
+            <input 
+              type="email" 
+              id="email" 
+              value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email" required />
+              placeholder="Enter your email" 
+              required 
+            />
           </div>
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input type="password" id="password" value={password}
+            <input 
+              type="password" 
+              id="password" 
+              value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password" required />
+              placeholder="Enter your password" 
+              required 
+            />
           </div>
           <div className="form-options">
             <div className="remember-me">

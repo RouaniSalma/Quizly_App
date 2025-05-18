@@ -33,8 +33,14 @@
   }
   
   .quizly-logo {
-    color: #7e57c2;
-    font-weight: 700;
+    font-family: "Times New Roman", Times, serif; 
+  font-size: 30px; /* Ajustez selon la taille de votre navbar */
+  font-weight: 700; /* Épais comme "LE MONDE" */
+  font-style: italic; /* Italique subtile */
+  color: #7e57c2; /* Violet de Quizly */
+  text-transform: uppercase; /* "QUIZLY" en majuscules */
+  letter-spacing: 0.5px; 
+  text-rendering: optimizeLegibility;
   }
   
   .form-group {

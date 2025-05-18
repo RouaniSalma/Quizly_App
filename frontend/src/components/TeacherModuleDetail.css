@@ -443,3 +443,132 @@
   background-color: #e0e0e0;
 }
 
+.upload-info {
+  margin: 10px 0;
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: #6c757d;
+  border-left: 3px solid #ffc107;
+}
+
+.upload-info p {
+  margin: 0;
+}
+
+/* Vous pouvez aussi ajouter ces styles pour améliorer l'apparence */
+.drop-zone-content p.hint {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-top: 5px;
+}
+
+.success-message {
+  color: #28a745;
+  margin: 10px 0;
+  padding: 8px;
+  background-color: #e8f5e9;
+  border-radius: 4px;
+}
+
+.error-message {
+  color: #dc3545;
+  margin: 10px 0;
+  padding: 8px;
+  background-color: #f8d7da;
+  border-radius: 4px;
+}
+/* Ajouts pour la gestion de la taille des fichiers */
+.upload-info {
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.upload-info ul {
+  margin: 5px 0 0 15px;
+  padding: 0;
+}
+
+.upload-info li {
+  margin-bottom: 3px;
+}
+
+.file-info {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.file-name {
+  font-weight: bold;
+}
+
+.file-size {
+  color: #6c757d;
+  font-size: 0.9em;
+}
+
+.error-zone {
+  border-color: #dc3545;
+  background-color: #fff3f3;
+}
+
+/* Améliorations pour la modal */
+.quiz-title-input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 1.1em;
+}
+
+.quiz-description-input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  min-height: 80px;
+}
+
+.question-text-input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  min-height: 60px;
+}
+
+.choice-text-input {
+  width: calc(100% - 30px);
+  padding: 8px;
+  margin-left: 5px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+}
+
+.correct-answer-radio {
+  margin-right: 10px;
+}
+
+/* Améliorations générales */
+.pdf-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.no-pdf {
+  text-align: center;
+  padding: 40px;
+  color: #6c757d;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+}

@@ -45,6 +45,14 @@ from .serializers import ModuleSerializer
 
 
 
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Module
+from .serializers import ModuleSerializer
+import re
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_module(request):
@@ -52,13 +60,24 @@ def create_module(request):
     if user.role != 'teacher':
         return Response({'error': 'Unauthorized access'}, status=403)
 
-    name = request.data.get('name')
-    if not name:
+    original_name = request.data.get('name', '').strip()
+    if not original_name:
         return Response({'error': 'Module name is required'}, status=400)
 
-    module = Module.objects.create(name=name, teacher=user)
-    serializer = ModuleSerializer(module)
-    return Response(serializer.data)  # ➔ renvoyer tout le module !
+    # Vérification d'unicité
+    if Module.objects.filter(name=original_name.lower(), teacher=user).exists():
+        return Response({'error': 'Ce module existe déjà'}, status=409)
+
+    try:
+        module = Module(
+            display_name=original_name,  # Le save() s'occupera de créer le champ name
+            teacher=user
+        )
+        module.save()
+        serializer = ModuleSerializer(module)
+        return Response(serializer.data, status=201)
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)
 
 
 # views.py
@@ -78,8 +97,93 @@ def teacher_modules(request):
     serializer = ModuleSerializer(modules, many=True)
     return Response(serializer.data)  # Renvoyer directement les données sérialisées
 
+################pour verifier l'unicité du module
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def check_module_unique(request):
+    user = request.user
+    if user.role != 'teacher':
+        return Response({'error': 'Unauthorized access'}, status=status.HTTP_403_FORBIDDEN)
 
+    name = request.query_params.get('name', '').strip().lower()
+    name = re.sub(r'\s+', ' ', name)  # Normalisation comme dans la création
+    
+    if not name:
+        return Response(
+            {'error': 'Module name is required'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    exists = Module.objects.filter(name__iexact=name, teacher=user).exists()
+    return Response({'is_unique': not exists})
+############## Adde for crud modules
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Module
+from .serializers import ModuleSerializer
 
+# ... (your existing views)
+
+import logging
+logger = logging.getLogger(__name__)
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_module(request, module_id):
+    logger.info(f"Update request received for module {module_id}")
+    logger.info(f"Request data: {request.data}")
+    logger.info(f"User: {request.user}")
+    
+    try:
+        module = Module.objects.get(id=module_id, teacher=request.user)
+        
+        # Prepare data for serializer
+        data = {
+            'name': request.data.get('name', module.name),
+            'display_name': request.data.get('name', module.display_name)
+        }
+        
+        serializer = ModuleSerializer(module, data=data, partial=True)
+        
+        if serializer.is_valid():
+            serializer.save()
+            logger.info("Module updated successfully")
+            return Response(serializer.data)
+        else:
+            logger.error(f"Validation errors: {serializer.errors}")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+    except Module.DoesNotExist as e:
+        logger.error(f"Module not found: {e}")
+        return Response(
+            {"error": "Module not found or you don't have permission"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return Response(
+            {"error": "An unexpected error occurred"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+    
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_module(request, module_id):
+    try:
+        module = Module.objects.get(id=module_id, teacher=request.user)
+    except Module.DoesNotExist:
+        return Response(
+            {"error": "Module not found or you don't have permission to delete it."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    module.delete()
+    return Response(
+        {"message": "Module deleted successfully."},
+        status=status.HTTP_204_NO_CONTENT
+    )
 ################################## Ajouté
 
 

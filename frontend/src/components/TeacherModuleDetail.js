@@ -17,6 +17,10 @@ const TeacherModuleDetail = () => {
   const [showQuizModal, setShowQuizModal] = useState(false);
   const [editedQuestions, setEditedQuestions] = useState([]);
 
+  // Constantes pour les limites
+  const MAX_FILE_SIZE = 1048576; // 1 Mo en octets
+  const MAX_FILE_SIZE_MO = (MAX_FILE_SIZE / 1048576).toFixed(2);
+
   const fetchModuleData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -25,7 +29,7 @@ const TeacherModuleDetail = () => {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
       });
       setModule(response.data);
-      setPdfFile(null); // Toujours initialiser sans PDF
+      setPdfFile(null);
     } catch (error) {
       console.error('Error fetching module data:', error);
       setError('Failed to load module data');
@@ -33,6 +37,7 @@ const TeacherModuleDetail = () => {
       setIsLoading(false);
     }
   }, [id]);
+
   const handleDragOver = (e) => {
     e.preventDefault();
     setIsDragOver(true);
@@ -42,24 +47,42 @@ const TeacherModuleDetail = () => {
     setIsDragOver(false);
   };
 
+  const validateFile = (file) => {
+    // Vérification du type de fichier
+    if (file.type !== 'application/pdf') {
+      setError('Please upload only PDF files');
+      return false;
+    }
+
+    // Vérification de la taille du fichier
+    if (file.size > MAX_FILE_SIZE) {
+      setError(`File size exceeds the limit of ${MAX_FILE_SIZE_MO} MO (${(file.size / 1048576).toFixed(2)} MB)`);
+      return false;
+    }
+
+    return true;
+  };
+
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragOver(false);
-    const files = Array.from(e.dataTransfer.files).filter(file => file.type === 'application/pdf');
-    if (files.length === 0) {
-      setError('Please upload only PDF files');
-      return;
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length === 0) return;
+
+    const file = files[0];
+    if (validateFile(file)) {
+      handleFile(file);
     }
-    handleFile(files[0]);
   };
 
   const handleFileSelect = (e) => {
-    const files = Array.from(e.target.files).filter(file => file.type === 'application/pdf');
-    if (files.length === 0) {
-      setError('Please upload only PDF files');
-      return;
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    const file = files[0];
+    if (validateFile(file)) {
+      handleFile(file);
     }
-    handleFile(files[0]);
   };
 
   const handleFile = (file) => {
@@ -68,6 +91,7 @@ const TeacherModuleDetail = () => {
       id: `local-${Date.now()}`,
       name: file.name,
       url: URL.createObjectURL(file),
+      size: file.size,
       isNew: true
     });
     setIsUploaded(false);
@@ -86,7 +110,6 @@ const TeacherModuleDetail = () => {
         });
       }
       
-      // Libérer l'URL de l'objet blob
       if (pdfFile.url && pdfFile.isNew) {
         URL.revokeObjectURL(pdfFile.url);
       }
@@ -124,12 +147,12 @@ const TeacherModuleDetail = () => {
         }
       );
   
-      // Mettre à jour avec le PDF sauvegardé
       const pdfUrl = `http://localhost:8000${response.data.fichier}`;
       setPdfFile({
         id: response.data.id,
         name: response.data.titre,
         url: pdfUrl,
+        size: pdfFile.size,
         isNew: false
       });
       
@@ -215,7 +238,6 @@ const TeacherModuleDetail = () => {
     try {
       setIsLoading(true);
       
-      // Si la question a un ID, elle existe dans le backend
       if (questionToRemove.id) {
         await axios.delete(
           `http://localhost:8000/api/teacher/questions/${questionToRemove.id}/delete/`,
@@ -227,7 +249,6 @@ const TeacherModuleDetail = () => {
         );
       }
       
-      // Mettre à jour le state local après suppression réussie
       const updatedQuestions = [...editedQuestions];
       updatedQuestions.splice(index, 1);
       setEditedQuestions(updatedQuestions);
@@ -258,7 +279,7 @@ const TeacherModuleDetail = () => {
             text: c.text,
             is_correct: q.choices.some(choice => choice.is_correct) 
               ? c.is_correct 
-              : cIndex === 0 // Par défaut, première option si aucune sélection
+              : cIndex === 0
           }))
         }))
       };
@@ -274,7 +295,6 @@ const TeacherModuleDetail = () => {
         }
       );
   
-      // Rafraîchir les données après sauvegarde
       const updatedQuiz = await axios.get(
         `http://localhost:8000/api/teacher/quizzes/${generatedQuiz.id}/`,
         {
@@ -311,15 +331,15 @@ const TeacherModuleDetail = () => {
     };
   }, [fetchModuleData]);
 
-  if (isLoading && !module) return <div className="loading">Loading module details...</div>;
+  if (isLoading && !module) return <div className="loading">Loading subject details...</div>;
   if (error) return <div className="error">{error}</div>;
-  if (!module) return <div className="error">Module not found</div>;
+  if (!module) return <div className="error">Subject not found</div>;
 
   return (
     <div className="module-detail-container">
       <nav className="navbar">
         <div className="navbar-left">
-          <span className="logo">Quizly</span>
+          <span className="logo">QUIZLY</span>
         </div>
         <div className="navbar-right">
           <button 
@@ -332,7 +352,7 @@ const TeacherModuleDetail = () => {
             className="back-button" 
             onClick={() => navigate('/teacher/modules')}
           >
-            Back to Modules
+            Back to Subjects
           </button>
           <button className="logout-btn" onClick={handleLogout}>Logout</button>
         </div>
@@ -343,10 +363,19 @@ const TeacherModuleDetail = () => {
 
         <div className="pdf-section">
           <div className="pdf-upload-section">
-            <h2>Upload PDF File</h2>
+            <h2>Upload your PDF file</h2>
+            <div className="upload-info">
+  <p><strong>File Requirements :</strong></p>
+  <ul>
+    <li>Format: PDF only</li>
+    <li>Maximum size: {MAX_FILE_SIZE_MO} Mo</li>
+    <li>Approximately 3000 words or 8 pages of text</li>
+  </ul>
+</div>
+            
             {!pdfFile && (
               <div
-                className={`drop-zone ${isDragOver ? 'drag-over' : ''}`}
+                className={`drop-zone ${isDragOver ? 'drag-over' : ''} ${error ? 'error-zone' : ''}`}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
@@ -371,6 +400,10 @@ const TeacherModuleDetail = () => {
 
             {pdfFile && (
               <div className="pdf-actions">
+                <div className="file-info">
+                  <span className="file-name">{pdfFile.name}</span>
+                  <span className="file-size">({(pdfFile.size / 1048576).toFixed(2)} MB)</span>
+                </div>
                 {pdfFile.isNew ? (
                   <button
                     className="upload-btn"
@@ -381,13 +414,20 @@ const TeacherModuleDetail = () => {
                   </button>
                 ) : (
                   <button
-  className="generate-quiz-btn"
-  onClick={generateQuiz}
-  disabled={isLoading || !isUploaded}
->
-  {isLoading ? 'Generating...' : 'Generate Quiz'}
-</button>
+                    className="generate-quiz-btn"
+                    onClick={generateQuiz}
+                    disabled={isLoading || !isUploaded}
+                  >
+                    {isLoading ? 'Generating...' : 'Generate Quiz'}
+                  </button>
                 )}
+                <button 
+                  className="delete-btn" 
+                  onClick={deletePdf}
+                  disabled={isLoading}
+                >
+                  Delete
+                </button>
               </div>
             )}
           </div>
@@ -395,38 +435,25 @@ const TeacherModuleDetail = () => {
           <div className="pdf-preview-section">
             {pdfFile ? (
               <div className="pdf-preview-container">
-                <div className="pdf-list">
-                  <h3>Selected File:</h3>
-                  <div className="pdf-item">
-                    <span className="pdf-name">{pdfFile.name}</span>
-                    <button 
-                      className="delete-btn" 
-                      onClick={deletePdf}
-                      disabled={isLoading}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
                 <div className="pdf-viewer">
-  {pdfFile && (
-    <iframe 
-      src={pdfFile.url} 
-      title="PDF Preview" 
-      width="100%" 
-      height="500px"
-      frameBorder="0"
-    ></iframe>
-  )}
-</div>
+                  <iframe 
+                    src={pdfFile.url} 
+                    title="PDF Preview" 
+                    width="100%" 
+                    height="500px"
+                    frameBorder="0"
+                  ></iframe>
+                </div>
               </div>
             ) : (
-              <div className="no-pdf">No file selected</div>
+              <div className="no-pdf">
+                <p>No file selected</p>
+                <p>Upload a PDF file to preview it here</p>
+              </div>
             )}
           </div>
         </div>
 
-        {/* Quiz Modal */}
         {showQuizModal && generatedQuiz && (
           <div className="quiz-modal-overlay">
             <div className="quiz-modal">
@@ -450,6 +477,7 @@ const TeacherModuleDetail = () => {
                       title: e.target.value
                     })}
                     placeholder="Quiz Title"
+                    className="quiz-title-input"
                   />
                   <textarea
                     value={generatedQuiz.description}
@@ -458,6 +486,7 @@ const TeacherModuleDetail = () => {
                       description: e.target.value
                     })}
                     placeholder="Quiz Description"
+                    className="quiz-description-input"
                   />
                 </div>
 
@@ -467,18 +496,19 @@ const TeacherModuleDetail = () => {
                       <div className="question-header">
                         <h3>Question {qIndex + 1}</h3>
                         <button 
-  className="remove-question"
-  onClick={() => removeQuestion(qIndex)}
-  disabled={isLoading}
->
-  {isLoading ? 'Deleting...' : 'Remove'}
-</button>
+                          className="remove-question"
+                          onClick={() => removeQuestion(qIndex)}
+                          disabled={isLoading}
+                        >
+                          {isLoading ? 'Deleting...' : 'Remove'}
+                        </button>
                       </div>
                       
                       <textarea
                         value={question.text}
                         onChange={(e) => handleQuestionChange(qIndex, 'text', e.target.value)}
                         placeholder="Enter question text..."
+                        className="question-text-input"
                       />
                       
                       <div className="choices-container">
@@ -490,12 +520,14 @@ const TeacherModuleDetail = () => {
                               name={`correct-answer-${qIndex}`}
                               checked={choice.is_correct}
                               onChange={() => handleCorrectAnswerChange(qIndex, cIndex)}
+                              className="correct-answer-radio"
                             />
                             <input
                               type="text"
                               value={choice.text}
                               onChange={(e) => handleChoiceChange(qIndex, cIndex, e.target.value)}
                               placeholder={`Option ${cIndex + 1}`}
+                              className="choice-text-input"
                             />
                           </div>
                         ))}
