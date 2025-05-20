@@ -62,11 +62,11 @@ def create_module(request):
 
     original_name = request.data.get('name', '').strip()
     if not original_name:
-        return Response({'error': 'Module name is required'}, status=400)
+        return Response({'error': 'Subject name is required'}, status=400)
 
     # Vérification d'unicité
     if Module.objects.filter(name=original_name.lower(), teacher=user).exists():
-        return Response({'error': 'Ce module existe déjà'}, status=409)
+        return Response({'error': 'This subject already exists'}, status=409)
 
     try:
         module = Module(

@@ -18,14 +18,14 @@ const ModuleCreation = () => {
     }
 
     if (!moduleName.trim()) {
-      alert('Please enter a module name.');
+      alert('Please enter a subject name.');
       return;
     }
 
     try {
-      // Vérification de l'unicité avant création
+      // Vérification d'unicité sans modifier le texte saisi (laisser le backend gérer la casse si possible)
       const checkResponse = await axios.get(
-        `http://localhost:8000/api/teacher/modules/check-unique/?name=${encodeURIComponent(moduleName.toLowerCase().trim())}`,
+        `http://localhost:8000/api/teacher/modules/check-unique/?name=${encodeURIComponent(moduleName.trim())}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -34,14 +34,14 @@ const ModuleCreation = () => {
       );
 
       if (!checkResponse.data.is_unique) {
-        setError('A module with this name already exists.');
+        setError('A subject with this name already exists.');
         return;
       }
 
-      // Création du module
+      // Création du module (nom converti en minuscules et nettoyé)
       const response = await axios.post(
         'http://localhost:8000/api/teacher/modules/create/',
-        { name: moduleName.toLowerCase().trim() }, // Stockage en minuscules et sans espaces superflus
+        { name: moduleName.trim() },
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -49,16 +49,16 @@ const ModuleCreation = () => {
           }
         }
       );
-      
-      console.log('Module created:', response.data);
-      alert('Module created successfully!');
+
+      console.log('Subject created:', response.data);
+      alert('Subject created successfully!');
       navigate('/teacher/modules');
     } catch (error) {
       console.error('Error:', error);
       if (error.response && error.response.status === 409) {
-        setError('A module with this name already exists.');
+        setError('A subject with this name already exists.');
       } else {
-        setError('Failed to create module. Please try again.');
+        setError('Failed to create subject. Please try again.');
       }
     }
   };
@@ -91,7 +91,7 @@ const ModuleCreation = () => {
             value={moduleName}
             onChange={(e) => {
               setModuleName(e.target.value);
-              setError(''); // Effacer l'erreur quand l'utilisateur modifie le texte
+              setError('');
             }}
             className="module-input"
           />

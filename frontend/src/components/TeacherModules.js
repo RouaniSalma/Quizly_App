@@ -27,7 +27,7 @@ const TeacherModules = () => {
       setModules(response.data);
     } catch (error) {
       console.error('Error fetching modules:', error);
-      setError('Failed to load modules');
+      setError('Failed to load subjects');
     } finally {
       setIsLoading(false);
     }
@@ -40,7 +40,7 @@ const TeacherModules = () => {
   // Create module function remains the same
   const handleCreateModule = async () => {
     if (!moduleName.trim()) {
-      alert('Module name cannot be empty.');
+      alert('Subject name cannot be empty.');
       return;
     }
 
@@ -64,8 +64,8 @@ const TeacherModules = () => {
       setModuleName('');
       
     } catch (error) {
-      console.error('Error creating module:', error.response?.data || error);
-      setError(error.response?.data?.error || 'Failed to create module');
+      console.error('Error creating subject:', error.response?.data || error);
+      setError(error.response?.data?.error || 'Failed to create subject');
     } finally {
       setIsLoading(false);
     }
@@ -74,7 +74,7 @@ const TeacherModules = () => {
   // New function to handle edit
   const handleEditModule = async () => {
   if (!moduleName.trim()) {
-    alert('Module name cannot be empty.');
+    alert('Subject name cannot be empty.');
     return;
   }
 
@@ -82,7 +82,7 @@ const TeacherModules = () => {
   setError(null);
   
   try {
-    console.log("Sending update request for module:", currentModule.id);
+    console.log("Sending update request for subject:", currentModule.id);
     console.log("New name:", moduleName);
     
     const response = await axios.put(
@@ -106,7 +106,7 @@ const TeacherModules = () => {
   } catch (error) {
     console.error('Full error object:', error);
     console.error('Error response data:', error.response?.data);
-    setError(error.response?.data?.error || 'Failed to update module');
+    setError(error.response?.data?.error || 'Failed to update subject');
   } finally {
     setIsLoading(false);
   }
@@ -132,8 +132,8 @@ const TeacherModules = () => {
       setCurrentModule(null);
       
     } catch (error) {
-      console.error('Error deleting module:', error.response?.data || error);
-      setError(error.response?.data?.error || 'Failed to delete module');
+      console.error('Error deleting subject:', error.response?.data || error);
+      setError(error.response?.data?.error || 'Failed to delete subject');
     } finally {
       setIsLoading(false);
     }

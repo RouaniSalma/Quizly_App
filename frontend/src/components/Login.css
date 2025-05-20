@@ -97,7 +97,7 @@
   .login-button {
     width: 100%;
     padding: 1rem;
-    background-color: #7e57c2;
+    background-color: #7e57c2 !important;
     color: white;
     border: none;
     border-radius: 8px;
@@ -108,7 +108,7 @@
   }
   
   .login-button:hover {
-    background-color: #5e35b1;
+    background-color: #5e35b1 !important;
   }
   
   .signup-link {
