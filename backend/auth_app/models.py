@@ -44,3 +44,14 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         self.token_created_at = timezone.now()
         self.save()
         return self.verification_token
+
+## Password functions
+from datetime import timedelta
+class PasswordResetToken(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    token = models.CharField(max_length=100, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    used = models.BooleanField(default=False)
+
+    def is_valid(self):
+        return not self.used and self.created_at >= timezone.now() - timedelta(hours=24)

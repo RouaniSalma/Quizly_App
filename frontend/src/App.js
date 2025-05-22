@@ -13,6 +13,7 @@ import CategoryCreation from './components/CategoryCreation';
 import StudentCategoryDetail from './components/StudentCategoryDetail';
 import VerifyEmailNotice from './components/VerifyEmailNotice';
 import ResendVerification from './components/ResendVerification';
+import PasswordResetPage from './components/PasswordResetPage';
 function App() {
   return (
     <Router>
@@ -28,6 +29,7 @@ function App() {
         <Route path="/signup-form" element={<SignUp />} />
         <Route path="/verify-email-notice" element={<VerifyEmailNotice />} />
         <Route path="/resend-verification" element={<ResendVerification />} />
+        <Route path="/password-reset" element={<PasswordResetPage />} />
         <Route path="/teacher/modules" element={<TeacherModules />} />
         
         <Route path="/teacher-create-module" element={<ModuleCreation />} />

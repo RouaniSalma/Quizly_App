@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./TeacherOrStudent.css"; 
 
 const TeacherOrStudent = () => {
@@ -6,6 +6,10 @@ const TeacherOrStudent = () => {
 
   return (
     <div className="home-container">
+      <div className="logo-block">
+        <span className="logo-quizly">QUIZLY</span>
+        <span className="slogan-quizly">Quick Quizzes. Real Progress</span>
+      </div>
       <h2>Welcome!</h2>
       <p>Choose your profile:</p>
       <div className="buttons">

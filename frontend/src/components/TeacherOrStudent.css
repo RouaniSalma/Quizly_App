@@ -162,3 +162,46 @@ p {
         font-size: 1.8rem;
     }
 }
+.logo-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.logo-quizly {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    font-style: italic;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+    margin-bottom: 0;
+    margin-top: 0;
+    line-height: 1;
+    position: relative;
+    padding-bottom: 6px;
+}
+
+.logo-quizly::after {
+    content: '';
+    display: block;
+    margin: 0 auto;
+    width: 48px;
+    height: 2px;
+    background: linear-gradient(90deg, #5e35b1, #7e57c2);
+    border-radius: 2px;
+    margin-top: 5px;
+}
+
+.slogan-quizly {
+    font-size: 1rem;
+    color: #5e35b1;
+    font-style: italic;
+    opacity: 0.8;
+    margin-bottom: 10px;
+    margin-top: 2px;
+    display: block;
+    letter-spacing: 0.1px;
+}

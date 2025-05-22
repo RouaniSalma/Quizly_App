@@ -126,3 +126,99 @@ class ResendVerificationView(APIView):
         except CustomUser.DoesNotExist:
             return Response({'error': 'User with this email does not exist'}, 
                           status=status.HTTP_404_NOT_FOUND)
+        
+#### Password functions
+from rest_framework.generics import GenericAPIView
+from .serializers import (
+    PasswordResetRequestSerializer, 
+    PasswordResetConfirmSerializer,
+    PasswordResetSerializer
+)
+import uuid
+from .models import PasswordResetToken  # Ajoutez cette ligne en haut du fichier
+class PasswordResetRequestView(GenericAPIView):
+    serializer_class = PasswordResetRequestSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email']
+
+        try:
+            user = CustomUser.objects.get(email=email)
+            # Créer ou mettre à jour le token
+            token = str(uuid.uuid4())
+            PasswordResetToken.objects.filter(user=user).delete()
+            PasswordResetToken.objects.create(user=user, token=token)
+            
+            # Envoyer l'email
+            reset_url = f"{settings.FRONTEND_URL}/password-reset?token={token}"
+            
+            send_mail(
+                'Password Reset Request',
+                f'Click the following link to reset your password: {reset_url}\n\n'
+                f'This link will expire in 24 hours.',
+                settings.DEFAULT_FROM_EMAIL,
+                [user.email],
+                fail_silently=False,
+            )
+            
+            return Response({'message': 'Password reset link sent to your email'}, 
+                          status=status.HTTP_200_OK)
+            
+        except CustomUser.DoesNotExist:
+            return Response({'message': 'If this email exists, a reset link has been sent'},
+                          status=status.HTTP_200_OK)
+
+from django.shortcuts import redirect
+
+# Dans views.py
+class PasswordResetConfirmView(GenericAPIView):
+    def get(self, request):
+        token = request.GET.get('token')
+        
+        if not token:
+            return Response({'status': 'invalid'}, status=400)
+        
+        try:
+            reset_token = PasswordResetToken.objects.get(token=token)
+            
+            if reset_token.used or reset_token.created_at < timezone.now() - timedelta(hours=24):
+                return Response({'status': 'expired'}, status=400)
+                
+            return Response({'status': 'valid', 'token': token}, status=200)
+            
+        except PasswordResetToken.DoesNotExist:
+            return Response({'status': 'invalid'}, status=400)
+
+class PasswordResetView(GenericAPIView):
+    serializer_class = PasswordResetSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        try:
+            reset_token = PasswordResetToken.objects.get(token=serializer.validated_data['token'])
+            if not reset_token.is_valid():
+                return Response({'error': 'Invalid or expired token'},
+                              status=status.HTTP_400_BAD_REQUEST)
+            
+            user = reset_token.user
+            user.set_password(serializer.validated_data['new_password'])
+            user.save()
+            
+            reset_token.used = True
+            reset_token.save()
+            
+            # Invalider tous les tokens JWT existants
+            user.auth_token_set.all().delete()
+            
+            return Response({'message': 'Password reset successfully'},
+                          status=status.HTTP_200_OK)
+            
+        except PasswordResetToken.DoesNotExist:
+            return Response({'error': 'Invalid token'},
+                          status=status.HTTP_400_BAD_REQUEST)
