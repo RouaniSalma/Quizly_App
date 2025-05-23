@@ -572,3 +572,63 @@
   background-color: #f8f9fa;
   border-radius: 5px;
 }
+/* Error Modal Styles */
+.error-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.error-modal {
+  background-color: white;
+  border-radius: 8px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.error-modal .modal-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-modal .modal-header h3 {
+  margin: 0;
+  color: #dc3545;
+}
+
+.error-modal .modal-body {
+  padding: 20px;
+  text-align: center;
+}
+
+.error-modal .modal-actions {
+  display: flex;
+  justify-content: center;
+  padding: 15px 20px;
+  border-top: 1px solid #eee;
+}
+
+.error-modal .back-button {
+  padding: 8px 20px;
+  background-color: #7e57c2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.error-modal .back-button:hover {
+  background-color: #5e35b1;
+}

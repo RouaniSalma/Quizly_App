@@ -16,6 +16,8 @@ const TeacherModuleDetail = () => {
   const [generatedQuiz, setGeneratedQuiz] = useState(null);
   const [showQuizModal, setShowQuizModal] = useState(false);
   const [editedQuestions, setEditedQuestions] = useState([]);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // Constantes pour les limites
   const MAX_FILE_SIZE = 1048576; // 1 Mo en octets
@@ -48,20 +50,22 @@ const TeacherModuleDetail = () => {
   };
 
   const validateFile = (file) => {
-    // Vérification du type de fichier
-    if (file.type !== 'application/pdf') {
-      setError('Please upload only PDF files');
-      return false;
-    }
+  // Vérification du type de fichier
+  if (file.type !== 'application/pdf') {
+    setErrorMessage('Please upload only PDF files');
+    setShowErrorModal(true);
+    return false;
+  }
 
-    // Vérification de la taille du fichier
-    if (file.size > MAX_FILE_SIZE) {
-      setError(`File size exceeds the limit of ${MAX_FILE_SIZE_MO} MO (${(file.size / 1048576).toFixed(2)} MB)`);
-      return false;
-    }
+  // Vérification de la taille du fichier
+  if (file.size > MAX_FILE_SIZE) {
+    setErrorMessage(`File size exceeds the limit of ${MAX_FILE_SIZE_MO} MB (${(file.size / 1048576).toFixed(2)} MB)`);
+    setShowErrorModal(true);
+    return false;
+  }
 
-    return true;
-  };
+  return true;
+};
 
   const handleDrop = (e) => {
     e.preventDefault();
@@ -371,6 +375,32 @@ const TeacherModuleDetail = () => {
     <li>Maximum size: {MAX_FILE_SIZE_MO} Mo</li>
     <li>Approximately 3000 words or 8 pages of text</li>
   </ul>
+  {showErrorModal && (
+  <div className="error-modal-overlay">
+    <div className="error-modal">
+      <div className="modal-header">
+        <h3>Error</h3>
+        <button 
+          className="close-modal"
+          onClick={() => setShowErrorModal(false)}
+        >
+          &times;
+        </button>
+      </div>
+      <div className="modal-body">
+        <p>{errorMessage}</p>
+      </div>
+      <div className="modal-actions">
+        <button 
+          className="back-button"
+          onClick={() => setShowErrorModal(false)}
+        >
+          Back
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 </div>
             
             {!pdfFile && (
@@ -396,7 +426,7 @@ const TeacherModuleDetail = () => {
             )}
 
             {uploadSuccess && <div className="success-message">{uploadSuccess}</div>}
-            {error && <div className="error-message">{error}</div>}
+            {/* {error && <div className="error-message">{error}</div>} */}
 
             {pdfFile && (
               <div className="pdf-actions">
