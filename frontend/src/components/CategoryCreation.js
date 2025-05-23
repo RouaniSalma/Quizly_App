@@ -5,7 +5,8 @@ import { useNavigate } from 'react-router-dom';
 
 const CategoryCreation = () => {
   const navigate = useNavigate();
-  const [moduleName, setModuleName] = useState(''); // Ajout d'un état pour le nom
+  const [moduleName, setModuleName] = useState('');
+  const [error, setError] = useState('');
 
   const handleCreateMaterial = async () => {
     const token = localStorage.getItem('token');
@@ -17,14 +18,30 @@ const CategoryCreation = () => {
     }
 
     if (!moduleName.trim()) {
-      alert('Please enter a category name.');
+      alert('Please enter a subject name.');
       return;
     }
 
     try {
+      // Vérification d'unicité sans modifier le texte saisi (laisser le backend gérer la casse si possible)
+      const checkResponse = await axios.get(
+        `http://localhost:8000/api/student/categories/check-unique/?name=${encodeURIComponent(moduleName.trim())}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        }
+      );
+
+      if (!checkResponse.data.is_unique) {
+        setError('A subject with this name already exists.');
+        return;
+      }
+
+      // Création du module (nom converti en minuscules et nettoyé)
       const response = await axios.post(
         'http://localhost:8000/api/student/categories/create/',
-        { name: moduleName }, // <-- Utilise ce que l'utilisateur a tapé
+        { name: moduleName.trim() },
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -32,12 +49,17 @@ const CategoryCreation = () => {
           }
         }
       );
-      console.log('Category created:', response.data);
-      alert('Category created successfully!');
-      navigate('/student/categories');
+
+      console.log('Subject created:', response.data);
+      alert('Subject created successfully!');
+      navigate('/teacher/modules');
     } catch (error) {
-      console.error('Error creating category:', error);
-      alert('Failed to create category.');
+      console.error('Error:', error);
+      if (error.response && error.response.status === 409) {
+        setError('A subject with this name already exists.');
+      } else {
+        setError('Failed to create subject. Please try again.');
+      }
     }
   };
 
@@ -60,19 +82,23 @@ const CategoryCreation = () => {
               <div className="book-pages"></div>
             </div>
           </div>
-          <h2>Add a category to get started</h2>
-          <p>Create your first category to begin organizing your content</p>
+          <h2>Add a subject to get started</h2>
+          <p>Create your first subject to begin organizing your content</p>
           
-          {/* Champ pour saisir le nom du module */}
-          <input
+          <input 
             type="text"
-            placeholder="Enter category name"
+            placeholder="Enter subject name"
             value={moduleName}
-            onChange={(e) => setModuleName(e.target.value)}
+            onChange={(e) => {
+              setModuleName(e.target.value);
+              setError('');
+            }}
             className="module-input"
           />
           
-          <button className="create-button" onClick={handleCreateMaterial}>Create material</button>
+          {error && <div className="error-message">{error}</div>}
+          
+          <button className="create-button" onClick={handleCreateMaterial}>Create subject</button>
         </div>
       </div>
     </div>

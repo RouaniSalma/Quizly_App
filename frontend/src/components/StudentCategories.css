@@ -309,5 +309,55 @@
     background-color: #7e57c2;
     color: #ffffff;
   }
-  
+  .category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.category-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-btn {
+  background-color: #9575cd; /* Lighter purple */
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.edit-btn:hover {
+  background-color: #7e57c2; /* Your primary purple */
+}
+
+.delete-btn {
+  background-color: #d32f2f; /* Softer red */
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.delete-btn:hover {
+  background-color: #b71c1c; /* Darker red */
+}
+
+.warning-text {
+  color: #f44336;
+  font-weight: bold;
+}
+
+.delete-confirm-btn {
+  background-color: #f44336;
+  color: white;
+}
     

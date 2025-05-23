@@ -5,11 +5,18 @@ from auth_app.models import CustomUser
 # Create your models here.
 class Module(models.Model):
     name = models.CharField(max_length=100)
+    normalized_name = models.CharField(max_length=100, unique=True)
+  # Champ pour stocker le nom normalisé
     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='student_modules')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
+    
+    def save(self, *args, **kwargs):
+        # Normalise le nom (minuscules et sans espaces superflus)
+        self.normalized_name = self.name.lower().strip().replace(' ', '')
+        super().save(*args, **kwargs)
 
 
 

@@ -16,6 +16,12 @@ const StudentCategoryDetail = () => {
   const [userAnswers, setUserAnswers] = useState([]);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [score, setScore] = useState(null);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  // Constantes pour les limites
+  const MAX_FILE_SIZE = 1048576; // 1 Mo en octets
+  const MAX_FILE_SIZE_MO = (MAX_FILE_SIZE / 1048576).toFixed(2);
 
   const fetchModuleData = useCallback(async () => {
     setIsLoading(true);
@@ -32,6 +38,7 @@ const StudentCategoryDetail = () => {
           id: response.data.pdfs[0].id,
           name: response.data.pdfs[0].titre,
           url: `http://localhost:8000${response.data.pdfs[0].fichier}`,
+          size: response.data.pdfs[0].size,
           isNew: false
         });
       }
@@ -52,24 +59,44 @@ const StudentCategoryDetail = () => {
     setIsDragOver(false);
   };
 
+  const validateFile = (file) => {
+    // Vérification du type de fichier
+    if (file.type !== 'application/pdf') {
+      setErrorMessage('Please upload only PDF files');
+      setShowErrorModal(true);
+      return false;
+    }
+
+    // Vérification de la taille du fichier
+    if (file.size > MAX_FILE_SIZE) {
+      setErrorMessage(`File size exceeds the limit of ${MAX_FILE_SIZE_MO} MB (${(file.size / 1048576).toFixed(2)} MB)`);
+      setShowErrorModal(true);
+      return false;
+    }
+
+    return true;
+  };
+
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragOver(false);
-    const files = Array.from(e.dataTransfer.files).filter(file => file.type === 'application/pdf');
-    if (files.length === 0) {
-      setError('Please upload only PDF files');
-      return;
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length === 0) return;
+
+    const file = files[0];
+    if (validateFile(file)) {
+      handleFile(file);
     }
-    handleFile(files[0]);
   };
 
   const handleFileSelect = (e) => {
-    const files = Array.from(e.target.files).filter(file => file.type === 'application/pdf');
-    if (files.length === 0) {
-      setError('Please upload only PDF files');
-      return;
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    const file = files[0];
+    if (validateFile(file)) {
+      handleFile(file);
     }
-    handleFile(files[0]);
   };
 
   const handleFile = (file) => {
@@ -78,6 +105,7 @@ const StudentCategoryDetail = () => {
       id: `local-${Date.now()}`,
       name: file.name,
       url: URL.createObjectURL(file),
+      size: file.size,
       isNew: true
     });
     setError(null);
@@ -139,6 +167,7 @@ const StudentCategoryDetail = () => {
         id: response.data.id,
         name: response.data.titre,
         url: pdfUrl,
+        size: pdfFile.size,
         isNew: false
       });
     } catch (error) {
@@ -266,10 +295,46 @@ const StudentCategoryDetail = () => {
 
         <div className="pdf-section">
           <div className="pdf-upload-section">
-            <h2>Upload PDF File</h2>
+            <h2>Upload your PDF file</h2>
+            <div className="upload-info">
+              <p><strong>File Requirements :</strong></p>
+              <ul>
+                <li>Format: PDF only</li>
+                <li>Maximum size: {MAX_FILE_SIZE_MO} Mo</li>
+                <li>Approximately 3000 words or 8 pages of text</li>
+              </ul>
+            </div>
+
+            {showErrorModal && (
+              <div className="error-modal-overlay">
+                <div className="error-modal">
+                  <div className="modal-header">
+                    <h3>Error</h3>
+                    <button 
+                      className="close-modal"
+                      onClick={() => setShowErrorModal(false)}
+                    >
+                      &times;
+                    </button>
+                  </div>
+                  <div className="modal-body">
+                    <p>{errorMessage}</p>
+                  </div>
+                  <div className="modal-actions">
+                    <button 
+                      className="back-button"
+                      onClick={() => setShowErrorModal(false)}
+                    >
+                      Back
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {!pdfFile && (
               <div
-                className={`drop-zone ${isDragOver ? 'drag-over' : ''}`}
+                className={`drop-zone ${isDragOver ? 'drag-over' : ''} ${error ? 'error-zone' : ''}`}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
@@ -293,6 +358,10 @@ const StudentCategoryDetail = () => {
 
             {pdfFile && (
               <div className="pdf-actions">
+                <div className="file-info">
+                  <span className="file-name">{pdfFile.name}</span>
+                  <span className="file-size">({(pdfFile.size / 1048576).toFixed(2)} MB)</span>
+                </div>
                 {pdfFile.isNew ? (
                   <button
                     className="upload-btn"
@@ -310,6 +379,13 @@ const StudentCategoryDetail = () => {
                     {isLoading ? 'Generating...' : 'Generate Quiz'}
                   </button>
                 )}
+                <button 
+                  className="delete-btn" 
+                  onClick={deletePdf}
+                  disabled={isLoading}
+                >
+                  Delete
+                </button>
               </div>
             )}
           </div>
@@ -317,19 +393,6 @@ const StudentCategoryDetail = () => {
           <div className="pdf-preview-section">
             {pdfFile ? (
               <div className="pdf-preview-container">
-                <div className="pdf-list">
-                  <h3>Selected File:</h3>
-                  <div className="pdf-item">
-                    <span className="pdf-name">{pdfFile.name}</span>
-                    <button 
-                      className="delete-btn" 
-                      onClick={deletePdf}
-                      disabled={isLoading}
-                    >
-                      {isLoading ? 'Deleting...' : 'Delete'}
-                    </button>
-                  </div>
-                </div>
                 <div className="pdf-viewer">
                   <iframe 
                     src={pdfFile.url} 
@@ -341,7 +404,10 @@ const StudentCategoryDetail = () => {
                 </div>
               </div>
             ) : (
-              <div className="no-pdf">No file selected</div>
+              <div className="no-pdf">
+                <p>No file selected</p>
+                <p>Upload a PDF file to preview it here</p>
+              </div>
             )}
           </div>
         </div>

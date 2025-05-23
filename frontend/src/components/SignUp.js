@@ -37,17 +37,42 @@ const SignUp = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-    setIsSubmitting(true);
-    try {
-      // ...API call logic...
-      navigate('/verify-email-notice', { state: { email: formData.email } });
-    } catch (error) {
-      // ...error handling...
-      setIsSubmitting(false);
+  e.preventDefault();
+  if (!validateForm()) return;
+  setIsSubmitting(true);
+  
+  try {
+    const response = await fetch('http://localhost:8000/api/auth/signup/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role
+      }),
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Signup failed');
     }
-  };
+    
+    navigate('/verify-email-notice', { 
+      state: { email: formData.email } 
+    });
+  } catch (error) {
+    setErrors({
+      submit: error.message || 'An error occurred during signup'
+    });
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <div className="signup-page-bg">

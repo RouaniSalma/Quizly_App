@@ -42,8 +42,6 @@ from .models import Module
 from .serializers import ModuleSerializer
 
 
-
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_category(request):
@@ -55,10 +53,16 @@ def create_category(request):
     if not name:
         return Response({'error': 'Category name is required'}, status=400)
 
+    # Normalise le nom pour vérification
+    normalized_name = name.lower().strip().replace(' ', '')
+    
+    # Vérifie si une catégorie avec ce nom normalisé existe déjà
+    if Module.objects.filter(normalized_name=normalized_name, student=user).exists():
+        return Response({'error': 'A category with this name already exists'}, status=400)
+
     module = Module.objects.create(name=name, student=user)
     serializer = ModuleSerializer(module)
-    return Response(serializer.data)  # ➔ renvoyer tout le module !
-
+    return Response(serializer.data)
 
 # views.py
 from rest_framework.decorators import api_view, permission_classes
@@ -248,3 +252,93 @@ def generate_quiz(request, module_id):
     except Exception as e:
         print(f"Error saving quiz: {e}")
         return Response({'error': str(e)}, status=500)
+################pour verifier l'unicité du module
+from rest_framework import status
+import re
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def check_category_unique(request):
+    user = request.user
+    if user.role != 'student':
+        return Response({'error': 'Unauthorized access'}, status=status.HTTP_403_FORBIDDEN)
+
+    name = request.query_params.get('name', '').strip()
+    if not name:
+        return Response(
+            {'error': 'Module name is required'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    normalized_name = name.lower().strip().replace(' ', '')
+    exists = Module.objects.filter(normalized_name=normalized_name, student=user).exists()
+    return Response({'is_unique': not exists})
+
+########### CRUD Categories
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Module
+from .serializers import ModuleSerializer
+
+# ... (your existing views)
+
+import logging
+logger = logging.getLogger(__name__)
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_category(request, category_id):
+    logger.info(f"Update request received for module {category_id}")
+    logger.info(f"Request data: {request.data}")
+    logger.info(f"User: {request.user}")
+    
+    try:
+        module = Module.objects.get(id=category_id, student=request.user)
+        
+        # Prepare data for serializer
+        data = {
+            'name': request.data.get('name', module.name),
+            'normalized_name': request.data.get('name', module.normalized_name)
+        }
+        
+        serializer = ModuleSerializer(module, data=data, partial=True)
+        
+        if serializer.is_valid():
+            serializer.save()
+            logger.info("Module updated successfully")
+            return Response(serializer.data)
+        else:
+            logger.error(f"Validation errors: {serializer.errors}")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+    except Module.DoesNotExist as e:
+        logger.error(f"Module not found: {e}")
+        return Response(
+            {"error": "Module not found or you don't have permission"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return Response(
+            {"error": "An unexpected error occurred"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+    
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_category(request, category_id):
+    try:
+        module = Module.objects.get(id=category_id, student=request.user)
+    except Module.DoesNotExist:
+        return Response(
+            {"error": "Category not found or you don't have permission to delete it."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    module.delete()
+    return Response(
+        {"message": "Category deleted successfully."},
+        status=status.HTTP_204_NO_CONTENT)
