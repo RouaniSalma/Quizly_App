@@ -62,40 +62,40 @@ const TeacherQuizDetail = () => {
     }
   };
 
-  if (isLoading) return <div className="loading">Loading quiz...</div>;
-  if (error) return <div className="error">{error}</div>;
-  if (!quiz) return <div className="error">Quiz not found</div>;
+  if (isLoading) return <div className="loa-ding">Loading quiz...</div>;
+  if (error) return <div className="err-or">{error}</div>;
+  if (!quiz) return <div className="err-or">Quiz not found</div>;
 
   return (
-    <div className="quiz-detail-container">
-      <nav className="navbar">
-        <div className="navbar-left">
-          <span className="logo">Quizly</span>
+    <div className="qui-z-detail-container">
+      <nav className="nav-bar">
+        <div className="nav-bar-left">
+          <span className="log-o">Quizly</span>
         </div>
-        <div className="navbar-right">
-          <button className="back-button" onClick={handleBack}>
+        <div className="nav-bar-right">
+          <button className="bac-k-button" onClick={handleBack}>
             Back to Quiz History
           </button>
         </div>
       </nav>
 
-      <div className="quiz-detail-content">
+      <div className="qui-z-detail-content">
         <h1>{quiz.titre}</h1>
-        <p className="quiz-description">{quiz.description}</p>
-        <div className="quiz-meta">
+        <p className="qui-z-description">{quiz.description}</p>
+        <div className="qui-z-meta">
           <span>Created: {new Date(quiz.date_creation).toLocaleDateString()}</span>
         </div>
 
-        <div className="questions-section">
+        <div className="que-stions-section">
           <h2>Questions</h2>
           {quiz.questions.map((question, qIndex) => (
-            <div key={question.id} className="question-card">
+            <div key={question.id} className="que-stion-card">
               <h3>Question {qIndex + 1}: {question.enonce}</h3>
-              <ul className="choices-list">
+              <ul className="cho--ices-list">
                 {question.choix.map((choice, cIndex) => (
                   <li 
                     key={choice.id} 
-                    className={choice.is_correct ? 'correct-choice' : ''}
+                    className={choice.is_correct ? 'cor-rect-choice' : ''}
                   >
                     {choice.texte}
                   </li>
@@ -105,9 +105,9 @@ const TeacherQuizDetail = () => {
           ))}
         </div>
 
-        <div className="quiz-actions">
+        <div className="qui-z-actions">
           <button 
-            className="share-button"
+            className="sha-re-button"
             onClick={() => setShowShareModal(true)}
           >
             Share the quiz
@@ -115,15 +115,15 @@ const TeacherQuizDetail = () => {
         </div>
 
         {showShareModal && (
-          <div className="share-modal">
-            <div className="modal-content">
+          <div className="sha-re-modal">
+            <div className="mod-al-content">
               <h2>Share</h2>
               
-              <div className="restrictions-form">
+              <div className="res-trictions-form">
                 <label>
                   Expiration date:
                   <input
-                    type="datetime-local"
+                    type="dat-etime-local"
                     value={restrictions.expiry_date}
                     onChange={(e) => setRestrictions({
                       ...restrictions,
@@ -146,8 +146,8 @@ const TeacherQuizDetail = () => {
               </div>
 
               {shareData && (
-                <div className="share-results">
-                  <div className="qr-code-container">
+                <div className="sha-re-results">
+                  <div className="qr-c-ode-container">
                   {shareData.qr_code_url && (
     <img 
         src={shareData.qr_code_url} 
@@ -159,39 +159,38 @@ const TeacherQuizDetail = () => {
     />
 )}
                   </div>
-                  <div className="share-link">
-                    <p>The link to share</p>
-                    <input
-                      type="text"
-                      value={shareData.share_url}
-                      readOnly
-                    />
-                    <button 
-                      onClick={() => {
-                        navigator.clipboard.writeText(shareData.share_url);
-                        alert('Link copied!');
-                      }}
-                    >
-                      Copy
-                    </button>
-                  </div>
+                  <div className="sha-re-link">
+  <div className="url--copy-container">  {/* Nouveau conteneur flex */}
+    <input
+      type="text"
+      value={shareData.share_url}
+      readOnly
+      className="url--input"
+    />
+    <button 
+      className="cop-y-button"
+      onClick={() => {
+        navigator.clipboard.writeText(shareData.share_url);
+        alert('Link copied!');
+      }}
+    >
+      Copy
+    </button>
+  </div>
+</div>
                 </div>
               )}
 
-              <div className="modal-actions">
-                <button
-                  className="share-confirm"
-                  onClick={handleShareQuiz}
-                >
-                  Generate the link
-                </button>
-                <button
-                  className="close-modal"
-                  onClick={() => setShowShareModal(false)}
-                >
-                  Close
-                </button>
-              </div>
+              <div className="mod-al-actions">
+  <div className="but-ton-group"> {/* Conteneur flex pour les boutons */}
+    <button className="gen-erate-button" onClick={handleShareQuiz}>
+      Generate the link
+    </button>
+    <button className="clo-se-button" onClick={() => setShowShareModal(false)}>
+      Close
+    </button>
+  </div>
+</div>
             </div>
           </div>
         )}

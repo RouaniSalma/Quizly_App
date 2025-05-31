@@ -18,6 +18,7 @@ const TeacherModuleDetail = () => {
   const [editedQuestions, setEditedQuestions] = useState([]);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [fileUploaded, setFileUploaded] = useState(false);
 
   // Constantes pour les limites
   const MAX_FILE_SIZE = 1048576; // 1 Mo en octets
@@ -32,6 +33,7 @@ const TeacherModuleDetail = () => {
       });
       setModule(response.data);
       setPdfFile(null);
+      setFileUploaded(false);
     } catch (error) {
       console.error('Error fetching module data:', error);
       setError('Failed to load module data');
@@ -50,22 +52,20 @@ const TeacherModuleDetail = () => {
   };
 
   const validateFile = (file) => {
-  // Vérification du type de fichier
-  if (file.type !== 'application/pdf') {
-    setErrorMessage('Please upload only PDF files');
-    setShowErrorModal(true);
-    return false;
-  }
+    if (file.type !== 'application/pdf') {
+      setErrorMessage('Please upload only PDF files');
+      setShowErrorModal(true);
+      return false;
+    }
 
-  // Vérification de la taille du fichier
-  if (file.size > MAX_FILE_SIZE) {
-    setErrorMessage(`File size exceeds the limit of ${MAX_FILE_SIZE_MO} MB (${(file.size / 1048576).toFixed(2)} MB)`);
-    setShowErrorModal(true);
-    return false;
-  }
+    if (file.size > MAX_FILE_SIZE) {
+      setErrorMessage(`File size exceeds the limit of ${MAX_FILE_SIZE_MO} MB (${(file.size / 1048576).toFixed(2)} MB)`);
+      setShowErrorModal(true);
+      return false;
+    }
 
-  return true;
-};
+    return true;
+  };
 
   const handleDrop = (e) => {
     e.preventDefault();
@@ -99,6 +99,7 @@ const TeacherModuleDetail = () => {
       isNew: true
     });
     setIsUploaded(false);
+    setFileUploaded(false);
     setError(null);
     setGeneratedQuiz(null);
   };
@@ -120,6 +121,7 @@ const TeacherModuleDetail = () => {
       
       setPdfFile(null);
       setIsUploaded(false);
+      setFileUploaded(false);
       setGeneratedQuiz(null);
       setUploadSuccess('PDF deleted successfully');
       setTimeout(() => setUploadSuccess(null), 3000);
@@ -161,6 +163,7 @@ const TeacherModuleDetail = () => {
       });
       
       setIsUploaded(true);
+      setFileUploaded(true);
       setUploadSuccess('PDF uploaded successfully!');
       setTimeout(() => setUploadSuccess(null), 3000);
     } catch (error) {
@@ -335,77 +338,77 @@ const TeacherModuleDetail = () => {
     };
   }, [fetchModuleData]);
 
-  if (isLoading && !module) return <div className="loading">Loading subject details...</div>;
-  if (error) return <div className="error">{error}</div>;
-  if (!module) return <div className="error">Subject not found</div>;
+  if (isLoading && !module) return <div className="lo-ading">Loading subject details...</div>;
+  if (error) return <div className="er-ror">{error}</div>;
+  if (!module) return <div className="er-ror">Subject not found</div>;
 
   return (
-    <div className="module-detail-container">
-      <nav className="navbar">
-        <div className="navbar-left">
-          <span className="logo">QUIZLY</span>
+    <div className="module-Detail-container">
+      <nav className="Navbar">
+        <div className="Navbar-left">
+          <span className="Logo">QUIZLY</span>
         </div>
-        <div className="navbar-right">
+        <div className="Navbar-right">
           <button 
-            className="history-btn"
+            className="History-btn"
             onClick={() => navigate(`/teacher/modules/${id}/quizzes`)}
           >
             View Quiz History
           </button>
           <button 
-            className="back-button" 
+            className="Back-button" 
             onClick={() => navigate('/teacher/modules')}
           >
             Back to Subjects
           </button>
-          <button className="logout-btn" onClick={handleLogout}>Logout</button>
+          <button className="Logout-btn" onClick={handleLogout}>Logout</button>
         </div>
       </nav>
 
-      <div className="module-content">
-        <h1 className="module-title">{module.name}</h1>
+      <div className="module-Content">
+        <h1 className="module-Title">{module.name}</h1>
 
-        <div className="pdf-section">
-          <div className="pdf-upload-section">
+        <div className="pdf-Section">
+          <div className="pdf-Upload-section">
             <h2>Upload your PDF file</h2>
-            <div className="upload-info">
-  <p><strong>File Requirements :</strong></p>
-  <ul>
-    <li>Format: PDF only</li>
-    <li>Maximum size: {MAX_FILE_SIZE_MO} Mo</li>
-    <li>Approximately 3000 words or 8 pages of text</li>
-  </ul>
-  {showErrorModal && (
-  <div className="error-modal-overlay">
-    <div className="error-modal">
-      <div className="modal-header">
-        <h3>Error</h3>
-        <button 
-          className="close-modal"
-          onClick={() => setShowErrorModal(false)}
-        >
-          &times;
-        </button>
-      </div>
-      <div className="modal-body">
-        <p>{errorMessage}</p>
-      </div>
-      <div className="modal-actions">
-        <button 
-          className="back-button"
-          onClick={() => setShowErrorModal(false)}
-        >
-          Back
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-</div>
+            <div className="Upload-info">
+              <p><strong>File Requirements :</strong></p>
+              <ul>
+                <li>Format: PDF only</li>
+                <li>Maximum size: {MAX_FILE_SIZE_MO} Mo</li>
+                <li>Approximately 3000 words or 8 pages of text</li>
+              </ul>
+              {showErrorModal && (
+                <div className="Error-modal-overlay">
+                  <div className="Error-modal">
+                    <div className="Modal-header">
+                      <h3>Error</h3>
+                      <button 
+                        className="Close-modal"
+                        onClick={() => setShowErrorModal(false)}
+                      >
+                        &times;
+                      </button>
+                    </div>
+                    <div className="Modal-body">
+                      <p>{errorMessage}</p>
+                    </div>
+                    <div className="Modal-actions">
+                      <button 
+                        className="Back-button"
+                        onClick={() => setShowErrorModal(false)}
+                      >
+                        Back
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
             
             {!pdfFile && (
               <div
-                className={`drop-zone ${isDragOver ? 'drag-over' : ''} ${error ? 'error-zone' : ''}`}
+                className={`Drop-zone ${isDragOver ? 'Drag-over' : ''} ${error ? 'Error-zone' : ''}`}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
@@ -418,54 +421,55 @@ const TeacherModuleDetail = () => {
                   onChange={handleFileSelect}
                   style={{ display: 'none' }}
                 />
-                <div className="drop-zone-content">
+                <div className="Drop-zone-content">
                   <p>Drag & drop your PDF file here or click to select</p>
-                  <p className="hint">(Only one PDF file at a time)</p>
+                  <p className="Hint">(Only one PDF file at a time)</p>
                 </div>
               </div>
             )}
 
-            {uploadSuccess && <div className="success-message">{uploadSuccess}</div>}
-            {/* {error && <div className="error-message">{error}</div>} */}
+            {uploadSuccess && <div className="Success-message">{uploadSuccess}</div>}
 
             {pdfFile && (
-              <div className="pdf-actions">
-                <div className="file-info">
-                  <span className="file-name">{pdfFile.name}</span>
-                  <span className="file-size">({(pdfFile.size / 1048576).toFixed(2)} MB)</span>
+              <div className="Pdf-actions">
+                <div className="File-info">
+                  <span className="File-name">{pdfFile.name}</span>
+                  <span className="File-size">({(pdfFile.size / 1048576).toFixed(2)} MB)</span>
                 </div>
-                {pdfFile.isNew ? (
-                  <button
-                    className="upload-btn"
-                    onClick={uploadFile}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? 'Uploading...' : 'Upload PDF'}
-                  </button>
+                {pdfFile.isNew && !fileUploaded ? (
+                  <>
+                    <button
+                      className="Upload-btn"
+                      onClick={uploadFile}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? 'Uploading...' : 'Upload PDF'}
+                    </button>
+                    <button 
+                      className="Delete-btn" 
+                      onClick={deletePdf}
+                      disabled={isLoading}
+                    >
+                      Delete
+                    </button>
+                  </>
                 ) : (
                   <button
-                    className="generate-quiz-btn"
+                    className="Generate-quiz-btn"
                     onClick={generateQuiz}
                     disabled={isLoading || !isUploaded}
                   >
                     {isLoading ? 'Generating...' : 'Generate Quiz'}
                   </button>
                 )}
-                <button 
-                  className="delete-btn" 
-                  onClick={deletePdf}
-                  disabled={isLoading}
-                >
-                  Delete
-                </button>
               </div>
             )}
           </div>
 
-          <div className="pdf-preview-section">
+          <div className="Pdf-preview-section">
             {pdfFile ? (
-              <div className="pdf-preview-container">
-                <div className="pdf-viewer">
+              <div className="Pdf-preview-container">
+                <div className="Pdf-viewer">
                   <iframe 
                     src={pdfFile.url} 
                     title="PDF Preview" 
@@ -476,7 +480,7 @@ const TeacherModuleDetail = () => {
                 </div>
               </div>
             ) : (
-              <div className="no-pdf">
+              <div className="No-pdf">
                 <p>No file selected</p>
                 <p>Upload a PDF file to preview it here</p>
               </div>
@@ -485,20 +489,20 @@ const TeacherModuleDetail = () => {
         </div>
 
         {showQuizModal && generatedQuiz && (
-          <div className="quiz-modal-overlay">
-            <div className="quiz-modal">
-              <div className="modal-header">
+          <div className="Quiz-modal-overlay">
+            <div className="Quiz-modal">
+              <div className="Modal-header">
                 <h2>Edit Generated Quiz</h2>
                 <button 
-                  className="close-modal"
+                  className="Close-modal"
                   onClick={() => setShowQuizModal(false)}
                 >
                   &times;
                 </button>
               </div>
               
-              <div className="modal-body">
-                <div className="quiz-info">
+              <div className="Modal-body">
+                <div className="Quiz-info">
                   <input
                     type="text"
                     value={generatedQuiz.title}
@@ -507,7 +511,7 @@ const TeacherModuleDetail = () => {
                       title: e.target.value
                     })}
                     placeholder="Quiz Title"
-                    className="quiz-title-input"
+                    className="Quiz-title-input"
                   />
                   <textarea
                     value={generatedQuiz.description}
@@ -516,17 +520,17 @@ const TeacherModuleDetail = () => {
                       description: e.target.value
                     })}
                     placeholder="Quiz Description"
-                    className="quiz-description-input"
+                    className="Quiz-description-input"
                   />
                 </div>
 
-                <div className="questions-container">
+                <div className="Questions-container">
                   {editedQuestions.map((question, qIndex) => (
-                    <div key={qIndex} className="question-card">
-                      <div className="question-header">
+                    <div key={qIndex} className="Question-card">
+                      <div className="Question-header">
                         <h3>Question {qIndex + 1}</h3>
                         <button 
-                          className="remove-question"
+                          className="Remove-question"
                           onClick={() => removeQuestion(qIndex)}
                           disabled={isLoading}
                         >
@@ -538,10 +542,10 @@ const TeacherModuleDetail = () => {
                         value={question.text}
                         onChange={(e) => handleQuestionChange(qIndex, 'text', e.target.value)}
                         placeholder="Enter question text..."
-                        className="question-text-input"
+                        className="Question-text-input"
                       />
                       
-                      <div className="choices-container">
+                      <div className="Choices-container">
                         <h4>Options:</h4>
                         {question.choices.map((choice, cIndex) => (
                           <div key={cIndex} className="choice-item">
@@ -550,14 +554,14 @@ const TeacherModuleDetail = () => {
                               name={`correct-answer-${qIndex}`}
                               checked={choice.is_correct}
                               onChange={() => handleCorrectAnswerChange(qIndex, cIndex)}
-                              className="correct-answer-radio"
+                              className="Correct-answer-radio"
                             />
                             <input
                               type="text"
                               value={choice.text}
                               onChange={(e) => handleChoiceChange(qIndex, cIndex, e.target.value)}
                               placeholder={`Option ${cIndex + 1}`}
-                              className="choice-text-input"
+                              className="Choice-text-input"
                             />
                           </div>
                         ))}
@@ -566,7 +570,7 @@ const TeacherModuleDetail = () => {
                   ))}
                   
                   <button 
-                    className="add-question"
+                    className="Add-question"
                     onClick={addQuestion}
                   >
                     + Add Question
@@ -574,16 +578,16 @@ const TeacherModuleDetail = () => {
                 </div>
               </div>
               
-              <div className="modal-actions">
+              <div className="Modal-actions">
                 <button 
-                  className="save-quiz"
+                  className="Save-quiz"
                   onClick={saveQuiz}
                   disabled={isLoading}
                 >
                   {isLoading ? 'Saving...' : 'Save Quiz'}
                 </button>
                 <button 
-                  className="cancel-quiz"
+                  className="Cancel-quiz"
                   onClick={() => setShowQuizModal(false)}
                 >
                   Cancel

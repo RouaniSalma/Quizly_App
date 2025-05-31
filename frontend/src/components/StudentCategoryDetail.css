@@ -1,3 +1,10 @@
+/* Reset partiel - Plus ciblé que le reset complet */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 /* Base Styles */
 .module-detail-container {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -26,77 +33,52 @@
 .navbar-right {
   display: flex;
   gap: 15px;
+  align-items: center;
 }
 
-.module-detail-container .navbar .navbar-right .history-btn, .back-button, .logout-btn {
-  padding: 8px 16px;
-  border: none;
+/* Boutons de la navbar - Style de base */
+.navbar-right button {
+  padding: 0.5rem 1rem;
   border-radius: 4px;
   cursor: pointer;
-  font-weight: 500;
   transition: all 0.3s ease;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-block;
+  border: 1px solid;
 }
 
-.module-detail-container .navbar .navbar-right .history-btn {
+/* Style spécifique pour chaque bouton */
+.navbar-right .back-button {
   background-color: transparent;
-    color: #7e57c2;
-    border: 1px solid #7e57c2;
-    border-radius: 4px;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    transition: all 0.3s;
-    margin-right: 20px;
+  color: #7e57c2;
+  border-color: #7e57c2;
 }
 
-.module-detail-container .navbar .navbar-right .back-button {
+.navbar-right .history-btn {
   background-color: transparent;
-    color: #7e57c2;
-    border: 1px solid #7e57c2;
-    border-radius: 4px;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    transition: all 0.3s;
-    margin-right: 20px;
+  color: #7e57c2;
+  border-color: #7e57c2;
 }
 
-.module-detail-container .navbar .navbar-right .logout-btn {
+.navbar-right .logout-btn {
   background-color: transparent;
-    color: #7e57c2;
-    border: 1px solid #7e57c2;
-    border-radius: 4px;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    transition: all 0.3s;
-    margin-right: 20px;
+  color: #ff6b6b;
+  border-color: #ff6b6b;
 }
 
-.module-detail-container .navbar .navbar-right .history-btn:hover {
+/* États hover */
+.navbar-right .back-button:hover,
+.navbar-right .history-btn:hover {
   background-color: #7e57c2;
-}
-.module-detail-container .navbar .navbar-right .back-button:hover{
-  background-color: #7e57c2;
+  color: white;
 }
 
-.module-detail-container .navbar .navbar-right .logout-btn:hover {
-  background-color: #7e57c2;
-}
-.module-detail-container .navbar .navbar-right .history-btn,
-.module-detail-container .navbar .navbar-right .back-button,
-.module-detail-container .navbar .navbar-right .logout-btn {
-  /* Ajoutez ces propriétés pour tous les états */
-  color: #7e57c2 !important; /* Force la couleur du texte */
+.navbar-right .logout-btn:hover {
+  background-color: #ff6b6b;
+  color: white;
 }
 
-/* Spécifiez aussi pour les états hover et active */
-.module-detail-container .navbar .navbar-right .history-btn:hover,
-.module-detail-container .navbar .navbar-right .back-button:hover,
-.module-detail-container .navbar .navbar-right .logout-btn:hover,
-.module-detail-container .navbar .navbar-right .history-btn:active,
-.module-detail-container .navbar .navbar-right .back-button:active,
-.module-detail-container .navbar .navbar-right .logout-btn:active {
-  color: white !important; /* Change la couleur du texte au survol/clic */
-  background-color: #7e57c2;
-}
 /* Module Content Styles */
 .module-content {
   background-color: white;
@@ -126,6 +108,31 @@
   flex: 2;
 }
 
+/* Upload Info Styles */
+.upload-info {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border-left: 4px solid #7e57c2;
+}
+
+.upload-info p {
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+.upload-info ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.upload-info li {
+  color: #666;
+  margin-bottom: 5px;
+}
+
+/* Drop Zone Styles */
 .drop-zone {
   border: 2px dashed #aaa;
   border-radius: 8px;
@@ -151,13 +158,39 @@
   color: #999;
 }
 
+/* PDF Actions Styles */
 .pdf-actions {
-  display: flex;
-  gap: 10px;
   margin-top: 15px;
 }
 
-.upload-btn, .generate-quiz-btn {
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.file-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.file-size {
+  color: #666;
+  font-size: 14px;
+}
+
+.pdf-buttons-container {
+  display: flex;
+  gap: 10px;
+}
+
+/* Button Styles */
+.upload-btn, 
+.generate-quiz-btn {
   padding: 10px 20px;
   background-color: #b39ddb;
   color: white;
@@ -168,54 +201,53 @@
   transition: background-color 0.3s;
 }
 
-.upload-btn:hover, .generate-quiz-btn:hover {
+.upload-btn:hover, 
+.generate-quiz-btn:hover {
   background-color: #7e57c2;
 }
 
-.upload-btn:disabled, .generate-quiz-btn:disabled {
+.upload-btn:disabled, 
+.generate-quiz-btn:disabled {
   background-color: #aaa;
   cursor: not-allowed;
 }
 
-.pdf-preview-container {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.pdf-list {
-  padding: 15px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #ddd;
-}
-
-.pdf-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.pdf-name {
-  font-weight: 500;
-  color: #333;
-}
-
 .delete-btn {
-  padding: 5px 10px;
+  padding: 10px 20px;
   background-color: #ff6b6b;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s;
 }
 
 .delete-btn:hover {
   background-color: #ff5252;
 }
 
+.delete-btn:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+/* PDF Preview Styles */
+.pdf-preview-container {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
 .pdf-viewer {
   height: 500px;
   background-color: #f5f5f5;
+}
+
+.pdf-viewer iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
 }
 
 .no-pdf {
@@ -255,6 +287,28 @@
   color: #dc3545;
 }
 
+/* Error Modal Styles */
+.error-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.error-modal {
+  background-color: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
 /* Quiz Modal Styles */
 .quiz-modal-overlay {
   position: fixed;
@@ -282,14 +336,20 @@
 .modal-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   padding: 20px;
   border-bottom: 1px solid #eee;
 }
 
 .modal-header h2 {
-  margin: 0;
+  margin: 0 0 10px 0;
   color: #2c3e50;
+}
+
+.modal-header p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
 }
 
 .close-modal {
@@ -298,24 +358,12 @@
   font-size: 24px;
   cursor: pointer;
   color: #666;
+  flex-shrink: 0;
+  margin-left: 20px;
 }
 
 .modal-body {
   padding: 20px;
-}
-
-.quiz-info input, .quiz-info textarea {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-family: inherit;
-}
-
-.quiz-info textarea {
-  min-height: 80px;
-  resize: vertical;
 }
 
 .questions-container {
@@ -330,80 +378,69 @@
   background-color: #fafafa;
 }
 
-.question-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.question-header h3 {
-  margin: 0;
+.question-card h3 {
+  margin: 0 0 15px 0;
   color: #2c3e50;
+  font-size: 18px;
 }
 
-.remove-question {
-  background-color: #ff6b6b;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
+.question-card p {
+  margin: 0 0 20px 0;
+  color: #333;
 }
 
-.remove-question:hover {
-  background-color: #ff5252;
-}
-
-.question-card textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+.choices-container {
   margin-bottom: 15px;
-  min-height: 60px;
-  resize: vertical;
-}
-
-.choices-container h4 {
-  margin-bottom: 10px;
-  color: #555;
 }
 
 .choice-item {
   display: flex;
-  align-items: center;
-  margin-bottom: 8px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
 }
 
-.choice-item input[type="text"] {
-  flex: 1;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  margin-left: 10px;
+.choice-item:hover {
+  background-color: #f0f0f0;
 }
 
 .choice-item input[type="radio"] {
-  margin-right: 5px;
+  margin-right: 10px;
+  margin-top: 2px;
 }
 
-.add-question {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  background-color: #f0f0f0;
-  border: none;
-  border-radius: 4px;
+.choice-item label {
   cursor: pointer;
+  flex: 1;
+  line-height: 1.4;
+}
+
+.choice-item label.correct-answer {
+  color: #28a745;
+  font-weight: 500;
+}
+
+.choice-item label.incorrect-answer {
+  color: #dc3545;
+  font-weight: 500;
+}
+
+.explanation {
   margin-top: 15px;
-  transition: background-color 0.3s;
+  padding: 15px;
+  background-color: #e8f4fd;
+  border-left: 4px solid #17a2b8;
+  border-radius: 4px;
 }
 
-.add-question:hover {
-  background-color: #e0e0e0;
+.explanation p {
+  margin: 0;
+  color: #333;
 }
 
+/* Modal Actions */
 .modal-actions {
   display: flex;
   justify-content: flex-end;
@@ -412,34 +449,84 @@
   border-top: 1px solid #eee;
 }
 
-.save-quiz, .cancel-quiz {
+.submit-quiz {
   padding: 10px 20px;
+  background-color: #7e57c2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.submit-quiz:hover:not(:disabled) {
+  background-color: #6a4db3;
+}
+
+.submit-quiz:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+.incomplete-warning {
+  font-size: 12px;
+  color: #ff6b6b;
+}
+
+.quiz-result {
+  text-align: center;
+}
+
+.quiz-result h3 {
+  margin: 0 0 10px 0;
+  color: #2c3e50;
+  font-size: 24px;
+}
+
+.score-message {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+}
+
+.close-quiz {
+  padding: 10px 20px;
+  background-color: #6c757d;
+  color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-weight: 500;
 }
 
-.save-quiz {
-  background-color: #7e57c2;
-  color: white;
+.close-quiz:hover {
+  background-color: #5a6268;
 }
 
-.save-quiz:hover {
-  background-color: #7e57c2;
+/* Responsive Design */
+@media (max-width: 768px) {
+  .pdf-section {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .navbar-right {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .quiz-modal {
+    width: 95%;
+    margin: 10px;
+  }
+  
+  .modal-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .close-modal {
+    align-self: flex-end;
+    margin: -10px 0 10px 0;
+  }
 }
-
-.save-quiz:disabled {
-  background-color: #aaa;
-  cursor: not-allowed;
-}
-
-.cancel-quiz {
-  background-color: #f0f0f0;
-  color: #333;
-}
-
-.cancel-quiz:hover {
-  background-color: #e0e0e0;
-}
-

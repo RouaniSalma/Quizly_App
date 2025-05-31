@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-import './StudentCategoryDetail.css';
+import './StudentCategorydetail.css';
 
 const StudentCategoryDetail = () => {
   const { id } = useParams();
@@ -178,76 +178,85 @@ const StudentCategoryDetail = () => {
   };
 
   const generateQuiz = async () => {
-    if (!pdfFile) return;
+  if (!pdfFile) return;
 
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await axios.post(
-        `http://localhost:8000/api/student/categories/${id}/generate_quiz/`, 
-        null,
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          }
+  setIsLoading(true);
+  setError(null);
+  try {
+    const response = await axios.post(
+      `http://localhost:8000/api/student/categories/${id}/generate_quiz/`, 
+      null,
+      {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         }
-      );
+      }
+    );
 
-      setGeneratedQuiz(response.data);
-      setUserAnswers(response.data.questions.map(question => ({
-        questionId: question.id,
-        answer: null
-      })));
-      setShowQuizModal(true);
-      setQuizSubmitted(false);
-      setScore(null);
-    } catch (error) {
-      console.error("Quiz generation failed:", error);
-      setError(error.response?.data?.error || 'Failed to generate quiz');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    // Formattez correctement les réponses utilisateur
+    const formattedQuestions = response.data.questions.map(question => ({
+      questionId: question.id,
+      answer: null
+    }));
+
+    setGeneratedQuiz(response.data);
+    setUserAnswers(formattedQuestions);
+    setShowQuizModal(true);
+    setQuizSubmitted(false);
+    setScore(null);
+  } catch (error) {
+    console.error("Quiz generation failed:", error);
+    setError(error.response?.data?.error || 'Failed to generate quiz');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleAnswerSelect = (questionIndex, choiceIndex) => {
-    if (quizSubmitted) return;
+  if (quizSubmitted) return;
 
-    const newAnswers = [...userAnswers];
-    newAnswers[questionIndex].answer = choiceIndex;
-    setUserAnswers(newAnswers);
-  };
+  setUserAnswers(prevAnswers => {
+    const newAnswers = [...prevAnswers];
+    newAnswers[questionIndex] = {
+      ...newAnswers[questionIndex],
+      answer: choiceIndex
+    };
+    return newAnswers;
+  });
+};
 
   const submitQuiz = async () => {
-    if (!generatedQuiz) return;
+  if (!generatedQuiz) return;
 
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await axios.post(
-        `http://localhost:8000/api/student/quizzes/${generatedQuiz.id}/submit/`,
-        {
-          answers: userAnswers.map(answer => ({
-            question_id: answer.questionId,
-            selected_choice_index: answer.answer
-          }))
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+  // Vérifier que toutes les questions ont une réponse
+  const hasUnanswered = userAnswers.some(answer => answer.answer === null);
+  if (hasUnanswered) {
+    setErrorMessage("Please answer all questions before submitting.");
+    setShowErrorModal(true);
+    return;
+  }
 
-      setScore(response.data.score);
-      setQuizSubmitted(true);
-    } catch (error) {
-      console.error('Error submitting quiz:', error);
-      setError(error.response?.data?.error || error.message || 'Failed to submit quiz');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  setIsLoading(true);
+  try {
+    const response = await axios.post(
+      `http://localhost:8000/api/student/quizzes/${generatedQuiz.id}/submit/`,
+      {
+        answers: userAnswers.map(answer => ({
+          question_id: answer.questionId,
+          selected_choice_index: answer.answer // Doit être l'index du choix (0, 1, 2...)
+        }))
+      },
+      { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }
+    );
+
+    setScore(response.data.score);
+    setQuizSubmitted(true);
+  } catch (error) {
+    setError("Failed to submit quiz: " + (error.response?.data?.error || error.message));
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -275,16 +284,16 @@ const StudentCategoryDetail = () => {
         </div>
         <div className="navbar-right">
           <button
-            className="history-btn"
-            onClick={() => navigate(`/student/categories/${id}/quizzes`)}
-          >
-            View Quiz History
-          </button>
-          <button
             className="back-button"
             onClick={() => navigate('/student/categories')}
           >
             Back to Categories
+          </button>
+          <button
+            className="history-btn"
+            onClick={() => navigate(`/student/categories/${id}/quizzes`)}
+          >
+            View Quiz History
           </button>
           <button className="logout-btn" onClick={handleLogout}>Logout</button>
         </div>
@@ -357,37 +366,39 @@ const StudentCategoryDetail = () => {
             {error && <div className="error-message">{error}</div>}
 
             {pdfFile && (
-              <div className="pdf-actions">
-                <div className="file-info">
-                  <span className="file-name">{pdfFile.name}</span>
-                  <span className="file-size">({(pdfFile.size / 1048576).toFixed(2)} MB)</span>
-                </div>
-                {pdfFile.isNew ? (
-                  <button
-                    className="upload-btn"
-                    onClick={uploadFile}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? 'Uploading...' : 'Upload PDF'}
-                  </button>
-                ) : (
-                  <button
-                    className="generate-quiz-btn"
-                    onClick={generateQuiz}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? 'Generating...' : 'Generate Quiz'}
-                  </button>
-                )}
-                <button 
-                  className="delete-btn" 
-                  onClick={deletePdf}
-                  disabled={isLoading}
-                >
-                  Delete
-                </button>
-              </div>
-            )}
+  <div className="pdf-actions">
+    <div className="file-info">
+      <span className="file-name">{pdfFile.name}</span>
+      <span className="file-size">({(pdfFile.size / 1048576).toFixed(2)} MB)</span>
+    </div>
+    <div className="pdf-buttons-container">
+      {pdfFile.isNew ? (
+        <button
+          className="upload-btn"
+          onClick={uploadFile}
+          disabled={isLoading}
+        >
+          {isLoading ? 'Uploading...' : 'Upload PDF'}
+        </button>
+      ) : (
+        <button
+          className="generate-quiz-btn"
+          onClick={generateQuiz}
+          disabled={isLoading}
+        >
+          {isLoading ? 'Generating...' : 'Generate Quiz'}
+        </button>
+      )}
+      <button 
+        className="delete-btn" 
+        onClick={deletePdf}
+        disabled={isLoading}
+      >
+        Delete
+      </button>
+    </div>
+  </div>
+)}
           </div>
 
           <div className="pdf-preview-section">
@@ -414,83 +425,100 @@ const StudentCategoryDetail = () => {
 
         {/* Quiz Modal */}
         {showQuizModal && generatedQuiz && (
-          <div className="quiz-modal-overlay">
-            <div className="quiz-modal">
-              <div className="modal-header">
-                <h2>{generatedQuiz.title}</h2>
-                <p>{generatedQuiz.description}</p>
-                <button 
-                  className="close-modal"
-                  onClick={() => setShowQuizModal(false)}
-                >
-                  &times;
-                </button>
-              </div>
+  <div className="quiz-modal-overlay">
+    <div className="quiz-modal">
+      <div className="modal-header">
+        <h2>{generatedQuiz.title}</h2>
+        <p>{generatedQuiz.description}</p>
+        <button 
+          className="close-modal"
+          onClick={() => setShowQuizModal(false)}
+        >
+          &times;
+        </button>
+      </div>
+      
+      <div className="modal-body">
+        <div className="questions-container">
+          {generatedQuiz.questions.map((question, qIndex) => (
+            <div key={question.id} className="question-card">
+              <h3>Question {qIndex + 1}</h3>
+              <p>{question.text}</p>
               
-              <div className="modal-body">
-                <div className="questions-container">
-                  {generatedQuiz.questions.map((question, qIndex) => (
-                    <div key={qIndex} className="question-card">
-                      <h3>Question {qIndex + 1}</h3>
-                      <p>{question.text}</p>
-                      
-                      <div className="choices-container">
-                        {question.choices.map((choice, cIndex) => (
-                          <div key={cIndex} className="choice-item">
-                            <input
-                              type="radio"
-                              name={`question-${qIndex}`}
-                              id={`question-${qIndex}-choice-${cIndex}`}
-                              checked={userAnswers[qIndex]?.answer === cIndex}
-                              onChange={() => handleAnswerSelect(qIndex, cIndex)}
-                              disabled={quizSubmitted}
-                            />
-                            <label 
-                              htmlFor={`question-${qIndex}-choice-${cIndex}`}
-                              className={
-                                quizSubmitted 
-                                  ? choice.is_correct 
-                                    ? 'correct-answer' 
-                                    : userAnswers[qIndex]?.answer === cIndex
-                                      ? 'incorrect-answer'
-                                      : ''
-                                  : ''
-                              }
-                            >
-                              {choice.text}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
+              <div className="choices-container">
+                {question.choices.map((choice, cIndex) => {
+                  const isSelected = userAnswers[qIndex]?.answer === cIndex;
+                  const isCorrect = choice.is_correct;
+                  const showCorrect = quizSubmitted && isCorrect;
+                  const showIncorrect = quizSubmitted && isSelected && !isCorrect;
+                  
+                  return (
+                    <div key={cIndex} className="choice-item">
+                      <input
+                        type="radio"
+                        name={`question-${qIndex}`}
+                        id={`question-${qIndex}-choice-${cIndex}`}
+                        checked={isSelected}
+                        onChange={() => handleAnswerSelect(qIndex, cIndex)}
+                        disabled={quizSubmitted}
+                      />
+                      <label 
+                        htmlFor={`question-${qIndex}-choice-${cIndex}`}
+                        className={`
+                          ${showCorrect ? 'correct-answer' : ''}
+                          ${showIncorrect ? 'incorrect-answer' : ''}
+                        `}
+                      >
+                        {choice.text}
+                        {showCorrect && <span> ✓</span>}
+                        {showIncorrect && <span> ✗</span>}
+                      </label>
                     </div>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
               
-              <div className="modal-actions">
-                {!quizSubmitted ? (
-                  <button 
-                    className="submit-quiz"
-                    onClick={submitQuiz}
-                    disabled={isLoading || userAnswers.some(a => a.answer === null)}
-                  >
-                    {isLoading ? 'Submitting...' : 'Submit Quiz'}
-                  </button>
-                ) : (
-                  <div className="quiz-result">
-                    <h3>Your Score: {score}/{generatedQuiz.questions.length}</h3>
-                    <button 
-                      className="close-quiz"
-                      onClick={() => setShowQuizModal(false)}
-                    >
-                      Close
-                    </button>
-                  </div>
-                )}
-              </div>
+              {quizSubmitted && (
+                <div className="explanation">
+                  <p><strong>Explanation:</strong> {question.explanation || "No explanation provided."}</p>
+                </div>
+              )}
             </div>
+          ))}
+        </div>
+      </div>
+      
+      <div className="modal-actions">
+        {!quizSubmitted ? (
+          <button 
+            className="submit-quiz"
+            onClick={submitQuiz}
+            disabled={isLoading || userAnswers.some(a => a.answer === null)}
+          >
+            {isLoading ? 'Submitting...' : 'Submit Quiz'}
+            {userAnswers.some(a => a.answer === null) && 
+              <span className="incomplete-warning"> (Please answer all questions)</span>}
+          </button>
+        ) : (
+          <div className="quiz-result">
+            <h3>Your Score: {score}/{generatedQuiz.questions.length}</h3>
+            <p className="score-message">
+              {score === generatedQuiz.questions.length ? "Perfect! 🎉" :
+               score >= generatedQuiz.questions.length * 0.7 ? "Good job! 👍" :
+               "Keep practicing! 💪"}
+            </p>
+            <button 
+              className="close-quiz"
+              onClick={() => setShowQuizModal(false)}
+            >
+              Close
+            </button>
           </div>
         )}
+      </div>
+    </div>
+  </div>
+)}
       </div>
     </div>
   );

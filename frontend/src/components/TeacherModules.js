@@ -169,22 +169,22 @@ const TeacherModules = () => {
   };
 
   return (
-    <div className="teacher-modules">
+    <div className="Teacher-modules">
       {/* Navbar - remains the same */}
-      <nav className="navbar">
-        <div className="navbar-left">
-          <span className="logo">QUIZLY</span>
+      <nav className="Navbar">
+        <div className="Navbar-left">
+          <span className="Logo">QUIZLY</span>
         </div>
-        <div className="navbar-right">
+        <div className="Navbar-right">
           <button 
-            className="add-button-navbar" 
+            className="Add-button-navbar" 
             onClick={() => setShowModal(true)}
             disabled={isLoading}
           >
             {isLoading ? '...' : '+'}
           </button>
           <button 
-            className="logout-btn"
+            className="Logout-btn"
             onClick={handleLogout}
           >
             Logout
@@ -193,42 +193,42 @@ const TeacherModules = () => {
       </nav>
 
       {/* Modules List */}
-      <div className="modules-container">
-        <h2 className="modules-title">My Subjects</h2>
+      <div className="Modules-container">
+        <h2 className="Modules-title">My Subjects</h2>
         
         {isLoading && !modules.length ? (
           <p>Loading subjects...</p>
         ) : error ? (
           <p className="error-message">{error}</p>
         ) : modules.length === 0 ? (
-          <div className="empty-state">
-            <p className="no-modules">No subjects yet.</p>
+          <div className="Empty-state">
+            <p className="No-modules">No subjects yet.</p>
             <button 
-              className="create-first-module"
+              className="Create-first-module"
               onClick={() => setShowModal(true)}
             >
               Create your first subject
             </button>
           </div>
         ) : (
-          <div className="modules-grid">
+          <div className="Modules-grid">
             {modules.map(module => (
               <div 
-                className="module-card" 
+                className="Module-card" 
                 key={module.id}
                 onClick={() => navigate(`/teacher/modules/${module.id}`)}
               >
-                <div className="module-header">
+                <div className="Module-header">
                   <h3>{module.name}</h3>
-                  <div className="module-actions">
+                  <div className="Module-actions">
                     <button 
-                      className="edit-btn"
+                      className="Edit-btn"
                       onClick={(e) => handleModuleActionClick(e, module, 'edit')}
                     >
                       Edit
                     </button>
                     <button 
-                      className="delete-btn"
+                      className="Delete-btn"
                       onClick={(e) => handleModuleActionClick(e, module, 'delete')}
                     >
                       Delete
@@ -244,10 +244,10 @@ const TeacherModules = () => {
 
       {/* Create Modal - remains the same */}
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+        <div className="Modal-overlay">
+          <div className="Modal-content">
             <h3>Create New subject</h3>
-            {error && <p className="modal-error">{error}</p>}
+            {error && <p className="Modal-error">{error}</p>}
             <input
               type="text"
               placeholder="Subject Name"
@@ -255,7 +255,7 @@ const TeacherModules = () => {
               onChange={e => setModuleName(e.target.value)}
               disabled={isLoading}
             />
-            <div className="modal-buttons">
+            <div className="Modal-buttons">
               <button 
                 onClick={handleCreateModule}
                 disabled={isLoading || !moduleName.trim()}
@@ -263,7 +263,7 @@ const TeacherModules = () => {
                 {isLoading ? 'Creating...' : 'Create'}
               </button>
               <button 
-                className="close-btn" 
+                className="Close-btn" 
                 onClick={() => {
                   setShowModal(false);
                   setError(null);
@@ -279,10 +279,10 @@ const TeacherModules = () => {
 
       {/* Edit Modal */}
       {showEditModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+        <div className="Modal-overlay">
+          <div className="Modal-content">
             <h3>Edit Subject</h3>
-            {error && <p className="modal-error">{error}</p>}
+            {error && <p className="Modal-error">{error}</p>}
             <input
               type="text"
               placeholder="Subject Name"
@@ -290,7 +290,7 @@ const TeacherModules = () => {
               onChange={e => setModuleName(e.target.value)}
               disabled={isLoading}
             />
-            <div className="modal-buttons">
+            <div className="Modal-buttons">
               <button 
                 onClick={handleEditModule}
                 disabled={isLoading || !moduleName.trim()}
@@ -298,7 +298,7 @@ const TeacherModules = () => {
                 {isLoading ? 'Updating...' : 'Update'}
               </button>
               <button 
-                className="close-btn" 
+                className="Close-btn" 
                 onClick={() => {
                   setShowEditModal(false);
                   setError(null);
@@ -314,22 +314,22 @@ const TeacherModules = () => {
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+        <div className="Modal-overlay">
+          <div className="Modal-content">
             <h3>Delete Subject</h3>
-            {error && <p className="modal-error">{error}</p>}
+            {error && <p className="Modal-error">{error}</p>}
             <p>Are you sure you want to delete "{currentModule?.name}"?</p>
-            <p className="warning-text">This action cannot be undone.</p>
-            <div className="modal-buttons">
+            <p className="Warning-text">This action cannot be undone.</p>
+            <div className="Modal-buttons">
               <button 
-                className="delete-confirm-btn"
+                className="Delete-confirm-btn"
                 onClick={handleDeleteModule}
                 disabled={isLoading}
               >
                 {isLoading ? 'Deleting...' : 'Delete'}
               </button>
               <button 
-                className="close-btn" 
+                className="Close-btn" 
                 onClick={() => {
                   setShowDeleteModal(false);
                   setError(null);

@@ -25,7 +25,19 @@ urlpatterns = [
     path('questions/<int:question_id>/delete/', views.delete_question, name='delete_question'),
     # url pour partager les quizzes
     path('quizzes/<int:quiz_id>/share/', views.share_quiz, name='share_quiz'),
-    path('quiz/<int:quiz_id>/access/<uuid:token>/', views.quiz_access_view, name='quiz_access_view'),
     
+    path('quiz/<int:quiz_id>/access/<uuid:token>/', views.quiz_access_view, name='quiz_access_view'),
+     # Gestion des restrictions
+     
+    #path('quizzes/<int:quiz_id>/set-restrictions/', views.set_quiz_restrictions, name='set-quiz-restrictions'),
+    #path('quizzes/<int:quiz_id>/share-link/', views.generate_share_link, name='generate-share-link'),
+    
+    # Accès étudiant
+   # path('student/quiz-access/<int:quiz_id>/<uuid:token>/', views.check_quiz_access, name='check-quiz-access'),
+   # path('quizzes/<int:quiz_id>/submit/', views.submit_quiz, name='submit-quiz'),
+    
+    # Tableau de bord
+    #path('quizzes/<int:quiz_id>/statistics/', views.quiz_statistics, name='quiz-statistics'),
+    #path('quizzes/<int:quiz_id>/export/<str:format_type>/', views.export_quiz_results, name='export-quiz-results'),
    
 ]

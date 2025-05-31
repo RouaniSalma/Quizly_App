@@ -652,3 +652,209 @@ def quiz_access_view(request, quiz_id, token):
         return Response(QuizSerializer(quiz).data)
     except Quiz.DoesNotExist:
         return Response({'error': 'Invalid quiz link'}, status=404)
+############# Paaseage du quiz par l'enseignant
+"""
+from .models import QuizRestriction, QuizAccess, QuizAnswer
+import uuid
+from django.db.models import Avg ; # Pour corriger l'erreur "Avg is not defined"
+from django.http import HttpResponse ; # Pour corriger "HttpResponse is not defined"
+import csv  # Pour corriger "csv is not defined"
+from reportlab.pdfgen import canvas ; # Pour corriger "canvas is not defined"
+# Ajoutez ces imports pour ReportLab
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Table,
+    TableStyle,
+    Paragraph,
+    Spacer
+)
+from reportlab.lib.styles import getSampleStyleSheet
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def set_quiz_restrictions(request, quiz_id):  # Nom corrigé
+    try:
+        quiz = Quiz.objects.get(id=quiz_id, module__teacher=request.user)
+    except Quiz.DoesNotExist:
+        return Response({'error': 'Quiz not found or not authorized'}, status=status.HTTP_404_NOT_FOUND)
+    
+    expiry_date = request.data.get('expiry_date')
+    max_participants = request.data.get('max_participants')
+    
+    # Créer ou mettre à jour les restrictions
+    restrictions, created = QuizRestriction.objects.get_or_create(quiz=quiz)
+    
+    if expiry_date:
+        restrictions.expiry_date = expiry_date
+    if max_participants is not None:  # Meilleure vérification pour 0
+        restrictions.max_participants = max_participants
+    
+    restrictions.save()
+    
+    return Response({
+        'status': 'success',
+        'expiry_date': restrictions.expiry_date,
+        'max_participants': restrictions.max_participants,
+        'current_participants': restrictions.current_participants
+    })
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def generate_share_link(request, quiz_id):
+    try:
+        quiz = Quiz.objects.get(id=quiz_id, module__teacher=request.user)
+    except Quiz.DoesNotExist:
+        return Response({'error': 'Quiz not found or not authorized'}, status=404)
+    
+    # Générer un token unique s'il n'existe pas déjà
+    if not quiz.share_token:
+        quiz.share_token = uuid.uuid4()
+        quiz.save()
+    
+    share_link = request.build_absolute_uri(
+        f'/student/quiz-access/{quiz.id}/{quiz.share_token}/'
+    )
+    
+    return Response({
+        'share_link': share_link,
+        'qr_code_url': quiz.qr_code.url if quiz.qr_code else None
+    })
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def quiz_statistics(request, quiz_id):
+    try:
+        quiz = Quiz.objects.get(id=quiz_id, module__teacher=request.user)
+    except Quiz.DoesNotExist:
+        return Response({'error': 'Quiz not found or not authorized'}, status=404)
+    
+    # Données de base
+    total_students = QuizAccess.objects.filter(quiz=quiz).count()
+    completed_students = QuizAccess.objects.filter(quiz=quiz, completed=True).count()
+    avg_score = QuizAccess.objects.filter(quiz=quiz, completed=True).aggregate(
+        Avg('score')
+    )['score__avg'] or 0
+    
+    # Répartition des scores
+    score_distribution = {
+        '0-20': QuizAccess.objects.filter(quiz=quiz, score__lte=20).count(),
+        '21-40': QuizAccess.objects.filter(quiz=quiz, score__gt=20, score__lte=40).count(),
+        '41-60': QuizAccess.objects.filter(quiz=quiz, score__gt=40, score__lte=60).count(),
+        '61-80': QuizAccess.objects.filter(quiz=quiz, score__gt=60, score__lte=80).count(),
+        '81-100': QuizAccess.objects.filter(quiz=quiz, score__gt=80).count(),
+    }
+    
+    # Difficulté des questions
+    question_stats = []
+    for question in quiz.questions.all():
+        total_answers = QuizAnswer.objects.filter(
+            question=question,
+            access__quiz=quiz
+        ).count()
+        
+        correct_answers = QuizAnswer.objects.filter(
+            question=question,
+            access__quiz=quiz,
+            is_correct=True
+        ).count()
+        
+        question_stats.append({
+            'question_id': question.id,
+            'question_text': question.enonce,
+            'correct_rate': (correct_answers / total_answers * 100) if total_answers > 0 else 0,
+            'total_answers': total_answers
+        })
+    
+    return Response({
+        'quiz_title': quiz.titre,
+        'total_students': total_students,
+        'completed_students': completed_students,
+        'average_score': round(avg_score, 2),
+        'score_distribution': score_distribution,
+        'question_stats': question_stats
+    })
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def export_quiz_results(request, quiz_id, format_type):
+    try:
+        quiz = Quiz.objects.get(id=quiz_id, module__teacher=request.user)
+    except Quiz.DoesNotExist:
+        return Response({'error': 'Quiz not found or not authorized'}, status=status.HTTP_404_NOT_FOUND)
+    
+    results = QuizAccess.objects.filter(quiz=quiz, completed=True).select_related('student')
+    
+    if format_type == 'csv':
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="quiz_{quiz_id}_results.csv"'
+        
+        writer = csv.writer(response)
+        writer.writerow(['Student', 'Email', 'Score', 'Completion Date'])
+        
+        for result in results:
+            writer.writerow([
+                result.student.get_full_name(),
+                result.student.email,
+                result.score,
+                result.access_time.strftime('%Y-%m-%d %H:%M')
+            ])
+        
+        return response
+    
+    elif format_type == 'pdf':
+        try:
+            buffer = BytesIO()
+            doc = SimpleDocTemplate(buffer, pagesize=letter)
+            
+            # Styles
+            styles = getSampleStyleSheet()
+            
+            # Données pour le PDF
+            data = [['Student', 'Email', 'Score (%)', 'Completion Date']]
+            
+            for result in results:
+                data.append([
+                    result.student.get_full_name(),
+                    result.student.email,
+                    f"{result.score:.2f}",
+                    result.access_time.strftime('%Y-%m-%d %H:%M')
+                ])
+            
+            # Création du tableau
+            table = Table(data)
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 12),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black)
+            ]))
+            
+            # Construction du PDF
+            elements = []
+            elements.append(Paragraph(f"Results for Quiz: {quiz.titre}", styles['Title']))
+            elements.append(Spacer(1, 12))
+            elements.append(table)
+            
+            # Statistiques
+            avg_score = results.aggregate(Avg('score'))['score__avg'] or 0
+            stats_text = f"Total participants: {results.count()} | Average score: {avg_score:.2f}%"
+            elements.append(Paragraph(stats_text, styles['BodyText']))
+            
+            doc.build(elements)
+            buffer.seek(0)
+            
+            response = HttpResponse(buffer, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="quiz_{quiz_id}_results.pdf"'
+            return response
+            
+        except ImportError:
+            return Response({'error': 'PDF export requires reportlab package'}, 
+                          status=status.HTTP_501_NOT_IMPLEMENTED)
+    
+    return Response({'error': 'Invalid format. Use csv or pdf'}, 
+                  status=status.HTTP_400_BAD_REQUEST)
+"""

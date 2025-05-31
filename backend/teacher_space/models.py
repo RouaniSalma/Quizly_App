@@ -107,3 +107,27 @@ class Choix(models.Model):
 
     def __str__(self):
         return self.texte
+########## Ajouté pour que l'etudiant passe le quiz
+"""
+class QuizRestriction(models.Model):
+    quiz = models.OneToOneField(Quiz, on_delete=models.CASCADE, related_name='restrictions')
+    expiry_date = models.DateTimeField(null=True, blank=True)
+    max_participants = models.PositiveIntegerField(null=True, blank=True)
+    current_participants = models.PositiveIntegerField(default=0)
+    
+class QuizAccess(models.Model):
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    access_time = models.DateTimeField(auto_now_add=True)
+    completed = models.BooleanField(default=False)
+    score = models.FloatField(null=True, blank=True)
+    
+    class Meta:
+        unique_together = ('quiz', 'student')
+class QuizAnswer(models.Model):
+    access = models.ForeignKey('QuizAccess', on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    selected_choice = models.ForeignKey(Choix, on_delete=models.CASCADE)
+    is_correct = models.BooleanField(default=False)
+    answered_at = models.DateTimeField(auto_now_add=True)
+"""

@@ -5,16 +5,23 @@ from auth_app.models import CustomUser
 # Create your models here.
 class Module(models.Model):
     name = models.CharField(max_length=100)
-    normalized_name = models.CharField(max_length=100, unique=True)
-  # Champ pour stocker le nom normalisé
+    normalized_name = models.CharField(max_length=100)  # Retirez unique=True
     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='student_modules')
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # Ajoutez cette contrainte pour rendre unique la combinaison normalized_name + student
+        constraints = [
+            models.UniqueConstraint(
+                fields=['normalized_name', 'student'],
+                name='unique_module_per_student'
+            )
+        ]
 
     def __str__(self):
         return self.name
     
     def save(self, *args, **kwargs):
-        # Normalise le nom (minuscules et sans espaces superflus)
         self.normalized_name = self.name.lower().strip().replace(' ', '')
         super().save(*args, **kwargs)
 
@@ -51,3 +58,43 @@ class Choix(models.Model):
 
     def __str__(self):
         return self.texte
+    
+
+from django.conf import settings
+
+
+from django.core.exceptions import ValidationError
+ 
+
+from django.db import models
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+class QuizResult(models.Model):
+    quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE)
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    score = models.IntegerField()
+    total_questions = models.IntegerField()
+    date_taken = models.DateTimeField(auto_now_add=True)
+    answers = models.JSONField(default=list)  # Ajoutez ce champ
+
+    def __str__(self):
+        return f"{self.student.username} - {self.quiz.titre} - {self.score}/{self.total_questions}"
+
+    def clean(self):
+        """Validation pour s'assurer que le score est cohérent."""
+        if self.score < 0:
+            raise ValidationError("Le score ne peut pas être négatif.")
+        if self.score > self.total_questions:
+            raise ValidationError("Le score ne peut pas dépasser le nombre total de questions.")
+        if self.total_questions <= 0:
+            raise ValidationError("Le nombre total de questions doit être positif.")
+
+    @property
+    def percentage(self):
+        """Calcule automatiquement le pourcentage de réussite."""
+        return round((self.score / self.total_questions) * 100) if self.total_questions > 0 else 0
+
+    def __str__(self):
+        return f"{self.student.username} - {self.quiz.titre} - {self.score}/{self.total_questions}"

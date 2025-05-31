@@ -12,56 +12,51 @@ const CategoryCreation = () => {
     const token = localStorage.getItem('token');
 
     if (!token) {
-      alert('You must be logged in.');
-      navigate('/login');
-      return;
+        navigate('/login');
+        return;
     }
 
     if (!moduleName.trim()) {
-      alert('Please enter a subject name.');
-      return;
+        setError('Please enter a subject name.');
+        return;
     }
 
     try {
-      // Vérification d'unicité sans modifier le texte saisi (laisser le backend gérer la casse si possible)
-      const checkResponse = await axios.get(
-        `http://localhost:8000/api/student/categories/check-unique/?name=${encodeURIComponent(moduleName.trim())}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          }
-        }
-      );
-
-      if (!checkResponse.data.is_unique) {
-        setError('A subject with this name already exists.');
-        return;
-      }
-
-      // Création du module (nom converti en minuscules et nettoyé)
-      const response = await axios.post(
+    const response = await axios.post(
         'http://localhost:8000/api/student/categories/create/',
         { name: moduleName.trim() },
         {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
         }
-      );
-
-      console.log('Subject created:', response.data);
-      alert('Subject created successfully!');
-      navigate('/teacher/modules');
-    } catch (error) {
-      console.error('Error:', error);
-      if (error.response && error.response.status === 409) {
-        setError('A subject with this name already exists.');
-      } else {
-        setError('Failed to create subject. Please try again.');
-      }
+    );
+    
+    console.log('Subject created:', response.data);
+    
+    // Affiche l'alerte avant la redirection
+    alert('Subject created successfully!');
+    
+    // Redirige après que l'utilisateur a cliqué sur OK dans l'alerte
+    navigate('/student/categories');
+    
+} catch (error) {
+    console.error('Error:', error);
+    if (error.response) {
+        if (error.response.status === 400) {
+            setError(error.response.data.error);
+        } else if (error.response.status === 403) {
+            setError('Unauthorized access');
+            navigate('/login');
+        } else {
+            setError('Failed to create subject. Please try again.');
+        }
+    } else {
+        setError('Network error. Please check your connection.');
     }
-  };
+}
+};
 
   return (
     <div className="quizly-app">

@@ -28,6 +28,7 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     border: 1px solid rgba(0, 0, 0, 0.05);
     animation: fadeIn 0.6s ease-out forwards;
+    position: relative; 
 }
 
 @keyframes fadeIn {
@@ -204,4 +205,28 @@ p {
     margin-top: 2px;
     display: block;
     letter-spacing: 0.1px;
+}
+/* Ajoutez ces styles à la fin de votre fichier CSS */
+
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: transparent !important;
+  border: none;
+  color: var(--primary-color); /* Utilise la couleur violette définie */
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Optionnel : si vous voulez désactiver complètement l'effet de survol */
+.back-button:hover, .back-button:focus, .back-button:active {
+  background: transparent;
+  color: var(--primary-color); /* Garde la même couleur au survol */
+  outline: none !important; /* Supprime le contour au focus */
 }

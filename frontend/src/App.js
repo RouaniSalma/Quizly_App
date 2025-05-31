@@ -14,6 +14,10 @@ import StudentCategoryDetail from './components/StudentCategoryDetail';
 import VerifyEmailNotice from './components/VerifyEmailNotice';
 import ResendVerification from './components/ResendVerification';
 import PasswordResetPage from './components/PasswordResetPage';
+import StudentQuizHistory from './components/StudentQuizHistory';
+import StudentQuizDetails from './components/StudentQuizDetails';
+import StudentTakeQuiz from './components/StudentTakeQuiz';
+import StudentQuizResults from './components/StudentQuizResults';
 function App() {
   return (
     <Router>
@@ -44,6 +48,17 @@ function App() {
         
        <Route path="/student-create-category" element={<CategoryCreation />} />
         <Route path="/student/categories/:id" element={<StudentCategoryDetail />} />
+        <Route path="/student/categories/:id/quizzes" element={<StudentQuizHistory />} />
+<Route path="/student/categories/:id/quizzes/:quiz_id/details" element={<StudentQuizDetails />} />
+<Route 
+  path="/student/categories/:id/quiz/:quizId" 
+  element={<StudentTakeQuiz />} 
+/>
+<Route 
+  path="/student/categories/:id/quiz/:quizId" 
+  element={<StudentTakeQuiz />} 
+/>
+<Route path="/student/categories/:id/quizzes/:quizId/results" element={<StudentQuizResults/>} />
         </Routes>
       </div>
     </Router>

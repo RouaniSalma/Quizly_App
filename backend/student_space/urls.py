@@ -16,4 +16,13 @@ urlpatterns = [
     path('api/student/categories/<int:id>/pdfs/', views.module_pdfs, name='module-pdfs'),
     path('api/student/categories/<int:module_id>/pdfs/<int:pdf_id>/', views.delete_pdf, name='delete-pdf'),
     path('categories/<int:module_id>/generate_quiz/', views.generate_quiz, name='generate-quiz'),
+    path('quizzes/<int:quiz_id>/submit/', views.submit_quiz, name='submit_quiz'),
+    # NOUVEAUX ENDPOINTS pour l'historique des quiz
+    path('categories/<int:module_id>/quizzes/', views.student_module_quizzes, name='student-module-quizzes'),
+    # Ajoutez cette route dans urlpatterns
+path('categories/<int:module_id>/quiz/<int:quiz_id>/', views.student_quiz_detail, name='student-quiz-detail'),
+    path('categories/<int:module_id>/quizzes/<int:quiz_id>/', views.student_quiz_detail, name='student-quiz-detail'),
+    path('quizzes/<int:quiz_id>/results/latest/', views.get_latest_quiz_result, name='latest-quiz-result'),
+    path('quizzes/<int:quiz_id>/answers/', views.get_user_answers, name='user-quiz-answers'),
+    path('categories/<int:module_id>/quizzes/<int:quiz_id>/delete/', views.delete_quiz, name='delete-quiz'),
 ]

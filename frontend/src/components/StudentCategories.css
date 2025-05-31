@@ -24,6 +24,7 @@
     font-weight: 700;
     letter-spacing: 1px;
     margin-left: 20px;
+    margin-bottom: 14px;
 }
 
 .navbar-right .logout-btn {
@@ -171,6 +172,12 @@
 .category-card h3 {
     color: #5e35b1;
     margin-bottom: 0.5rem;
+     color: #5e35b1;
+  margin-bottom: 0.5rem;
+  white-space: nowrap; /* Empêche le texte de passer à la ligne */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px; /* Ajustez selon votre mise en page */
 }
 
 .category-card p {
@@ -316,39 +323,47 @@
   margin-bottom: 10px;
 }
 
+/* Styles pour les boutons d'action */
+/* Styles pour les boutons d'action */
 .category-actions {
   display: flex;
   gap: 8px;
 }
 
-.edit-btn {
-  background-color: #9575cd; /* Lighter purple */
-  color: white;
-  border: none;
-  padding: 0.3rem 0.6rem;
+.edit-btn, .delete-btn {
+  padding: 6px 12px; /* Padding fixe en pixels */
   border-radius: 4px;
-  font-size: 0.8rem;
+  font-size: 13px; /* Taille fixe en pixels */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   cursor: pointer;
   transition: all 0.2s;
+  border: none;
+  min-width: 64px; /* Largeur minimale identique */
+  height: 32px; /* Hauteur fixe */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.edit-btn {
+  background-color: #7e57c2;
+  color: white;
 }
 
 .edit-btn:hover {
-  background-color: #7e57c2; /* Your primary purple */
+  background-color: #5e35b1;
 }
 
 .delete-btn {
-  background-color: #d32f2f; /* Softer red */
+  background-color: #d32f2f;
   color: white;
-  border: none;
-  padding: 0.3rem 0.6rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.2s;
 }
 
 .delete-btn:hover {
-  background-color: #b71c1c; /* Darker red */
+  background-color: #b71c1c;
 }
 
 .warning-text {
