@@ -88,93 +88,93 @@ const StudentQuizHistory = () => {
     });
   };
 
-  if (isLoading) return <div className="loading">Loading quizzes...</div>;
-  if (error) return <div className="error">{error}</div>;
+  if (isLoading) return <div className="loading-">Loading quizzes...</div>;
+  if (error) return <div className="error-">{error}</div>;
 
   return (
-    <div className="student-quiz-history-container">
-      <nav className="navbar">
-        <div className="navbar-left">
-          <span className="logo">Quizly</span>
+    <div className="student-quiz-history-container-">
+      <nav className="navbar-">
+        <div className="navbar-left-">
+          <span className="logo-">Quizly</span>
         </div>
-        <div className="navbar-right">
-          <button className="back-button" onClick={handleBack}>
+        <div className="navbar-right-">
+          <button className="back-button-" onClick={handleBack}>
             Back to Category
           </button>
         </div>
       </nav>
 
-      <div className="quiz-history-content">
-        <div className="header-section">
+      <div className="quiz-history-content-">
+        <div className="header-section-">
           <h1>Quiz History</h1>
-          <p className="module-name">{moduleName}</p>
+          <p className="module-name-">{moduleName}</p>
         </div>
 
         {quizzes.length === 0 ? (
-          <div className="no-quizzes">
-            <div className="no-quizzes-icon">📝</div>
+          <div className="no-quizzes-">
+            <div className="no-quizzes-icon-">📝</div>
             <h3>No Quizzes Available</h3>
             <p>No quiz has been created for this module yet.</p>
           </div>
         ) : (
-          <div className="quizzes-grid">
+          <div className="quizzes-grid-">
             {quizzes.map(quiz => (
-              <div key={quiz.id} className="quiz-card">
-                <div className="quiz-header">
-                  <h3 className="quiz-title">{quiz.titre}</h3>
+              <div key={quiz.id} className="quiz-card-">
+                <div className="quiz-header-">
+                  <h3 className="quiz-title-">{quiz.titre}</h3>
                 </div>
                 
-                <p className="quiz-description">{quiz.description}</p>
+                <p className="quiz-description-">{quiz.description}</p>
                 
-                <div className="quiz-stats">
-                  <div className="stat-item">
-                    <span className="stat-label">Questions:</span>
-                    <span className="stat-value">{quiz.questions_count}</span>
+                <div className="quiz-stats-">
+                  <div className="stat-item-">
+                    <span className="stat-label-">Questions:</span>
+                    <span className="stat-value-">{quiz.questions_count}</span>
                   </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Created on:</span>
-                    <span className="stat-value">{formatDate(quiz.date_creation)}</span>
+                  <div className="stat-item-">
+                    <span className="stat-label-">Created on:</span>
+                    <span className="stat-value-">{formatDate(quiz.date_creation)}</span>
                   </div>
-                  <div className="stat-item">
-                    <span className="stat-label">Attempts:</span>
-                    <span className="stat-value">{quiz.last_attempt.attempts_count}</span>
+                  <div className="stat-item-">
+                    <span className="stat-label-">Attempts:</span>
+                    <span className="stat-value-">{quiz.last_attempt.attempts_count}</span>
                   </div>
                 </div>
 
                 {quiz.last_attempt.score !== null ? (
-                  <div className="last-attempt">
-                    <div className="score-display">
+                  <div className="last-attempt-">
+                    <div className="score-display-">
                       <span 
-                        className="score-percentage"
+                        className="score-percentage-"
                         style={{ color: getScoreColor(quiz.last_attempt.percentage) }}
                       >
                         {quiz.last_attempt.percentage}%
                       </span>
-                      <span className="score-details">
+                      <span className="score-details-">
                         ({quiz.last_attempt.score}/{quiz.last_attempt.total_questions})
                       </span>
                     </div>
-                    <div className="attempt-date">
+                    <div className="attempt-date-">
                       Last Attempt: {formatDate(quiz.last_attempt.date_completion)}
                     </div>
                   </div>
                 ) : (
-                  <div className="no-attempt">
+                  <div className="no-attempt-">
                     <span>No attempts</span>
                   </div>
                 )}
 
-                <div className="quiz-actions">
+                <div className="quiz-actions-">
                   {quiz.last_attempt.attempts_count > 0 && (
                     <>
                       <button 
-                        className="btn-primary view-details"
+                        className="view-details-"
                         onClick={() => handleViewDetails(quiz.id)}
                       >
                         View Details
                       </button>
                       <button 
-                        className="btn-danger delete-quiz"
+                        className="delete-quiz-"
                         onClick={() => handleDeleteQuiz(quiz.id)}
                         disabled={isDeleting}
                       >

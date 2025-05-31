@@ -1,7 +1,7 @@
 /* TeacherModules.css */
 
 /* Base Styles */
-.student-categories {
+.s-tudent-categories {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     min-height: 100vh;
     background-color: #f9f5ff;
@@ -9,7 +9,7 @@
 }
 
 /* Navbar */
-.navbar {
+.n-avbar {
     background-color: #7e57c2;
     padding: 1rem 2rem;
     box-shadow: 0 2px 10px rgba(126, 87, 194, 0.2);
@@ -18,16 +18,19 @@
     align-items: center;
 }
 
-.navbar .navbar-left .logo {
-    color: #7e57c2;
-    font-size: 2rem;
+.n-avbar .n-avbar-left .l-ogo {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 30px;
     font-weight: 700;
-    letter-spacing: 1px;
-    margin-left: 20px;
-    margin-bottom: 14px;
+    font-style: italic;
+    color: #7e57c2; /* Violet pour contraster avec le fond blanc */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-rendering: optimizeLegibility;
+    margin-bottom: 10px;
 }
 
-.navbar-right .logout-btn {
+.n-avbar-right .l-ogout-btn {
     background-color: transparent;
     color: #7e57c2;
     border: 1px solid #7e57c2;
@@ -38,12 +41,12 @@
     margin-right: 20px;
 }
 
-.navbar-right .logout-btn:hover {
+.n-avbar-right .l-ogout-btn:hover {
     background-color: #7e57c2;
 }
 
 /* Main Content */
-.categories-container {
+.c-ategories-container {
     max-width: 1200px;
     margin: 2rem auto;
     padding: 0 2rem;
@@ -52,7 +55,7 @@
     flex-direction: column;
 }
 
-.categories-title {
+.c-ategories-title {
     color: #5e35b1;
     margin-bottom: 2rem;
     font-weight: 600;
@@ -61,7 +64,7 @@
 }
 
 /* Empty State */
-.empty-state {
+.e-mpty-state {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -71,14 +74,14 @@
     padding: 2rem;
 }
 
-.book-icon {
+.b-ook-icon {
     margin-bottom: 2rem;
     position: relative;
     width: 100px;
     height: 120px;
 }
 
-.book-cover {
+.b-ook-cover {
     width: 80px;
     height: 100px;
     background-color: #7e57c2;
@@ -87,7 +90,7 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.book-spine {
+.b-ook-spine {
     position: absolute;
     left: 0;
     top: 5px;
@@ -97,7 +100,7 @@
     border-radius: 2px 0 0 2px;
 }
 
-.book-pages {
+.b-ook-pages {
     position: absolute;
     right: -5px;
     top: 5px;
@@ -107,17 +110,17 @@
     border-radius: 0 2px 2px 0;
 }
 
-.empty-state h2 {
+.e-mpty-state h2 {
     color: #5e35b1;
     margin-bottom: 1rem;
 }
 
-.empty-state p {
+.e-mpty-state p {
     color: #666;
     margin-bottom: 2rem;
 }
 
-.create-button {
+.c-reate-button {
     background-color: #7e57c2;
     color: white;
     border: none;
@@ -129,12 +132,12 @@
     box-shadow: 0 2px 4px rgba(126, 87, 194, 0.3);
 }
 
-.create-button:hover {
+.c-reate-button:hover {
     background-color: #5e35b1;
     transform: translateY(-2px);
 }
 
-.create-button.floating {
+.c-reate-button.floating {
     position: fixed;
     bottom: 1.5rem;
     right: 1.5rem;
@@ -148,14 +151,14 @@
 }
 
 /* Modules Grid */
-.categories-grid {
+.c-ategories-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.5rem;
     margin-bottom: 4rem;
 }
 
-.category-card {
+.c-ategory-card {
     background: white;
     border-radius: 8px;
     padding: 1.5rem;
@@ -164,12 +167,12 @@
     border-top: 4px solid #7e57c2;
 }
 
-.category-card:hover {
+.c-ategory-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 6px 12px rgba(126, 87, 194, 0.15);
 }
 
-.category-card h3 {
+.c-ategory-card h3 {
     color: #5e35b1;
     margin-bottom: 0.5rem;
      color: #5e35b1;
@@ -180,13 +183,13 @@
   max-width: 180px; /* Ajustez selon votre mise en page */
 }
 
-.category-card p {
+.c-ategory-card p {
     color: #666;
     font-size: 0.9rem;
 }
 
 /* Modal */
-.modal-overlay {
+.m-odal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -199,7 +202,7 @@
     z-index: 1000;
 }
 
-.modal-content {
+.m-odal-content {
     background: white;
     padding: 2rem;
     border-radius: 8px;
@@ -208,12 +211,12 @@
     box-shadow: 0 5px 15px rgba(126, 87, 194, 0.3);
 }
 
-.modal-content h3 {
+.m-odal-content h3 {
     color: #5e35b1;
     margin-bottom: 1.5rem;
 }
 
-.modal-content input {
+.m-odal-content input {
     width: 100%;
     padding: 0.8rem;
     margin-bottom: 1.5rem;
@@ -222,13 +225,13 @@
     font-size: 1rem;
 }
 
-.modal-content input:focus {
+.m-odal-content input:focus {
     outline: none;
     border-color: #7e57c2;
     box-shadow: 0 0 0 2px rgba(126, 87, 194, 0.2);
 }
 
-.modal-content button {
+.m-odal-content button {
     background-color: #7e57c2;
     color: white;
     border: none;
@@ -239,30 +242,30 @@
     transition: background-color 0.2s;
 }
 
-.modal-content button:hover {
+.m-odal-content button:hover {
     background-color: #5e35b1;
 }
 
-.close-btn {
+.c-lose-btn {
     background-color: #e1bee7 !important;
     color: #5e35b1 !important;
 }
 
-.close-btn:hover {
+.c-lose-btn:hover {
     background-color: #ce93d8 !important;
 }
-.navbar-left {
+.n-avbar-left {
     display: flex;
     align-items: center;
   }
   
-  .navbar-right {
+  .n-avbar-right {
     display: flex;
     align-items: center;
     justify-content: center;
   }
   
-  .add-button {
+  .a-dd-button {
     background-color: white;
     color: #7e57c2;
     font-size: 2rem;
@@ -276,11 +279,11 @@
     margin-left: 20px;
   }
   
-  .add-button:hover {
+  .a-dd-button:hover {
     background-color: #7e57c2;
     color: white;
   }
-  .add-button-navbar {
+  .a-dd-button-navbar {
     background-color: #7e57c2;
     color: white;
     border: none;
@@ -296,11 +299,11 @@
     transition: background-color 0.3s, transform 0.3s;
   }
   
-  .add-button-navbar:hover {
+  .a-dd-button-navbar:hover {
     background-color: #5e35b1;
     transform: scale(1.1);
   }
-  .logout-btn {
+  .l-ogout-btn {
     background-color: transparent;
     border: 2px solid #7e57c2;
     color: #7e57c2;
@@ -312,11 +315,11 @@
     margin-left: 12px;
   }
   
-  .logout-btn:hover {
+  .l-ogout-btn:hover {
     background-color: #7e57c2;
     color: #ffffff;
   }
-  .category-header {
+  .c-ategory-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -325,53 +328,46 @@
 
 /* Styles pour les boutons d'action */
 /* Styles pour les boutons d'action */
-.category-actions {
+.c-ategory-actions {
   display: flex;
   gap: 8px;
 }
-
-.edit-btn, .delete-btn {
-  padding: 6px 12px; /* Padding fixe en pixels */
-  border-radius: 4px;
-  font-size: 13px; /* Taille fixe en pixels */
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
-  min-width: 64px; /* Largeur minimale identique */
-  height: 32px; /* Hauteur fixe */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  font-weight: 500;
-  letter-spacing: 0.5px;
+.e-dit-btn {
+    background-color: #9575cd;
+    color: white;
+    border: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
-.edit-btn {
-  background-color: #7e57c2;
-  color: white;
+.e-dit-btn:hover {
+    background-color: #7247bb;
 }
 
-.edit-btn:hover {
-  background-color: #5e35b1;
+.d-elete-btn {
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
-.delete-btn {
-  background-color: #d32f2f;
-  color: white;
+.d-elete-btn:hover {
+    background-color: #b71c1c;
 }
 
-.delete-btn:hover {
-  background-color: #b71c1c;
-}
-
-.warning-text {
+.w-arning-text {
   color: #f44336;
   font-weight: bold;
 }
 
-.delete-confirm-btn {
+.d-elete-confirm-btn {
   background-color: #f44336;
   color: white;
 }

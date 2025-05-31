@@ -163,22 +163,22 @@ const StudentCategories = () => {
   };
 
   return (
-    <div className="student-categories">
+    <div className="s-tudent-categories">
       {/* Navbar */}
-      <nav className="navbar">
-        <div className="navbar-left">
-          <span className="logo">Quizly</span>
+      <nav className="n-avbar">
+        <div className="n-avbar-left">
+          <span className="l-ogo">Quizly</span>
         </div>
-        <div className="navbar-right">
+        <div className="n-avbar-right">
           <button 
-            className="add-button-navbar" 
+            className="a-dd-button-navbar" 
             onClick={() => setShowModal(true)}
             disabled={isLoading}
           >
             {isLoading ? '...' : '+'}
           </button>
           <button 
-            className="logout-btn"
+            className="l-ogout-btn"
             onClick={handleLogout}
           >
             Logout
@@ -187,42 +187,42 @@ const StudentCategories = () => {
       </nav>
 
       {/* Categories List */}
-      <div className="categories-container">
-        <h2 className="categories-title">My Categories</h2>
+      <div className="c-ategories-container">
+        <h2 className="c-ategories-title">My Categories</h2>
         
         {isLoading && !categories.length ? (
           <p>Loading categories...</p>
         ) : error ? (
-          <p className="error-message">{error}</p>
+          <p className="e-rror-message">{error}</p>
         ) : categories.length === 0 ? (
-          <div className="empty-state">
-            <p className="no-categories">No categories yet.</p>
+          <div className="e-mpty-state">
+            <p className="n-o-categories">No categories yet.</p>
             <button 
-              className="create-first-category"
+              className="c-reate-first-category"
               onClick={() => setShowModal(true)}
             >
               Create your first category
             </button>
           </div>
         ) : (
-          <div className="categories-grid">
+          <div className="c-ategories-grid">
             {categories.map(category => (
               <div 
-                className="category-card" 
+                className="c-ategory-card" 
                 key={category.id}
                 onClick={() => navigate(`/student/categories/${category.id}`)}
               >
-                <div className="category-header">
+                <div className="c-ategory-header">
                   <h3>{category.name}</h3>
-                  <div className="category-actions">
+                  <div className="c-ategory-actions">
                     <button 
-                      className="edit-btn"
+                      className="e-dit-btn"
                       onClick={(e) => handleCategoryActionClick(e, category, 'edit')}
                     >
                       Edit
                     </button>
                     <button 
-                      className="delete-btn"
+                      className="d-elete-btn"
                       onClick={(e) => handleCategoryActionClick(e, category, 'delete')}
                     >
                       Delete
@@ -238,10 +238,10 @@ const StudentCategories = () => {
 
       {/* Modal de création */}
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+        <div className="m-odal-overlay">
+          <div className="m-odal-content">
             <h3>Create New Category</h3>
-            {error && <p className="modal-error">{error}</p>}
+            {error && <p className="m-odal-error">{error}</p>}
             <input
               type="text"
               placeholder="Category Name"
@@ -249,7 +249,7 @@ const StudentCategories = () => {
               onChange={e => setmoduleName(e.target.value)}
               disabled={isLoading}
             />
-            <div className="modal-buttons">
+            <div className="m-odal-buttons">
               <button 
                 onClick={handleCreateCategory}
                 disabled={isLoading || !moduleName.trim()}
@@ -257,7 +257,7 @@ const StudentCategories = () => {
                 {isLoading ? 'Creating...' : 'Create'}
               </button>
               <button 
-                className="close-btn" 
+                className="c-lose-btn" 
                 onClick={() => {
                   setShowModal(false);
                   setError(null);
@@ -273,10 +273,10 @@ const StudentCategories = () => {
 
       {/* Modal d'édition */}
       {showEditModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+        <div className="m-odal-overlay">
+          <div className="m-odal-content">
             <h3>Edit Category</h3>
-            {error && <p className="modal-error">{error}</p>}
+            {error && <p className="m-odal-error">{error}</p>}
             <input
               type="text"
               placeholder="Category Name"
@@ -284,7 +284,7 @@ const StudentCategories = () => {
               onChange={e => setmoduleName(e.target.value)}
               disabled={isLoading}
             />
-            <div className="modal-buttons">
+            <div className="m-odal-buttons">
               <button 
                 onClick={handleEditCategory}
                 disabled={isLoading || !moduleName.trim()}
@@ -292,7 +292,7 @@ const StudentCategories = () => {
                 {isLoading ? 'Updating...' : 'Update'}
               </button>
               <button 
-                className="close-btn" 
+                className="c-lose-btn" 
                 onClick={() => {
                   setShowEditModal(false);
                   setError(null);
@@ -308,22 +308,22 @@ const StudentCategories = () => {
 
       {/* Modal de suppression */}
       {showDeleteModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+        <div className="m-odal-overlay">
+          <div className="m-odal-content">
             <h3>Delete Category</h3>
-            {error && <p className="modal-error">{error}</p>}
+            {error && <p className="m-odal-error">{error}</p>}
             <p>Are you sure you want to delete "{currentCategory?.name}"?</p>
-            <p className="warning-text">This action cannot be undone.</p>
-            <div className="modal-buttons">
+            <p className="w-arning-text">This action cannot be undone.</p>
+            <div className="m-odal-buttons">
               <button 
-                className="delete-confirm-btn"
+                className="d-elete-confirm-btn"
                 onClick={handleDeleteCategory}
                 disabled={isLoading}
               >
                 {isLoading ? 'Deleting...' : 'Delete'}
               </button>
               <button 
-                className="close-btn" 
+                className="c-lose-btn" 
                 onClick={() => {
                   setShowDeleteModal(false);
                   setError(null);

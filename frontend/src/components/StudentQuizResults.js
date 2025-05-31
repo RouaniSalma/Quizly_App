@@ -87,26 +87,26 @@ const StudentQuizResults = () => {
   if (!results || !quizDetails) return <div className="error">No results found</div>;
 
   return (
-    <div className="quiz-results-container">
+    <div className="quiz-results-contain-er">
       <h1>Quiz Results</h1>
       <h2>{quizDetails.titre}</h2>
       
-      <div className="score-summary">
-        <div className="score-display">
-          <span className="percentage">{results.percentage}%</span>
-          <span className="score">{results.score} / {results.total_questions}</span>
+      <div className="score-summa-ry">
+        <div className="score-displ-ay">
+          <span className="percenta-ge">{results.percentage}%</span>
+          <span className="sco-re">{results.score} / {results.total_questions}</span>
         </div>
-        <p className="date-taken">Completed on: {new Date(results.date_taken).toLocaleDateString()}</p>
+        <p className="date-tak-en">Completed on: {new Date(results.date_taken).toLocaleDateString()}</p>
       </div>
 
-      <div className="questions-results">
+      <div className="questions-resul-ts">
         {quizDetails.questions.map((question, index) => {
           const isCorrect = isAnswerCorrect(question.id);
           
           return (
-            <div key={question.id} className={`question-result ${isCorrect ? 'correct' : 'incorrect'}`}>
+            <div key={question.id} className={`question-resu-lt ${isCorrect ? 'corre-ct' : 'incorre-ct'}`}>
               <h3>Question {index + 1}: {question.enonce}</h3>
-              <div className="choices-list">
+              <div className="choices-li-st">
                 {question.choix.map((choice, choiceIndex) => {
                   const isSelected = isChoiceSelected(question.id, choiceIndex);
                   const isCorrectChoice = choice.is_correct;
@@ -114,21 +114,21 @@ const StudentQuizResults = () => {
                   return (
                     <div 
                       key={choice.id} 
-                      className={`choice-item 
-                        ${isCorrectChoice ? 'correct-choice' : ''}
-                        ${isSelected ? 'selected-choice' : ''}
-                        ${isSelected && !isCorrectChoice ? 'wrong-choice' : ''}
+                      className={`choice-it-em 
+                        ${isCorrectChoice ? 'correct-choi-ce' : ''}
+                        ${isSelected ? 'selected-choi-ce' : ''}
+                        ${isSelected && !isCorrectChoice ? 'wrong-choi-ce' : ''}
                       `}
                     >
                       {choice.texte}
-                      {isCorrectChoice && <span className="correct-indicator">✓ Correct answer</span>}
-                      {isSelected && !isCorrectChoice && <span className="wrong-indicator">✗ Your answer</span>}
+                      {isCorrectChoice && <span className="correct-indicat-or">✓ Correct answer</span>}
+                      {isSelected && !isCorrectChoice && <span className="wrong-indicat-or">✗ Your answer</span>}
                     </div>
                   );
                 })}
               </div>
               {!isCorrect && (
-                <div className="feedback">
+                <div className="feedba-ck">
                   The correct answer is: {question.choix.find(c => c.is_correct)?.texte}
                 </div>
               )}
@@ -136,10 +136,11 @@ const StudentQuizResults = () => {
           );
         })}
       </div>
-
-      <button className="back-button" onClick={handleBack}>
+        <div className="action-buttons">
+        <button className="back-butt-on" onClick={handleBack}>
         Back to Quiz History
-      </button>
+       </button>
+       </div>
     </div>
   );
 };

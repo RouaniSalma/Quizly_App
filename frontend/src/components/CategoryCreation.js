@@ -7,7 +7,10 @@ const CategoryCreation = () => {
   const navigate = useNavigate();
   const [moduleName, setModuleName] = useState('');
   const [error, setError] = useState('');
-
+ const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
   const handleCreateMaterial = async () => {
     const token = localStorage.getItem('token');
 
@@ -59,22 +62,23 @@ const CategoryCreation = () => {
 };
 
   return (
-    <div className="quizly-app">
-      <nav className="navbar">
-        <div className="navbar-left">
-          <span className="logo">QUIZLY</span>
+    <div className="q-uizly-app">
+      <nav className="n-avbar">
+        <div className="n-avbar-left">
+          <span className="l-ogo">QUIZLY</span>
         </div>
-        <div className="navbar-right">
-          <button className="add-button" onClick={handleCreateMaterial}>+</button>
+        <div className="n-avbar-right">
+          <button className="a-dd-button" onClick={handleCreateMaterial}>+</button>
+          <button className="l-ogout-btn" onClick={handleLogout}>Logout</button>
         </div>
       </nav>
 
-      <div className="content">
-        <div className="empty-state">
-          <div className="book-icon">
-            <div className="book-cover">
-              <div className="book-spine"></div>
-              <div className="book-pages"></div>
+      <div className="c-ontent">
+        <div className="e-mpty-state">
+          <div className="b-ook-icon">
+            <div className="b-ook-cover">
+              <div className="b-ook-spine"></div>
+              <div className="b-ook-pages"></div>
             </div>
           </div>
           <h2>Add a subject to get started</h2>
@@ -88,12 +92,12 @@ const CategoryCreation = () => {
               setModuleName(e.target.value);
               setError('');
             }}
-            className="module-input"
+            className="m-odule-input"
           />
           
-          {error && <div className="error-message">{error}</div>}
+          {error && <div className="e-rror-message">{error}</div>}
           
-          <button className="create-button" onClick={handleCreateMaterial}>Create subject</button>
+          <button className="c-reate-button" onClick={handleCreateMaterial}>Create subject</button>
         </div>
       </div>
     </div>

@@ -76,32 +76,32 @@ const StudentTakeQuiz = () => {
   }
 };
 
-  if (isLoading) return <div className="loading">Loading quiz...</div>;
-  if (error) return <div className="error">{error}</div>;
-  if (!quiz) return <div className="error">No quiz found</div>;
+  if (isLoading) return <div className="load-ing">Loading quiz...</div>;
+  if (error) return <div className="er-ror">{error}</div>;
+  if (!quiz) return <div className="er-ror">No quiz found</div>;
 
   return (
-    <div className="quiz-container">
-      <h1 className="quiz-title">{quiz.titre}</h1>
-      <p className="quiz-description">{quiz.description}</p>
+    <div className="quiz-contai-ner">
+      <h1 className="quiz-ti-tle">{quiz.titre}</h1>
+      <p className="quiz-descript-ion">{quiz.description}</p>
       
-      <div className="questions-container">
+      <div className="questions-contai-ner">
         {quiz.questions.map((question, index) => (
-          <div key={question.id} className="question-card">
-            <h3 className="question-text">
+          <div key={question.id} className="question-c-ard">
+            <h3 className="question-t-ext">
               {index + 1}. {question.enonce}
             </h3>
             
-            <div className="choices-container">
+            <div className="choices-contai-ner">
               {question.choix.map((choice, choiceIndex) => (
                 <div 
                   key={choice.id}
-                  className={`choice-item ${
-                    selectedChoices[question.id] === choiceIndex ? 'selected' : ''
+                  className={`choice-i-tem ${
+                    selectedChoices[question.id] === choiceIndex ? 'selec-ted' : ''
                   }`}
                   onClick={() => handleChoiceSelect(question.id, choiceIndex)}
                 >
-                  <span className="choice-letter">
+                  <span className="choice-let-ter">
                     {String.fromCharCode(65 + choiceIndex)}.
                   </span>
                   {choice.texte}
@@ -112,9 +112,9 @@ const StudentTakeQuiz = () => {
         ))}
       </div>
 
-      <div className="quiz-actions">
+      <div className="quiz-acti-ons">
         <button 
-          className="submit-btn"
+          className="submit--btn"
           onClick={handleSubmit}
           disabled={isSubmitting}
         >

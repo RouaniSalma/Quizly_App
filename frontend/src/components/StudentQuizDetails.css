@@ -19,7 +19,7 @@ body {
 }
 
 /* Conteneur principal - Style professionnel */
-.student-quiz-details-container {
+.student-quiz-details-containe-r {
   max-width: 900px;
   margin: 2rem auto;
   padding: 2rem;
@@ -32,7 +32,7 @@ body {
 }
 
 /* Barre de navigation améliorée */
-.navbar {
+.navba-r {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -41,49 +41,55 @@ body {
   margin-bottom: 2rem;
 }
 
-.logo {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #2c3e50;
-  letter-spacing: 0.5px;
+.log-o {
+  font-family: "Times New Roman", Times, serif;
+    font-size: 30px;
+    font-weight: 700;
+    font-style: italic;
+    color: #7e57c2; /* Violet pour contraster avec le fond blanc */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-rendering: optimizeLegibility;
+    margin-bottom: 10px;
+    margin-left: 10px;
 }
 
-.back-button {
-  padding: 0.5rem 1rem;
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.875rem;
-  color: #495057;
+.back-butto-n {
+  background-color: transparent;
+    color: #7e57c2;
+    border: 1px solid #7e57c2;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-right: 20px;
 }
 
-.back-button:hover {
-  background-color: #e9ecef;
-  border-color: #ced4da;
+.back-butto-n:hover {
+  background-color: #7e57c2;
+  color: white;
 }
 
 /* Contenu du quiz - Style professionnel */
-.quiz-details-content {
+.quiz-details-conten-t {
   background-color: #ffffff;
   border-radius: 0.5rem;
   padding: 2rem;
 }
 
-.header-section {
+.header-sectio-n {
   margin-bottom: 2rem;
   text-align: center;
 }
 
-.header-section h1 {
+.header-sectio-n h1 {
   margin: 0 0 0.5rem 0;
   color: #2c3e50;
   font-size: 1.75rem;
   font-weight: 500;
 }
 
-.module-name {
+.module-nam-e {
   color: #6c757d;
   font-size: 0.875rem;
   letter-spacing: 0.5px;
@@ -91,7 +97,7 @@ body {
 }
 
 /* Score summary - Design moderne */
-.score-summary {
+.score-summar-y {
   text-align: center;
   margin-bottom: 2.5rem;
   padding: 1.5rem;
@@ -100,14 +106,14 @@ body {
   border: 1px solid #e9ecef;
 }
 
-.score-display {
+.score-displa-y {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
   padding: 1rem;
 }
 
-.percentage {
+.percentag-e {
   font-size: 2.5rem;
   font-weight: 600;
   display: block;
@@ -115,17 +121,17 @@ body {
   color: #2c3e50;
 }
 
-.score-details {
+.score-detail-s {
   font-size: 1rem;
   color: #6c757d;
 }
 
 /* Questions - Style professionnel */
-.questions-results {
+.questions-result-s {
   margin-top: 2rem;
 }
 
-.question-result {
+.question-resul-t {
   padding: 1.5rem;
   margin-bottom: 1.5rem;
   border-radius: 0.5rem;
@@ -135,17 +141,17 @@ body {
   border: 1px solid #e9ecef;
 }
 
-.question-result.correct {
+.question-resul-t.correc-t {
   background-color: #f8f9fa;
   border-left-color: #28a745;
 }
 
-.question-result.incorrect {
+.question-resul-t.incorrec-t {
   background-color: #fff9fa;
   border-left-color: #dc3545;
 }
 
-.question-result h3 {
+.question-resul-t h3 {
   margin-top: 0;
   margin-bottom: 1rem;
   font-size: 1.125rem;
@@ -154,13 +160,13 @@ body {
 }
 
 /* Choix de réponse - Style amélioré */
-.choices-list {
+.choices-lis-t {
   margin-top: 1rem;
   display: grid;
   gap: 0.75rem;
 }
 
-.choice-item {
+.choice-ite-m {
   padding: 1rem;
   border-radius: 0.375rem;
   background-color: #ffffff;
@@ -170,54 +176,54 @@ body {
   font-size: 0.9375rem;
 }
 
-.correct-choice {
+.correct-choic-e {
   background-color: #e8f5e9;
   border-color: #c3e6cb;
 }
 
-.user-choice {
+.user-choic-e {
   background-color: #e3f2fd;
   border-color: #b8daff;
 }
 
-.wrong-choice {
+.wrong-choic-e {
   background-color: #fde8e8;
   border-color: #f5c6cb;
 }
 
-.choice-item::before {
+.choice-ite-m::before {
   content: '○';
   margin-right: 0.75rem;
   color: #adb5bd;
 }
 
-.correct-choice::before {
+.correct-choic-e::before {
   content: '✓';
   color: #28a745;
 }
 
-.wrong-choice::before {
+.wrong-choic-e::before {
   content: '✗';
   color: #dc3545;
 }
 
-.indicator {
+.indicato-r {
   position: absolute;
   right: 1rem;
   font-size: 0.8125rem;
   font-weight: 500;
 }
 
-.indicator.correct {
+.indicato-r.correc-t {
   color: #28a745;
 }
 
-.indicator.wrong {
+.indicato-r.wron-g {
   color: #dc3545;
 }
 
 /* Feedback - Style professionnel */
-.feedback {
+.feedbac-k {
   margin-top: 1rem;
   padding: 0.75rem;
   background-color: #fff3cd;
@@ -228,12 +234,12 @@ body {
 }
 
 /* Boutons - Design moderne */
-.quiz-actions {
+.quiz-action-s {
   text-align: center;
   margin-top: 3rem;
 }
 
-.btn-primary {
+.btn-primar-y {
   padding: 0.75rem 1.75rem;
   background-color: #2c3e50;
   color: white;
@@ -246,19 +252,19 @@ body {
   letter-spacing: 0.5px;
 }
 
-.btn-primary:hover {
+.btn-primar-y:hover {
   background-color: #1a252f;
   transform: translateY(-1px);
 }
 
 /* États de chargement */
-.loading, .error {
+.loadin-g, .erro-r {
   text-align: center;
   padding: 3rem;
   font-size: 1rem;
 }
 
-.error {
+.erro-r {
   color: #dc3545;
 }
 
@@ -269,6 +275,6 @@ h1, h2, h3, h4 {
 }
 
 /* Effets de hover subtils */
-.choice-item:hover {
+.choice-ite-m:hover {
   transform: translateX(2px);
 }

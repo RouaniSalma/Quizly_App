@@ -6,7 +6,7 @@
 }
 
 /* Base Styles */
-.module-detail-container {
+.-module-detail-container {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   max-width: 1200px;
   margin: 0 auto;
@@ -15,7 +15,7 @@
 }
 
 /* Navbar Styles */
-.navbar {
+.-navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -24,20 +24,27 @@
   margin-bottom: 30px;
 }
 
-.navbar-left .logo {
-  font-size: 24px;
-  font-weight: bold;
-  color: #7e57c2;
+.-navbar-left .-logo {
+  font-family: "Times New Roman", Times, serif;
+    font-size: 30px;
+    font-weight: 700;
+    font-style: italic;
+    color: #7e57c2; /* Violet pour contraster avec le fond blanc */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-rendering: optimizeLegibility;
+    margin-bottom: 10px;
+    margin-left: 10px;
 }
 
-.navbar-right {
+.-navbar-right {
   display: flex;
   gap: 15px;
   align-items: center;
 }
 
 /* Boutons de la navbar - Style de base */
-.navbar-right button {
+.-navbar-right button {
   padding: 0.5rem 1rem;
   border-radius: 4px;
   cursor: pointer;
@@ -49,67 +56,75 @@
 }
 
 /* Style spécifique pour chaque bouton */
-.navbar-right .back-button {
+.-navbar-right .-back-button {
   background-color: transparent;
   color: #7e57c2;
   border-color: #7e57c2;
 }
 
-.navbar-right .history-btn {
+.-navbar-right .-history-btn {
   background-color: transparent;
   color: #7e57c2;
   border-color: #7e57c2;
 }
 
-.navbar-right .logout-btn {
+.-navbar-right .-logout-btn {
   background-color: transparent;
-  color: #ff6b6b;
-  border-color: #ff6b6b;
+    color: #7e57c2;
+    border: 1px solid #7e57c2;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-right: 20px;
 }
+
+.-navbar-right .-logout-btn:hover {
+    background-color: #7e57c2;
+    color: white;
+}
+
 
 /* États hover */
-.navbar-right .back-button:hover,
-.navbar-right .history-btn:hover {
+.-navbar-right .-back-button:hover,
+.-navbar-right .-history-btn:hover {
   background-color: #7e57c2;
   color: white;
 }
 
-.navbar-right .logout-btn:hover {
-  background-color: #ff6b6b;
-  color: white;
-}
+
 
 /* Module Content Styles */
-.module-content {
+.-module-content {
   background-color: white;
   border-radius: 8px;
   padding: 25px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.module-title {
+.-module-title {
   color: #2c3e50;
   margin-bottom: 25px;
   font-size: 28px;
 }
 
 /* PDF Section Styles */
-.pdf-section {
+.-pdf-section {
   display: flex;
   gap: 30px;
   margin-bottom: 30px;
 }
 
-.pdf-upload-section {
+.-pdf-upload-section {
   flex: 1;
 }
 
-.pdf-preview-section {
+.-pdf-preview-section {
   flex: 2;
 }
 
 /* Upload Info Styles */
-.upload-info {
+.-upload-info {
   margin-bottom: 20px;
   padding: 15px;
   background-color: #f8f9fa;
@@ -117,23 +132,23 @@
   border-left: 4px solid #7e57c2;
 }
 
-.upload-info p {
+.-upload-info p {
   margin: 0 0 10px 0;
   color: #333;
 }
 
-.upload-info ul {
+.-upload-info ul {
   margin: 0;
   padding-left: 20px;
 }
 
-.upload-info li {
+.-upload-info li {
   color: #666;
   margin-bottom: 5px;
 }
 
 /* Drop Zone Styles */
-.drop-zone {
+.-drop-zone {
   border: 2px dashed #aaa;
   border-radius: 8px;
   padding: 40px 20px;
@@ -143,27 +158,27 @@
   margin-bottom: 20px;
 }
 
-.drop-zone.drag-over {
+.-drop-zone.drag-over {
   border-color: #7e57c2;
   background-color: #f8f9fa;
 }
 
-.drop-zone-content p {
+.-drop-zone-content p {
   margin: 5px 0;
   color: #666;
 }
 
-.drop-zone-content .hint {
+.-drop-zone-content .hint {
   font-size: 12px;
   color: #999;
 }
 
 /* PDF Actions Styles */
-.pdf-actions {
+.-pdf-actions {
   margin-top: 15px;
 }
 
-.file-info {
+.-file-info {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -173,24 +188,24 @@
   border-radius: 4px;
 }
 
-.file-name {
+.-file-name {
   font-weight: 500;
   color: #333;
 }
 
-.file-size {
+.-file-size {
   color: #666;
   font-size: 14px;
 }
 
-.pdf-buttons-container {
+.-pdf-buttons-container {
   display: flex;
   gap: 10px;
 }
 
 /* Button Styles */
-.upload-btn, 
-.generate-quiz-btn {
+.-upload-btn, 
+.-generate-quiz-btn {
   padding: 10px 20px;
   background-color: #b39ddb;
   color: white;
@@ -201,18 +216,18 @@
   transition: background-color 0.3s;
 }
 
-.upload-btn:hover, 
-.generate-quiz-btn:hover {
+.-upload-btn:hover, 
+.-generate-quiz-btn:hover {
   background-color: #7e57c2;
 }
 
-.upload-btn:disabled, 
-.generate-quiz-btn:disabled {
+.-upload-btn:disabled, 
+.-generate-quiz-btn:disabled {
   background-color: #aaa;
   cursor: not-allowed;
 }
 
-.delete-btn {
+.-delete-btn {
   padding: 10px 20px;
   background-color: #ff6b6b;
   color: white;
@@ -223,34 +238,34 @@
   transition: background-color 0.3s;
 }
 
-.delete-btn:hover {
+.-delete-btn:hover {
   background-color: #ff5252;
 }
 
-.delete-btn:disabled {
+.-delete-btn:disabled {
   background-color: #aaa;
   cursor: not-allowed;
 }
 
 /* PDF Preview Styles */
-.pdf-preview-container {
+.-pdf-preview-container {
   border: 1px solid #ddd;
   border-radius: 8px;
   overflow: hidden;
 }
 
-.pdf-viewer {
+.-pdf-viewer {
   height: 500px;
   background-color: #f5f5f5;
 }
 
-.pdf-viewer iframe {
+.-pdf-viewer iframe {
   width: 100%;
   height: 100%;
   border: none;
 }
 
-.no-pdf {
+.-no-pdf {
   text-align: center;
   padding: 40px;
   color: #999;
@@ -259,7 +274,7 @@
 }
 
 /* Messages */
-.success-message {
+.-success-message {
   color: #28a745;
   background-color: #e8f5e9;
   padding: 10px;
@@ -267,7 +282,7 @@
   margin: 10px 0;
 }
 
-.error-message {
+.-error-message {
   color: #dc3545;
   background-color: #f8d7da;
   padding: 10px;
@@ -275,20 +290,20 @@
   margin: 10px 0;
 }
 
-.loading {
+.-loading {
   text-align: center;
   padding: 40px;
   color: #666;
 }
 
-.error {
+.-error {
   text-align: center;
   padding: 40px;
   color: #dc3545;
 }
 
 /* Error Modal Styles */
-.error-modal-overlay {
+.-error-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -301,7 +316,7 @@
   z-index: 1000;
 }
 
-.error-modal {
+.-error-modal {
   background-color: white;
   border-radius: 8px;
   width: 90%;
@@ -310,7 +325,7 @@
 }
 
 /* Quiz Modal Styles */
-.quiz-modal-overlay {
+.-quiz-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -323,7 +338,7 @@
   z-index: 1000;
 }
 
-.quiz-modal {
+.-quiz-modal {
   background-color: white;
   border-radius: 8px;
   width: 80%;
@@ -333,7 +348,7 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
-.modal-header {
+.-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -341,18 +356,18 @@
   border-bottom: 1px solid #eee;
 }
 
-.modal-header h2 {
+.-modal-header h2 {
   margin: 0 0 10px 0;
   color: #2c3e50;
 }
 
-.modal-header p {
+.-modal-header p {
   margin: 0;
   color: #666;
   font-size: 14px;
 }
 
-.close-modal {
+.-close-modal {
   background: none;
   border: none;
   font-size: 24px;
@@ -362,15 +377,15 @@
   margin-left: 20px;
 }
 
-.modal-body {
+.-modal-body {
   padding: 20px;
 }
 
-.questions-container {
+.-questions-container {
   margin-top: 20px;
 }
 
-.question-card {
+.-question-card {
   border: 1px solid #eee;
   border-radius: 6px;
   padding: 15px;
@@ -378,22 +393,22 @@
   background-color: #fafafa;
 }
 
-.question-card h3 {
+.-question-card h3 {
   margin: 0 0 15px 0;
   color: #2c3e50;
   font-size: 18px;
 }
 
-.question-card p {
+.-question-card p {
   margin: 0 0 20px 0;
   color: #333;
 }
 
-.choices-container {
+.-choices-container {
   margin-bottom: 15px;
 }
 
-.choice-item {
+.-choice-item {
   display: flex;
   align-items: flex-start;
   margin-bottom: 10px;
@@ -402,32 +417,32 @@
   transition: background-color 0.2s;
 }
 
-.choice-item:hover {
+.-choice-item:hover {
   background-color: #f0f0f0;
 }
 
-.choice-item input[type="radio"] {
+.-choice-item input[type="radio"] {
   margin-right: 10px;
   margin-top: 2px;
 }
 
-.choice-item label {
+.-choice-item label {
   cursor: pointer;
   flex: 1;
   line-height: 1.4;
 }
 
-.choice-item label.correct-answer {
+.-choice-item label.correct-answer {
   color: #28a745;
   font-weight: 500;
 }
 
-.choice-item label.incorrect-answer {
+.-choice-item label.incorrect-answer {
   color: #dc3545;
   font-weight: 500;
 }
 
-.explanation {
+.-explanation {
   margin-top: 15px;
   padding: 15px;
   background-color: #e8f4fd;
@@ -435,21 +450,35 @@
   border-radius: 4px;
 }
 
-.explanation p {
+.-explanation p {
   margin: 0;
   color: #333;
 }
 
 /* Modal Actions */
-.modal-actions {
+.-modal-actions {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
   padding: 15px 20px;
   border-top: 1px solid #eee;
 }
+.-modal-actions .-back-button {
+  background-color: transparent;
+    color: #7e57c2;
+    border: 1px solid #7e57c2;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-right: 20px;
+}
+.-modal-actions .-back-button:hover {
+  background-color: #7e57c2;
+  color: white;
+  }
 
-.submit-quiz {
+.-submit-quiz {
   padding: 10px 20px;
   background-color: #7e57c2;
   color: white;
@@ -460,36 +489,36 @@
   transition: background-color 0.3s;
 }
 
-.submit-quiz:hover:not(:disabled) {
+.-submit-quiz:hover:not(:disabled) {
   background-color: #6a4db3;
 }
 
-.submit-quiz:disabled {
+.-submit-quiz:disabled {
   background-color: #aaa;
   cursor: not-allowed;
 }
 
-.incomplete-warning {
+.-incomplete-warning {
   font-size: 12px;
   color: #ff6b6b;
 }
 
-.quiz-result {
+.-quiz-result {
   text-align: center;
 }
 
-.quiz-result h3 {
+.-quiz-result h3 {
   margin: 0 0 10px 0;
   color: #2c3e50;
   font-size: 24px;
 }
 
-.score-message {
+.-score-message {
   margin: 0 0 20px 0;
   font-size: 18px;
 }
 
-.close-quiz {
+.-close-quiz {
   padding: 10px 20px;
   background-color: #6c757d;
   color: white;
@@ -499,33 +528,33 @@
   font-weight: 500;
 }
 
-.close-quiz:hover {
+.-close-quiz:hover {
   background-color: #5a6268;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .pdf-section {
+  .-pdf-section {
     flex-direction: column;
     gap: 20px;
   }
   
-  .navbar-right {
+  .-navbar-right {
     flex-direction: column;
     gap: 8px;
   }
   
-  .quiz-modal {
+  .-quiz-modal {
     width: 95%;
     margin: 10px;
   }
   
-  .modal-header {
+  .-modal-header {
     flex-direction: column;
     align-items: flex-start;
   }
   
-  .close-modal {
+  .-close-modal {
     align-self: flex-end;
     margin: -10px 0 10px 0;
   }
