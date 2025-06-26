@@ -18,8 +18,8 @@ import StudentQuizHistory from './components/StudentQuizHistory';
 import StudentQuizDetails from './components/StudentQuizDetails';
 import StudentTakeQuiz from './components/StudentTakeQuiz';
 import StudentQuizResults from './components/StudentQuizResults';
-import QuizPage from './components/QuizPage';
 import SharedQuizDetail from './components/SharedQuizDetail';
+import TeacherQuizResults from './components/TeacherQuizResults';
 function App() {
   return (
     <Router>
@@ -61,8 +61,8 @@ function App() {
   element={<StudentTakeQuiz />} 
 />
 <Route path="/student/categories/:id/quizzes/:quizId/results" element={<StudentQuizResults/>} />
-<Route path="/quiz/:quizId" element={<QuizPage />} />
 <Route path="/student/shared-quiz/:quiz_id/details" element={<SharedQuizDetail />} />
+<Route path="/teacher/quizzes/:quizId/results" element={<TeacherQuizResults />} />
         </Routes>
       </div>
     </Router>

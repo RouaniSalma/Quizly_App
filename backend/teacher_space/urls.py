@@ -30,4 +30,8 @@ urlpatterns = [
     #student passes the teacher's quiz
     path('quiz/<int:quiz_id>/access/<uuid:token>/', views.quiz_access_view, name='quiz_access_view'),
     path('quiz/<int:quiz_id>/results/', views.quiz_results, name='quiz_results'),
+    #dashboard
+    path('quizzes/<int:quiz_id>/results/', views.shared_quiz_results_by_student, name='shared_quiz_results_by_student'),
+    path('quizzes/<int:quiz_id>/export/csv/', views.export_shared_quiz_results_csv, name='export_shared_quiz_results_csv'),
+    path('quizzes/<int:quiz_id>/export/pdf/', views.export_shared_quiz_results_pdf, name='export_shared_quiz_results_pdf'),
 ]

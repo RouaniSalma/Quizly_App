@@ -694,3 +694,114 @@ def quiz_results(request, quiz_id):
         'total_participants': quiz.current_participants,
         'results': results_data
     })
+"""Tabaleaux de board"""
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from .models import Quiz
+from student_space.models import SharedQuizResult
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def shared_quiz_results_by_student(request, quiz_id):
+    # Vérifier que le prof est bien le propriétaire du quiz
+    quiz = Quiz.objects.get(id=quiz_id, module__teacher=request.user)
+    results = SharedQuizResult.objects.filter(shared_quiz__quiz=quiz).select_related('student')
+    data = []
+    for result in results:
+        data.append({
+    'student_id': result.student.id,
+    'student_email': result.student.email,
+    'student_first_name': result.student.first_name,
+    'student_last_name': result.student.last_name,
+    'score': result.score,
+    'total_questions': result.total_questions,
+    'percentage': int((result.score / result.total_questions) * 100) if result.total_questions else 0,
+    'date': result.submitted_at,
+    'answers': result.answers,
+})
+    return Response(data)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def shared_quiz_results_by_module(request, module_id):
+    # Vérifier que le prof est bien le propriétaire du module
+    module = Module.objects.get(id=module_id, teacher=request.user)
+    quizzes = Quiz.objects.filter(module=module)
+    data = []
+    for quiz in quizzes:
+        results = SharedQuizResult.objects.filter(shared_quiz__quiz=quiz)
+        for result in results:
+            data.append({
+                'quiz_id': quiz.id,
+                'quiz_title': quiz.titre,
+                'student_id': result.student.id,
+                'student_username': result.student.username,
+                'score': result.score,
+                'total_questions': result.total_questions,
+                'percentage': int((result.score / result.total_questions) * 100) if result.total_questions else 0,
+                'date': result.submitted_at,
+            })
+    return Response(data)
+import csv
+from django.http import HttpResponse
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def export_shared_quiz_results_csv(request, quiz_id):
+    try:
+        quiz = Quiz.objects.get(id=quiz_id, module__teacher=request.user)
+        results = SharedQuizResult.objects.filter(shared_quiz__quiz=quiz).select_related('student')
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="quiz_{quiz_id}_results.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['First Name', 'Last Name', 'Email', 'Score', 'Total Questions', 'Percentage', 'Date'])
+
+        print("DEBUG nb résultats:", results.count())
+        for result in results:
+            print("DEBUG student:", result.student.email, result.student.first_name, result.student.last_name)
+            writer.writerow([
+                result.student.first_name,
+                result.student.last_name,
+                result.student.email,
+                result.score,
+                result.total_questions,
+                int((result.score / result.total_questions) * 100) if result.total_questions else 0,
+                result.submitted_at.strftime('%Y-%m-%d %H:%M')
+            ])
+        return response
+    except Exception as e:
+        print("EXPORT CSV ERROR:", e)
+        return HttpResponse(f"Erreur lors de l'export CSV: {e}", content_type="text/plain", status=500)
+from reportlab.pdfgen import canvas
+from django.http import HttpResponse
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def export_shared_quiz_results_pdf(request, quiz_id):
+    quiz = Quiz.objects.get(id=quiz_id, module__teacher=request.user)
+    results = SharedQuizResult.objects.filter(shared_quiz__quiz=quiz).select_related('student')
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="quiz_{quiz_id}_results.pdf"'
+
+    p = canvas.Canvas(response)
+    p.drawString(100, 800, f"Résultats du quiz : {quiz.titre}")
+
+    y = 780
+    for result in results:
+     line = (
+        f"{result.student.first_name} {result.student.last_name} ({result.student.email}) - "
+        f"Score: {result.score}/{result.total_questions} "
+        f"({int((result.score / result.total_questions) * 100) if result.total_questions else 0}%) - "
+        f"{result.submitted_at.strftime('%Y-%m-%d %H:%M')}"
+    )
+    p.drawString(100, y, line)
+    y -= 20
+    if y < 50:
+        p.showPage()
+        y = 800
+
+    p.save()
+    return response

@@ -6,8 +6,8 @@ import './TeacherQuizHistory.css';
 const TeacherQuizHistory = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [quizzes, setQuizzes] = useState([]); // Initialisez avec un tableau vide
-  const [isLoading, setIsLoading] = useState(true); // Commencez avec true
+  const [quizzes, setQuizzes] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -21,10 +21,10 @@ const TeacherQuizHistory = () => {
             }
           }
         );
-        setQuizzes(response.data || []); // Garantissez un tableau même si response.data est undefined
+        setQuizzes(response.data || []);
       } catch (error) {
         setError(error.response?.data?.error || 'Failed to load quizzes');
-        setQuizzes([]); // En cas d'erreur, définissez un tableau vide
+        setQuizzes([]);
       } finally {
         setIsLoading(false);
       }
@@ -68,12 +68,20 @@ const TeacherQuizHistory = () => {
                   <span>Created: {new Date(quiz.date_creation).toLocaleDateString()}</span>
                   <span>{quiz.questions_count || 0} questions</span>
                 </div>
-                <button 
-                  className="vi--ew-details"
-                  onClick={() => navigate(`/teacher/modules/${id}/quizzes/${quiz.id}`)}
-                >
-                  View Details
-                </button>
+                <div className="qu--iz-card-buttons">
+                  <button 
+                    className="vi--ew-details"
+                    onClick={() => navigate(`/teacher/modules/${id}/quizzes/${quiz.id}`)}
+                  >
+                    View Details
+                  </button>
+                  <button
+                    className="vi--ew-results"
+                    onClick={() => navigate(`/teacher/quizzes/${quiz.id}/results`)}
+                  >
+                    View Results
+                  </button>
+                </div>
               </div>
             ))}
           </div>

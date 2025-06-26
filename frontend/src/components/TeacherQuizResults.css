@@ -1,0 +1,219 @@
+/* TeacherQuizResults.css */
+
+body {
+  background: linear-gradient(135deg, #f9f7ff 0%, #f0ebff 100%);
+  font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.tqr-container {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.tqr-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(126, 87, 194, 0.2);
+  margin-bottom: 30px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(126, 87, 194, 0.08);
+  padding: 15px 25px;
+}
+
+.tqr-logo {
+  font-family: "Times New Roman", Times, serif;
+    font-size: 30px;
+    font-weight: 700;
+    font-style: italic;
+    color: #7e57c2; /* Violet pour contraster avec le fond blanc */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-rendering: optimizeLegibility;
+    margin-bottom: 10px;
+}
+
+.tqr-content {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 6px 15px rgba(126, 87, 194, 0.1);
+}
+
+.tqr-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.tqr-header h2 {
+  font-size: 1.8rem;
+  color: #2c3e50;
+  margin: 0;
+  font-weight: 700;
+  position: relative;
+  padding-bottom: 10px;
+  margin-bottom: 0;
+}
+
+.tqr-header h2:after {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, #7e57c2, #9c31af);
+  border-radius: 2px;
+}
+
+.tqr-actions {
+   display: flex;
+  gap: 15px;
+}
+
+.tqr-actions button {
+  padding: 12px 24px;
+  background: linear-gradient(45deg, #7e57c2, #9c27b0);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 2px 8px rgba(126, 87, 194, 0.2);
+}
+
+.tqr-actions button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(126, 87, 194, 0.3);
+  background: linear-gradient(45deg, #9c27b0, #7e57c2);
+}
+
+.tqr-back-btn {
+  background-color: white;
+  color: #7e57c2;
+  border: 2px solid #7e57c2;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(126, 87, 194, 0.15);
+}
+
+.tqr-back-btn:hover {
+  background-color: #7e57c2;
+  border-color: #7e57c2;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(126, 87, 194, 0.25);
+}
+
+.tqr-table-container {
+  overflow-x: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(126, 87, 194, 0.1);
+}
+
+.tqr-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.tqr-table th, .tqr-table td {
+  padding: 16px 20px;
+  text-align: left;
+  border-bottom: 1px solid rgba(126, 87, 194, 0.1);
+}
+
+.tqr-table th {
+  background: linear-gradient(45deg, #7e57c2, #9c27b0);
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.08rem;
+  border: none;
+}
+
+.tqr-table tr {
+  transition: background 0.18s;
+}
+
+.tqr-table tr:nth-child(even) {
+  background: rgba(126, 87, 194, 0.03);
+}
+
+.tqr-table tr:hover {
+  background: rgba(126, 87, 194, 0.08);
+}
+
+.tqr-table td {
+  color: #2c3e50;
+  font-size: 1rem;
+}
+
+.tqr-no-results {
+  margin: 40px 0;
+  padding: 36px;
+  text-align: center;
+  color: #7e57c2;
+  font-size: 1.18rem;
+  font-weight: 500;
+  background: #f8f6ff;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(126, 87, 194, 0.13);
+}
+
+.tqr-loading, .tqr-error {
+  text-align: center;
+  padding: 50px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(126, 87, 194, 0.1);
+}
+
+.tqr-loading {
+  color: #7e57c2;
+}
+
+.tqr-error {
+  color: #ff4757;
+  background: rgba(255, 71, 87, 0.05);
+}
+
+@media (max-width: 768px) {
+  .tqr-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  
+  .tqr-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .tqr-actions {
+    width: 100%;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .tqr-actions button {
+    width: 100%;
+  }
+  
+  .tqr-table th, .tqr-table td {
+    padding: 12px 8px;
+    font-size: 0.9rem;
+  }
+}
