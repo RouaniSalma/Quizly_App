@@ -25,4 +25,9 @@ path('categories/<int:module_id>/quiz/<int:quiz_id>/', views.student_quiz_detail
     path('quizzes/<int:quiz_id>/results/latest/', views.get_latest_quiz_result, name='latest-quiz-result'),
     path('quizzes/<int:quiz_id>/answers/', views.get_user_answers, name='user-quiz-answers'),
     path('categories/<int:module_id>/quizzes/<int:quiz_id>/delete/', views.delete_quiz, name='delete-quiz'),
+    #####student passe quiz teacher
+    path('shared-quiz/access/', views.access_shared_quiz, name='access_shared_quiz'),
+    path('shared-quiz/<int:quiz_id>/submit/', views.submit_shared_quiz, name='submit_shared_quiz'),
+    path('shared-quiz/<int:quiz_id>/details/', views.shared_quiz_detail, name='shared-quiz-detail'),
+    path('shared-quiz/<int:quiz_id>/delete/', views.delete_shared_quiz_result, name='delete-shared-quiz'),
 ]

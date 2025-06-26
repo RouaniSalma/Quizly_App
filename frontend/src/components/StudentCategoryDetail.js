@@ -19,6 +19,70 @@ const StudentCategoryDetail = () => {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [fileUploaded, setFileUploaded] = useState(false);
+  //student passe quiz prof
+  const [showQuizLinkModal, setShowQuizLinkModal] = useState(false);
+const [quizLink, setQuizLink] = useState('');
+const [sharedQuiz, setSharedQuiz] = useState(null);
+const [sharedQuizLoading, setSharedQuizLoading] = useState(false);
+const [sharedQuizError, setSharedQuizError] = useState(null);
+const [accessId, setAccessId] = useState(null);
+
+const handleQuizLinkSubmit = async () => {
+  if (!quizLink.trim()) {
+    setSharedQuizError('Please enter a valid quiz link');
+    return;
+  }
+
+  try {
+    setSharedQuizLoading(true);
+    setSharedQuizError(null);
+    
+    // Extraire l'ID et le token
+    const match = quizLink.match(/\/(?:api\/teacher\/)?quizzes?\/(\d+)\/access\/([a-f0-9-]+)\/?/i);
+if (!match) {
+  throw new Error('Invalid quiz link format');
+}
+const quizId = match[1];
+const accessToken = match[2];
+    
+    console.log('Extracted:', { quizId, accessToken }); // Debug
+    
+    const response = await axios.get(
+      `http://localhost:8000/api/teacher/quiz/${quizId}/access/${accessToken}/`,
+      {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+      }
+    );
+    
+    console.log('API Response:', response.data); // Debug
+    
+    if (response.data.error) {
+      throw new Error(response.data.error);
+    }
+    
+    setSharedQuiz(response.data);
+    setShowQuizLinkModal(false);
+    setShowQuizModal(true);
+    setUserAnswers(response.data.questions.map(question => ({
+      questionId: question.id,
+      answer: null
+    })));
+  } catch (error) {
+    console.error('Error details:', {
+      message: error.message,
+      response: error.response,
+    });
+    
+    setSharedQuizError(
+      error.response?.data?.error || 
+      error.message || 
+      'Failed to access quiz. Please check the link.'
+    );
+  } finally {
+    setSharedQuizLoading(false);
+  }
+};
+
 
   // Constantes pour les limites
   const MAX_FILE_SIZE = 1048576; // 1 Mo en octets
@@ -224,38 +288,77 @@ const StudentCategoryDetail = () => {
       return newAnswers;
     });
   };
+ const submitSharedQuiz = async () => {
+  if (!sharedQuiz || !accessId) return;
 
+  const hasUnanswered = userAnswers.some(answer => answer.choiceId === null);
+  if (hasUnanswered) {
+    setErrorMessage("Please answer all questions before submitting.");
+    setShowErrorModal(true);
+    return;
+  }
+
+  try {
+    const response = await axios.post(
+      `http://localhost:8000/api/teacher/quiz/submit/${accessId}/`,
+      {
+        answers: userAnswers.map(answer => ({
+          question_id: answer.questionId,
+          choice_id: answer.choiceId
+        }))
+      },
+      { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }
+    );
+    
+    setScore(response.data.score);
+    setQuizSubmitted(true);
+  } catch (error) {
+    setError("Failed to submit quiz: " + (error.response?.data?.error || error.message));
+  }
+};
   const submitQuiz = async () => {
-    if (!generatedQuiz) return;
+  if (!generatedQuiz && !sharedQuiz) return;
 
-    const hasUnanswered = userAnswers.some(answer => answer.answer === null);
-    if (hasUnanswered) {
-      setErrorMessage("Please answer all questions before submitting.");
-      setShowErrorModal(true);
-      return;
+  const quizId = sharedQuiz ? sharedQuiz.id : generatedQuiz.id;
+  const hasUnanswered = userAnswers.some(answer => answer.answer === null);
+  
+  if (hasUnanswered) {
+    setErrorMessage("Please answer all questions before submitting.");
+    setShowErrorModal(true);
+    return;
+  }
+
+  setIsLoading(true);
+  try {
+    const endpoint = sharedQuiz 
+      ? `http://localhost:8000/api/student/shared-quiz/${quizId}/submit/`
+      : `http://localhost:8000/api/student/quizzes/${quizId}/submit/`;
+
+    const response = await axios.post(
+      endpoint,
+      {
+        answers: userAnswers.map(answer => ({
+          question_id: answer.questionId,
+          selected_choice_index: answer.answer
+        }))
+      },
+      { 
+  headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+});
+
+    setScore(response.data.score);
+    setQuizSubmitted(true);
+    
+    // Réinitialiser le quiz partagé après soumission
+    if (sharedQuiz) {
+      setSharedQuiz(null);
     }
-
-    setIsLoading(true);
-    try {
-      const response = await axios.post(
-        `http://localhost:8000/api/student/quizzes/${generatedQuiz.id}/submit/`,
-        {
-          answers: userAnswers.map(answer => ({
-            question_id: answer.questionId,
-            selected_choice_index: answer.answer
-          }))
-        },
-        { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } }
-      );
-
-      setScore(response.data.score);
-      setQuizSubmitted(true);
-    } catch (error) {
-      setError("Failed to submit quiz: " + (error.response?.data?.error || error.message));
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  } catch (error) {
+    setError("Failed to submit quiz: " + (error.response?.data?.error || error.message));
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -294,6 +397,12 @@ const StudentCategoryDetail = () => {
           >
             View Quiz History
           </button>
+          <button
+  className="-take-quiz-btn"
+  onClick={() => setShowQuizLinkModal(true)}
+>
+  Take Shared Quiz
+</button>
           <button className="-logout-btn" onClick={handleLogout}>Logout</button>
         </div>
       </nav>
@@ -435,24 +544,27 @@ const StudentCategoryDetail = () => {
           </div>
         </div>
 
-        {showQuizModal && generatedQuiz && (
-          <div className="-quiz-modal-overlay">
-            <div className="-quiz-modal">
-              <div className="-modal-header">
-                <h2>{generatedQuiz.title}</h2>
-                <p>{generatedQuiz.description}</p>
-                <button 
-                  className="-close-modal"
-                  onClick={() => setShowQuizModal(false)}
-                >
-                  &times;
-                </button>
-              </div>
-              
-              <div className="-modal-body">
-                <div className="-questions-container">
-                  {generatedQuiz.questions.map((question, qIndex) => (
-                    <div key={question.id} className="question-card">
+        {showQuizModal && (generatedQuiz || sharedQuiz) && (
+  <div className="-quiz-modal-overlay">
+    <div className="-quiz-modal">
+      <div className="-modal-header">
+        <h2>{sharedQuiz ? sharedQuiz.title : generatedQuiz.title}</h2>
+        <p>{sharedQuiz ? sharedQuiz.description : generatedQuiz.description}</p>
+        <button 
+          className="-close-modal"
+          onClick={() => {
+            setShowQuizModal(false);
+            setSharedQuiz(null); // Reset shared quiz when closing
+          }}
+        >
+          &times;
+        </button>
+      </div>
+      
+      <div className="-modal-body">
+        <div className="-questions-container">
+          {(sharedQuiz ? sharedQuiz.questions : generatedQuiz.questions).map((question, qIndex) => (
+            <div key={question.id} className="question-card">
                       <h3>Question {qIndex + 1}</h3>
                       <p>{question.text}</p>
                       
@@ -530,6 +642,48 @@ const StudentCategoryDetail = () => {
             </div>
           </div>
         )}
+        {showQuizLinkModal && (
+  <div className="-quiz-link-modal-overlay">
+    <div className="-quiz-link-modal">
+      <div className="-modal-header">
+        <h2>Enter Quiz Link</h2>
+        <button 
+          className="-close-modal"
+          onClick={() => {
+            setShowQuizLinkModal(false);
+            setQuizLink('');
+            setSharedQuizError(null);
+          }}
+        >
+          &times;
+        </button>
+      </div>
+      
+      <div className="-modal-body">
+        <p>Paste the quiz link shared by your teacher:</p>
+        <input
+  type="text"
+  value={quizLink}
+  onChange={(e) => setQuizLink(e.target.value)}
+  placeholder="http://localhost:8000/api/teacher/quiz/40/access/1d1b76d1-1960-4d7d-be38-81e6b5875213/"
+  className="-quiz-link-input"
+  style={{ width: '100%' }}  // Ajoutez ce style pour éviter le tronquage
+/>
+        {sharedQuizError && <div className="-error-message">{sharedQuizError}</div>}
+      </div>
+      
+      <div className="-modal-actions">
+        <button
+          className="-submit-link-btn"
+          onClick={handleQuizLinkSubmit}
+          disabled={sharedQuizLoading}
+        >
+          {sharedQuizLoading ? 'Loading...' : 'Start Quiz'}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       </div>
     </div>
   );

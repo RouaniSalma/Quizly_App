@@ -44,23 +44,34 @@ const TeacherQuizDetail = () => {
   };
 
   const handleShareQuiz = async () => {
-    try {
-      const response = await axios.post(
-        `http://localhost:8000/api/teacher/quizzes/${quizId}/share/`,  // Ajoutez le préfixe
-        { restrictions },
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json'
-          }
+  try {
+    let expiryDateUTC = '';
+if (restrictions.expiry_date) {
+  expiryDateUTC = new Date(restrictions.expiry_date).toISOString();
+}
+    console.log("Date locale saisie :", restrictions.expiry_date);
+console.log("Date envoyée au backend (UTC) :", expiryDateUTC);
+    const response = await axios.post(
+      `http://localhost:8000/api/teacher/quizzes/${quizId}/share/`,
+      {
+        restrictions: {
+          ...restrictions,
+          expiry_date: expiryDateUTC
         }
-      );
-      setShareData(response.data);
-    } catch (error) {
-      console.error('Sharing failed:', error);
-      setError(error.response?.data?.error || 'Failed to share quiz');
-    }
-  };
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    setShareData(response.data);
+  } catch (error) {
+    console.error('Sharing failed:', error);
+    setError(error.response?.data?.error || 'Failed to share quiz');
+  }
+};
 
   if (isLoading) return <div className="loa-ding">Loading quiz...</div>;
   if (error) return <div className="err-or">{error}</div>;
@@ -123,7 +134,7 @@ const TeacherQuizDetail = () => {
                 <label>
                   Expiration date:
                   <input
-                    type="dat-etime-local"
+                    type="datetime-local"
                     value={restrictions.expiry_date}
                     onChange={(e) => setRestrictions({
                       ...restrictions,

@@ -559,3 +559,54 @@
     margin: -10px 0 10px 0;
   }
 }
+/*Studnet passes quiz theacher*/
+.-take-quiz-btn {
+  background-color: transparent;
+  color: #7e57c2;
+  border-color: #7e57c2;
+}
+
+.-take-quiz-btn:hover {
+  background-color: #7e57c2;
+  color: white;
+}
+
+.-quiz-link-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.-quiz-link-modal {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 500px;
+  max-width: 90%;
+}
+
+.-quiz-link-input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.-submit-link-btn {
+  background-color: #7e57c2;
+  color: white;
+  border-color: #7e57c2;
+}
+.-submit-link-btn:hover{
+  
+  color: #b39ddb;
+  
+}

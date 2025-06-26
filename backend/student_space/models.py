@@ -98,3 +98,29 @@ class QuizResult(models.Model):
 
     def __str__(self):
         return f"{self.student.username} - {self.quiz.titre} - {self.score}/{self.total_questions}"
+    ########### student passe quiz teacher
+
+from django.db import models
+from django.contrib.auth import get_user_model
+
+import uuid
+
+class SharedQuizAccess(models.Model):
+    quiz = models.ForeignKey('teacher_space.Quiz', on_delete=models.CASCADE)  # Adaptez 'quiz_app'
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    is_used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [['quiz', 'student']]  # Un accès unique par user/quiz
+
+class SharedQuizResult(models.Model):
+    shared_quiz = models.ForeignKey(SharedQuizAccess, on_delete=models.CASCADE)
+    student = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    score = models.IntegerField()
+    total_questions = models.IntegerField()
+    answers = models.JSONField()
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.student.username} - {self.shared_quiz.quiz.titre} - {self.score}/{self.total_questions}"

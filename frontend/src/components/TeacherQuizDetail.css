@@ -290,14 +290,16 @@ background-color: #7e57c2;
 }
 
 .cop-y-button {
-  background-color: #7e57c2;  /* Violet de votre thème */
+  background-color: #7e57c2;
   color: white;
   padding: 8px 16px;
-  margin-top: -25px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  white-space: nowrap;  /* Empêche le texte de se casser */
+  white-space: nowrap;
+  /* Supprimez le margin-top négatif */
+  height: auto; /* s'aligne avec l'input */
+  align-self: center; /* alignement vertical si nécessaire */
 }
 
 .cop-y-button:hover {

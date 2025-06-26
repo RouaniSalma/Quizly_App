@@ -167,19 +167,40 @@ const StudentQuizHistory = () => {
                 <div className="quiz-actions-">
                   {quiz.last_attempt.attempts_count > 0 && (
                     <>
-                      <button 
-                        className="view-details-"
-                        onClick={() => handleViewDetails(quiz.id)}
-                      >
-                        View Details
-                      </button>
-                      <button 
-                        className="delete-quiz-"
-                        onClick={() => handleDeleteQuiz(quiz.id)}
-                        disabled={isDeleting}
-                      >
-                        {isDeleting ? 'Deleting...' : 'Delete Quiz'}
-                      </button>
+                      <button
+        className="view-details-"
+        onClick={() => {
+          if (quiz.type === 'shared') {
+            navigate(`/student/shared-quiz/${quiz.id.replace('shared-', '')}/details`);
+          } else {
+            navigate(`/student/categories/${id}/quizzes/${quiz.id}/details`);
+          }
+        }}
+      >
+        View Details
+      </button>
+                      <button
+  className="delete-quiz-"
+  onClick={() => {
+    if (quiz.type === 'shared') {
+      // Pour un quiz partagé
+      axios.delete(`http://localhost:8000/api/student/shared-quiz/${quiz.id.replace('shared-', '')}/delete/`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      })
+      .then(() => fetchQuizzes()) // recharge la liste
+      .catch(err => alert(err.response?.data?.error || 'Failed to delete shared quiz'));
+    } else {
+      // Pour un quiz classique
+      axios.delete(`http://localhost:8000/api/student/categories/${id}/quizzes/${quiz.id}/delete/`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      })
+      .then(() => fetchQuizzes())
+      .catch(err => alert(err.response?.data?.error || 'Failed to delete quiz'));
+    }
+  }}
+>
+  Delete Quiz
+</button>
                     </>
                   )}
                 </div>

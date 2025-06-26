@@ -26,7 +26,8 @@ class PDF(models.Model):
     date_upload = models.DateTimeField(auto_now_add=True)
 
 import uuid
-from django.utils import timezone
+
+from django.utils import timezone as dj_timezone
 class Quiz(models.Model):
     module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name="quizzes")
     titre = models.CharField(max_length=100)
@@ -53,18 +54,12 @@ class Quiz(models.Model):
         return f"https://localhost:8000/quiz/{self.id}/access/{self.share_token}/"
     
     def is_accessible(self):
-        if not self.access_restricted:
-            return True
-        
-        now = timezone.now()
+        now = dj_timezone.now()
         if self.expiry_date and now > self.expiry_date:
-            return False
-        
-        if (self.max_participants is not None and 
-            self.current_participants >= self.max_participants):
-            return False
-            
-        return True
+            return False, "The time to take this quiz has expired."
+        if self.max_participants and self.current_participants >= self.max_participants:
+            return False, "The maximum number of participants has been reached."
+        return True, ""
     
     class Meta:
         verbose_name_plural = "Quizzes"
@@ -89,7 +84,7 @@ def generate_qr_code(self):
     filename = f'qr_code_{self.id}.png'
     
     self.qr_code.save(filename, File(buffer), save=False)
-    self.last_shared = timezone.now()
+    self.last_shared = dj_timezone.now()
     self.save()
     return self.qr_code
     

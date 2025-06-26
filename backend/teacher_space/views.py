@@ -549,99 +549,13 @@ def delete_question(request, question_id):
         return Response({'error': 'Question not found or not yours'}, status=status.HTTP_404_NOT_FOUND)
     
 ################## View pour gerer le partage du quiz
-from django.utils import timezone
-import qrcode
-from io import BytesIO
-from django.core.files.base import ContentFile
-from rest_framework.decorators import api_view
-from django.utils import timezone
-from django.core.files.base import ContentFile
-from django.urls import reverse
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from io import BytesIO
-import qrcode
-from .models import Quiz
-import os
-from django.conf import settings 
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def share_quiz(request, quiz_id):
-    try:
-        # Récupération du quiz avec vérification des permissions
-        quiz = Quiz.objects.get(id=quiz_id, module__teacher=request.user)
-        
-        # Traitement des restrictions - modification ici
-        restrictions = request.data.get('restrictions', {})
-        expiry_date = restrictions.get('expiry_date')
-        max_participants = restrictions.get('max_participants')
-        
-        if expiry_date:
-            quiz.expiry_date = expiry_date
-        if max_participants is not None:
-            quiz.max_participants = int(max_participants)
-            quiz.current_participants = 0  # Réinitialisation du compteur
-        
-        # Génération de l'URL de partage
-        share_url = request._request.build_absolute_uri(
-            reverse('quiz_access_view', kwargs={
-                'quiz_id': quiz.id,
-                'token': str(quiz.share_token)
-            })
-        )
-        
-        # Génération du QR Code
-        qr = qrcode.QRCode(
-            version=1,
-            error_correction=qrcode.constants.ERROR_CORRECT_L,
-            box_size=10,
-            border=4,
-        )
-        qr.add_data(share_url)
-        qr.make(fit=True)
-        
-        img = qr.make_image(fill_color="black", back_color="white")
-        buffer = BytesIO()
-        img.save(buffer, format="PNG")
-        
-        # Sauvegarde du QR Code (correction de l'indentation ici)
-        filename = f'qr_code_{quiz.id}.png'
-        qr_path = os.path.join(settings.MEDIA_ROOT, 'qr_codes')
-        os.makedirs(qr_path, exist_ok=True)
-
-        quiz.qr_code.save(filename, ContentFile(buffer.getvalue()), save=True)
-        
-        # Mise à jour des métadonnées
-        quiz.last_shared = timezone.now()
-        quiz.access_restricted = bool(expiry_date or max_participants)
-        quiz.save()
-        
-        # Construction de la réponse
-        response_data = {
-            'status': 'success',
-            'share_url': share_url,
-            'qr_code_url': request._request.build_absolute_uri(quiz.qr_code.url),
-            'expiry_date': quiz.expiry_date,
-            'max_participants': quiz.max_participants,
-            'current_participants': quiz.current_participants
-        }
-        
-        return Response(response_data)
-        
-    except Quiz.DoesNotExist:
-        return Response({'error': 'Quiz not found or access denied'}, status=404)
-    except ValueError as e:
-        return Response({'error': f'Invalid data format: {str(e)}'}, status=400)
-    except Exception as e:
-        return Response({'error': f'Server error: {str(e)}'}, status=500)
     
 
 # Dans views.py
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny  # Nouvel import
-
+import uuid
 @api_view(['GET'])
 @permission_classes([AllowAny])  # Autorise l'accès sans token
 def quiz_access_view(request, quiz_id, token):
@@ -652,209 +566,131 @@ def quiz_access_view(request, quiz_id, token):
         return Response(QuizSerializer(quiz).data)
     except Quiz.DoesNotExist:
         return Response({'error': 'Invalid quiz link'}, status=404)
-############# Paaseage du quiz par l'enseignant
-"""
-from .models import QuizRestriction, QuizAccess, QuizAnswer
+
+"""student passes the quiz teacher"""
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.utils.dateparse import parse_datetime
+from django.utils import timezone as dj_timezone
+from datetime import timezone as py_timezone
 import uuid
-from django.db.models import Avg ; # Pour corriger l'erreur "Avg is not defined"
-from django.http import HttpResponse ; # Pour corriger "HttpResponse is not defined"
-import csv  # Pour corriger "csv is not defined"
-from reportlab.pdfgen import canvas ; # Pour corriger "canvas is not defined"
-# Ajoutez ces imports pour ReportLab
-from reportlab.lib.pagesizes import letter
-from reportlab.lib import colors
-from reportlab.platypus import (
-    SimpleDocTemplate,
-    Table,
-    TableStyle,
-    Paragraph,
-    Spacer
-)
-from reportlab.lib.styles import getSampleStyleSheet
+
+from .models import Quiz
+from .serializers import QuizSerializer
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def set_quiz_restrictions(request, quiz_id):  # Nom corrigé
+def share_quiz(request, quiz_id):
     try:
         quiz = Quiz.objects.get(id=quiz_id, module__teacher=request.user)
     except Quiz.DoesNotExist:
-        return Response({'error': 'Quiz not found or not authorized'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': 'Quiz not found or not yours'}, status=404)
     
-    expiry_date = request.data.get('expiry_date')
-    max_participants = request.data.get('max_participants')
-    
-    # Créer ou mettre à jour les restrictions
-    restrictions, created = QuizRestriction.objects.get_or_create(quiz=quiz)
-    
-    if expiry_date:
-        restrictions.expiry_date = expiry_date
-    if max_participants is not None:  # Meilleure vérification pour 0
-        restrictions.max_participants = max_participants
-    
-    restrictions.save()
-    
-    return Response({
-        'status': 'success',
-        'expiry_date': restrictions.expiry_date,
-        'max_participants': restrictions.max_participants,
-        'current_participants': restrictions.current_participants
-    })
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def generate_share_link(request, quiz_id):
-    try:
-        quiz = Quiz.objects.get(id=quiz_id, module__teacher=request.user)
-    except Quiz.DoesNotExist:
-        return Response({'error': 'Quiz not found or not authorized'}, status=404)
-    
-    # Générer un token unique s'il n'existe pas déjà
+    # Générer un nouveau token si nécessaire
     if not quiz.share_token:
         quiz.share_token = uuid.uuid4()
-        quiz.save()
     
-    share_link = request.build_absolute_uri(
-        f'/student/quiz-access/{quiz.id}/{quiz.share_token}/'
+    restrictions = request.data.get('restrictions', {})
+    expiry_date = restrictions.get('expiry_date')
+    max_participants = restrictions.get('max_participants')
+
+    # ===> DEBUG PRINTS
+    print("DEBUG restrictions:", restrictions)
+    print("DEBUG expiry_date reçu:", expiry_date, type(expiry_date))
+    print("DEBUG max_participants reçu:", max_participants, type(max_participants))
+
+    # Conversion UTC sécurisée
+    if expiry_date:
+        dt = parse_datetime(expiry_date)
+        if dt is not None:
+            # Si la date est naive, on la rend aware en UTC
+            if dj_timezone.is_naive(dt):
+                dt = dt.replace(tzinfo=py_timezone.utc)
+            else:
+                dt = dt.astimezone(py_timezone.utc)
+            quiz.expiry_date = dt
+        else:
+            quiz.expiry_date = None
+    else:
+        quiz.expiry_date = None
+
+    old_max_participants = quiz.max_participants
+    if max_participants in [None, '', 'null']:
+        quiz.max_participants = None
+    else:
+        try:
+            value = int(max_participants)
+            quiz.max_participants = value if value > 0 else None
+            if old_max_participants != quiz.max_participants:
+                quiz.current_participants = 0
+        except (ValueError, TypeError):
+            quiz.max_participants = None
+
+    # ===> DEBUG PRINTS
+    print("DEBUG quiz.expiry_date enregistré:", quiz.expiry_date, type(quiz.expiry_date))
+    print("DEBUG quiz.max_participants enregistré:", quiz.max_participants, type(quiz.max_participants))
+
+    quiz.access_restricted = bool(quiz.expiry_date or quiz.max_participants)
+    quiz.last_shared = dj_timezone.now()
+    quiz.save()
+    
+    share_url = request._request.build_absolute_uri(
+        f'/api/teacher/quizzes/{quiz.id}/access/{quiz.share_token}/'
     )
     
     return Response({
-        'share_link': share_link,
-        'qr_code_url': quiz.qr_code.url if quiz.qr_code else None
+        'share_url': share_url,
+        **QuizSerializer(quiz).data
     })
+from rest_framework.permissions import AllowAny
+from .shared_serializers import SharedQuizDetailSerializer
+from django.utils import timezone
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def quiz_access_view(request, quiz_id, token):
+    try:
+        quiz = Quiz.objects.get(id=quiz_id, share_token=token)
+    except Quiz.DoesNotExist:
+        return Response({'error': 'Invalid quiz link'}, status=404)
 
+    from django.utils import timezone
+    print("DEBUG: expiry_date =", quiz.expiry_date)
+    print("DEBUG: now =", timezone.now())
+    
+    accessible, message = quiz.is_accessible()
+    if not accessible:
+      return Response({'error': message}, status=403)
+    
+    serializer = SharedQuizDetailSerializer(quiz)
+    return Response(serializer.data)
+from student_space.models import SharedQuizResult
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def quiz_statistics(request, quiz_id):
+def quiz_results(request, quiz_id):
     try:
         quiz = Quiz.objects.get(id=quiz_id, module__teacher=request.user)
     except Quiz.DoesNotExist:
-        return Response({'error': 'Quiz not found or not authorized'}, status=404)
+        return Response({'error': 'Quiz not found or not yours'}, status=404)
     
-    # Données de base
-    total_students = QuizAccess.objects.filter(quiz=quiz).count()
-    completed_students = QuizAccess.objects.filter(quiz=quiz, completed=True).count()
-    avg_score = QuizAccess.objects.filter(quiz=quiz, completed=True).aggregate(
-        Avg('score')
-    )['score__avg'] or 0
+    # Récupérer tous les résultats pour ce quiz
+    results = SharedQuizResult.objects.filter(shared_quiz__quiz=quiz).select_related('student')
     
-    # Répartition des scores
-    score_distribution = {
-        '0-20': QuizAccess.objects.filter(quiz=quiz, score__lte=20).count(),
-        '21-40': QuizAccess.objects.filter(quiz=quiz, score__gt=20, score__lte=40).count(),
-        '41-60': QuizAccess.objects.filter(quiz=quiz, score__gt=40, score__lte=60).count(),
-        '61-80': QuizAccess.objects.filter(quiz=quiz, score__gt=60, score__lte=80).count(),
-        '81-100': QuizAccess.objects.filter(quiz=quiz, score__gt=80).count(),
-    }
-    
-    # Difficulté des questions
-    question_stats = []
-    for question in quiz.questions.all():
-        total_answers = QuizAnswer.objects.filter(
-            question=question,
-            access__quiz=quiz
-        ).count()
-        
-        correct_answers = QuizAnswer.objects.filter(
-            question=question,
-            access__quiz=quiz,
-            is_correct=True
-        ).count()
-        
-        question_stats.append({
-            'question_id': question.id,
-            'question_text': question.enonce,
-            'correct_rate': (correct_answers / total_answers * 100) if total_answers > 0 else 0,
-            'total_answers': total_answers
+    results_data = []
+    for result in results:
+        results_data.append({
+            'student_id': result.student.id,
+            'student_name': result.student.username,
+            'score': result.score,
+            'total_questions': result.total_questions,
+            'percentage': int((result.score / result.total_questions) * 100),
+            'submitted_at': result.submitted_at
         })
     
     return Response({
+        'quiz_id': quiz.id,
         'quiz_title': quiz.titre,
-        'total_students': total_students,
-        'completed_students': completed_students,
-        'average_score': round(avg_score, 2),
-        'score_distribution': score_distribution,
-        'question_stats': question_stats
+        'total_participants': quiz.current_participants,
+        'results': results_data
     })
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def export_quiz_results(request, quiz_id, format_type):
-    try:
-        quiz = Quiz.objects.get(id=quiz_id, module__teacher=request.user)
-    except Quiz.DoesNotExist:
-        return Response({'error': 'Quiz not found or not authorized'}, status=status.HTTP_404_NOT_FOUND)
-    
-    results = QuizAccess.objects.filter(quiz=quiz, completed=True).select_related('student')
-    
-    if format_type == 'csv':
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename="quiz_{quiz_id}_results.csv"'
-        
-        writer = csv.writer(response)
-        writer.writerow(['Student', 'Email', 'Score', 'Completion Date'])
-        
-        for result in results:
-            writer.writerow([
-                result.student.get_full_name(),
-                result.student.email,
-                result.score,
-                result.access_time.strftime('%Y-%m-%d %H:%M')
-            ])
-        
-        return response
-    
-    elif format_type == 'pdf':
-        try:
-            buffer = BytesIO()
-            doc = SimpleDocTemplate(buffer, pagesize=letter)
-            
-            # Styles
-            styles = getSampleStyleSheet()
-            
-            # Données pour le PDF
-            data = [['Student', 'Email', 'Score (%)', 'Completion Date']]
-            
-            for result in results:
-                data.append([
-                    result.student.get_full_name(),
-                    result.student.email,
-                    f"{result.score:.2f}",
-                    result.access_time.strftime('%Y-%m-%d %H:%M')
-                ])
-            
-            # Création du tableau
-            table = Table(data)
-            table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, 0), 12),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-                ('GRID', (0, 0), (-1, -1), 1, colors.black)
-            ]))
-            
-            # Construction du PDF
-            elements = []
-            elements.append(Paragraph(f"Results for Quiz: {quiz.titre}", styles['Title']))
-            elements.append(Spacer(1, 12))
-            elements.append(table)
-            
-            # Statistiques
-            avg_score = results.aggregate(Avg('score'))['score__avg'] or 0
-            stats_text = f"Total participants: {results.count()} | Average score: {avg_score:.2f}%"
-            elements.append(Paragraph(stats_text, styles['BodyText']))
-            
-            doc.build(elements)
-            buffer.seek(0)
-            
-            response = HttpResponse(buffer, content_type='application/pdf')
-            response['Content-Disposition'] = f'attachment; filename="quiz_{quiz_id}_results.pdf"'
-            return response
-            
-        except ImportError:
-            return Response({'error': 'PDF export requires reportlab package'}, 
-                          status=status.HTTP_501_NOT_IMPLEMENTED)
-    
-    return Response({'error': 'Invalid format. Use csv or pdf'}, 
-                  status=status.HTTP_400_BAD_REQUEST)
-"""
