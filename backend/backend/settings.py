@@ -226,7 +226,7 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 FRONTEND_URL = 'http://localhost:3000'
 # JWT settings (si vous utilisez SimpleJWT)
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': False,  # Désactivé pour éviter les problèmes MySQL
     'BLACKLIST_AFTER_ROTATION': False,  # Désactivé pour éviter les problèmes MySQL
