@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../services/axiosInstance';
 import './ModuleCreation.css';
 import { useNavigate } from 'react-router-dom';
 
@@ -27,7 +27,7 @@ const handleLogout = () => {
 
     try {
       // Vérification d'unicité sans modifier le texte saisi (laisser le backend gérer la casse si possible)
-      const checkResponse = await axios.get(
+      const checkResponse = await api.get(
         `http://localhost:8000/api/teacher/modules/check-unique/?name=${encodeURIComponent(moduleName.trim())}`,
         {
           headers: {
@@ -42,7 +42,7 @@ const handleLogout = () => {
       }
 
       // Création du module (nom converti en minuscules et nettoyé)
-      const response = await axios.post(
+      const response = await api.post(
         'http://localhost:8000/api/teacher/modules/create/',
         { name: moduleName.trim() },
         {

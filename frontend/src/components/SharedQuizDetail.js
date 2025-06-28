@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/axiosInstance';
 import './SharedQuizDetail.css';
 
 const SharedQuizDetail = () => {
@@ -10,7 +10,7 @@ const SharedQuizDetail = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    axios.get(`http://localhost:8000/api/student/shared-quiz/${quiz_id}/details/`, {
+    api.get(`http://localhost:8000/api/student/shared-quiz/${quiz_id}/details/`, {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
     })
     .then(res => setQuiz(res.data))

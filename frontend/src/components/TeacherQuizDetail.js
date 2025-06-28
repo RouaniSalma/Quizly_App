@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/axiosInstance';
 import './TeacherQuizDetail.css';
-
+import { fetchWithAuth } from '../services/fetchWithAuth';
 const TeacherQuizDetail = () => {
   const { id, quizId } = useParams();
   const navigate = useNavigate();
@@ -17,10 +17,10 @@ const TeacherQuizDetail = () => {
   });
 
   useEffect(() => {
-    const fetchQuiz = async () => {
+    const fetchWithAuthQuiz = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(
+        const response = await api.get(
           `http://localhost:8000/api/teacher/quizzes/${quizId}/`,
           {
             headers: {
@@ -36,7 +36,7 @@ const TeacherQuizDetail = () => {
       }
     };
 
-    fetchQuiz();
+    fetchWithAuthQuiz();
   }, [quizId]);
 
   const handleBack = () => {
@@ -51,7 +51,7 @@ if (restrictions.expiry_date) {
 }
     console.log("Date locale saisie :", restrictions.expiry_date);
 console.log("Date envoyée au backend (UTC) :", expiryDateUTC);
-    const response = await axios.post(
+    const response = await api.post(
       `http://localhost:8000/api/teacher/quizzes/${quizId}/share/`,
       {
         restrictions: {

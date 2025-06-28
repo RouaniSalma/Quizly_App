@@ -31,11 +31,21 @@ class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request, *args, **kwargs):
+        print("=== DEBUG LOGIN ===")
+        print("Request data:", request.data)
+        print("Email received:", request.data.get('email'))
+        print("Password received:", "***" if request.data.get('password') else "None")
+        
         serializer = LoginSerializer(data=request.data, context={'request': request})
         
         try:
+            print("Validating serializer...")
             serializer.is_valid(raise_exception=True)
+            print("Serializer valid!")
+            user = serializer.validated_data['user']
+            print(f"User found: {user.email}, Role: {user.role}, Active: {user.is_active}")
         except Exception as e:
+            print(f"Serializer error: {str(e)}")
             return Response({"detail": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
             
         return Response({
@@ -47,7 +57,7 @@ class LoginView(APIView):
                 'role': serializer.validated_data['user'].role
             }
         }, status=status.HTTP_200_OK)
-
+    
 # views.py
 from rest_framework.response import Response
 from rest_framework import status
@@ -213,8 +223,7 @@ class PasswordResetView(GenericAPIView):
             reset_token.used = True
             reset_token.save()
             
-            # Invalider tous les tokens JWT existants
-            user.auth_token_set.all().delete()
+            
             
             return Response({'message': 'Password reset successfully'},
                           status=status.HTTP_200_OK)
@@ -222,3 +231,11 @@ class PasswordResetView(GenericAPIView):
         except PasswordResetToken.DoesNotExist:
             return Response({'error': 'Invalid token'},
                           status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request, token):
+      try:
+        reset_token = PasswordResetToken.objects.get(token=token)
+        if not reset_token.is_valid():
+            return Response({'valid': False, 'message': 'Invalid or expired token'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'valid': True})
+      except PasswordResetToken.DoesNotExist:
+        return Response({'valid': False, 'message': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)    

@@ -744,16 +744,20 @@ def shared_quiz_results_by_module(request, module_id):
     return Response(data)
 import csv
 from django.http import HttpResponse
-
+import re
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def export_shared_quiz_results_csv(request, quiz_id):
+    print("EXPORT CSV/PDF VUE APPELEE")
     try:
         quiz = Quiz.objects.get(id=quiz_id, module__teacher=request.user)
         results = SharedQuizResult.objects.filter(shared_quiz__quiz=quiz).select_related('student')
-
+        print("TITRE DU QUIZ:", quiz.titre)
+        print("SAFE TITLE:", re.sub(r'[^a-zA-Z0-9_-]', '_', quiz.titre))
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename="quiz_{quiz_id}_results.csv"'
+        
+        safe_title = re.sub(r'[^a-zA-Z0-9_-]', '_', quiz.titre)
+        response['Content-Disposition'] = f'attachment; filename="{safe_title}_results.csv"'
 
         writer = csv.writer(response)
         writer.writerow(['First Name', 'Last Name', 'Email', 'Score', 'Total Questions', 'Percentage', 'Date'])
@@ -780,28 +784,38 @@ from django.http import HttpResponse
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def export_shared_quiz_results_pdf(request, quiz_id):
-    quiz = Quiz.objects.get(id=quiz_id, module__teacher=request.user)
-    results = SharedQuizResult.objects.filter(shared_quiz__quiz=quiz).select_related('student')
+    print("EXPORT CSV/PDF VUE APPELEE")
+    try:
+        quiz = Quiz.objects.get(id=quiz_id, module__teacher=request.user)
+        results = SharedQuizResult.objects.filter(shared_quiz__quiz=quiz).select_related('student')
+        print("TITRE DU QUIZ:", quiz.titre)
+        print("SAFE TITLE:", re.sub(r'[^a-zA-Z0-9_-]', '_', quiz.titre))
+        response = HttpResponse(content_type='application/pdf')
+        
+        safe_title = re.sub(r'[^a-zA-Z0-9_-]', '_', quiz.titre)
+        response['Content-Disposition'] = f'attachment; filename="{safe_title}_results.pdf"'
 
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="quiz_{quiz_id}_results.pdf"'
+        p = canvas.Canvas(response)
+        p.drawString(100, 800, f"Résultats du quiz : {quiz.titre}")
 
-    p = canvas.Canvas(response)
-    p.drawString(100, 800, f"Résultats du quiz : {quiz.titre}")
+        y = 780
+        print("DEBUG nb résultats:", results.count())
+        for result in results:
+            print("DEBUG student:", result.student.email, result.student.first_name, result.student.last_name)
+            line = (
+                f"{result.student.first_name} {result.student.last_name} ({result.student.email}) - "
+                f"Score: {result.score}/{result.total_questions} "
+                f"({int((result.score / result.total_questions) * 100) if result.total_questions else 0}%) - "
+                f"{result.submitted_at.strftime('%Y-%m-%d %H:%M')}"
+            )
+            p.drawString(100, y, line)
+            y -= 20
+            if y < 50:
+                p.showPage()
+                y = 800
 
-    y = 780
-    for result in results:
-     line = (
-        f"{result.student.first_name} {result.student.last_name} ({result.student.email}) - "
-        f"Score: {result.score}/{result.total_questions} "
-        f"({int((result.score / result.total_questions) * 100) if result.total_questions else 0}%) - "
-        f"{result.submitted_at.strftime('%Y-%m-%d %H:%M')}"
-    )
-    p.drawString(100, y, line)
-    y -= 20
-    if y < 50:
-        p.showPage()
-        y = 800
-
-    p.save()
-    return response
+        p.save()
+        return response
+    except Exception as e:
+        print("EXPORT PDF ERROR:", e)
+        return HttpResponse(f"Erreur lors de l'export PDF: {e}", content_type="text/plain", status=500)

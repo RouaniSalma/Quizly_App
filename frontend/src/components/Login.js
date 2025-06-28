@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
-import axios from 'axios';
+import api from '../services/axiosInstance';
 import './Login.css';
 
 const Login = () => {
@@ -34,18 +34,21 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      const response = await axios.post('http://localhost:8000/api/auth/login/', {
-        email: email,
-        password,
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      const token = response.data.access;
-      localStorage.setItem('token', token);
-      
+      const response = await api.post('http://localhost:8000/api/auth/login/', {
+  email: email,
+  password,
+}, {
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+const token = response.data.access;
+const refreshToken = response.data.refresh; // <-- Ajoute cette ligne
+
+localStorage.setItem('token', token);
+localStorage.setItem('refresh_token', refreshToken); // <-- Ajoute cette ligne
+       console.log('refresh_token after login:', localStorage.getItem('refresh_token')); 
       // Store credentials if "Remember Me" is checked
       if (rememberMe) {
         localStorage.setItem('rememberedEmail', email);
@@ -60,7 +63,7 @@ const Login = () => {
       // Role-based redirection
       if (role === 'teacher') {
         try {
-          const modulesResponse = await axios.get('http://localhost:8000/api/teacher/modules/check/', {
+          const modulesResponse = await api.get('http://localhost:8000/api/teacher/modules/check/', {
             headers: {
               'Authorization': `Bearer ${token}`,
             }
@@ -80,10 +83,10 @@ const Login = () => {
         }
 
       } else if (role === 'admin') {
-        navigate('/admin-dashboard');
+        navigate('/admin/dashboard');
       } else if (role === 'student') {
         try {
-          const categoriesResponse = await axios.get('http://localhost:8000/api/student/categories/check/', {
+          const categoriesResponse = await api.get('http://localhost:8000/api/student/categories/check/', {
             headers: {
               'Authorization': `Bearer ${token}`,
             }
@@ -122,7 +125,7 @@ const Login = () => {
 
     try {
       setIsLoading(true);
-      const response = await axios.post('http://localhost:8000/api/auth/password/reset/', {
+      const response = await api.post('http://localhost:8000/api/auth/password/reset/', {
         email: forgotPasswordEmail
       });
 

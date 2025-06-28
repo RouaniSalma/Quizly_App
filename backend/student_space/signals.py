@@ -5,7 +5,8 @@ from .models import SharedQuizAccess
 
 @receiver(post_save, sender=Quiz)
 def create_shared_access(sender, instance, created, **kwargs):
-    if created:
+    if created and not instance.is_generated:
+        # Ne créer un accès partagé que pour les quiz non-générés (quiz créés manuellement)
         # Ici, associez le quiz à tous les users ou à des groupes spécifiques
         # Exemple simplifié : créez un accès pour le superuser
         from django.contrib.auth import get_user_model

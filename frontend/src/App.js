@@ -20,8 +20,20 @@ import StudentTakeQuiz from './components/StudentTakeQuiz';
 import StudentQuizResults from './components/StudentQuizResults';
 import SharedQuizDetail from './components/SharedQuizDetail';
 import TeacherQuizResults from './components/TeacherQuizResults';
+import AdminDashboard from "./components/AdminDashboard";
+import AdminUsers from "./components/AdminUsers";
+import AdminQuizzes from "./components/AdminQuizzes";
+import AdminHistory from "./components/AdminHistory";
+import AdminBackup from "./components/AdminBackup";
+import AdminStats from "./components/AdminStats";
+import AdminLogs from "./components/AdminLogs";
+import ErrorBoundary from "./components/ErrorBoundary";
+import StudentDashboard from './components/StudentDashboard';
+import StudentDetailsQuiz from './components/StudentDetailsQuiz'
+import ForgotPassword from './components/forgotPassword';
 function App() {
   return (
+    <ErrorBoundary>
     <Router>
       <div>
         <Routes>
@@ -63,9 +75,21 @@ function App() {
 <Route path="/student/categories/:id/quizzes/:quizId/results" element={<StudentQuizResults/>} />
 <Route path="/student/shared-quiz/:quiz_id/details" element={<SharedQuizDetail />} />
 <Route path="/teacher/quizzes/:quizId/results" element={<TeacherQuizResults />} />
+<Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/quizzes" element={<AdminQuizzes />} />
+            <Route path="/admin/history" element={<AdminHistory />} />
+            <Route path="/admin/backup" element={<AdminBackup />} />
+            <Route path="/admin/stats" element={<AdminStats />} />
+            <Route path="/admin/logs" element={<AdminLogs />} />
+           
+<Route path="/student/dashboard" element={<StudentDashboard />} />
+   <Route path="/student/categories/:id/quizzes/:quiz_id" element={<StudentDetailsQuiz />} />
+   <Route path="/forgot-password" element={<ForgotPassword />} />
         </Routes>
       </div>
     </Router>
+    </ErrorBoundary>
   );
 }
 

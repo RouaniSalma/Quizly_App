@@ -825,3 +825,74 @@ def delete_shared_quiz_result(request, quiz_id):
         return Response({"error": "No shared quiz access found."}, status=404)
     except Exception as e:
         return Response({"error": str(e)}, status=500)
+    ########dashboard student
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def student_quiz_results(request):
+    try:
+        # Récupérer tous les résultats de quiz de l'étudiant
+        results = QuizResult.objects.filter(student=request.user).select_related('quiz', 'quiz__module')
+        
+        # Calculer les statistiques
+        total_quizzes = results.count()
+        total_questions = sum(result.total_questions for result in results)
+        total_correct = sum(result.score for result in results)
+        
+        # Calculer la moyenne globale
+        average_score = (total_correct / total_questions * 100) if total_questions > 0 else 0
+        
+        # Trouver le meilleur score
+        best_score = results.order_by('-score').first()
+        best_score_data = {
+            'quiz_title': best_score.quiz.titre if best_score else None,
+            'score': best_score.score if best_score else 0,
+            'total': best_score.total_questions if best_score else 0,
+            'percentage': int((best_score.score / best_score.total_questions * 100)) if best_score else 0
+        }
+        
+        # Calculer les statistiques par module
+        module_stats = {}
+        for result in results:
+            module_name = result.quiz.module.name
+            if module_name not in module_stats:
+                module_stats[module_name] = {
+                    'total_quizzes': 0,
+                    'total_questions': 0,
+                    'total_correct': 0
+                }
+            module_stats[module_name]['total_quizzes'] += 1
+            module_stats[module_name]['total_questions'] += result.total_questions
+            module_stats[module_name]['total_correct'] += result.score
+        
+        # Calculer les moyennes par module
+        for module_name, stats in module_stats.items():
+            stats['average'] = int((stats['total_correct'] / stats['total_questions'] * 100)) if stats['total_questions'] > 0 else 0
+        
+        # Formater les résultats
+        formatted_results = []
+        for result in results:
+            formatted_results.append({
+                'id': result.id,
+                'quiz_id': result.quiz.id,
+                'module_id': result.quiz.module.id,
+                'quiz_title': result.quiz.titre,
+                'module_name': result.quiz.module.name,
+                'score': result.score,
+                'total_questions': result.total_questions,
+                'percentage': int((result.score / result.total_questions) * 100) if result.total_questions > 0 else 0,
+                'date_taken': result.date_taken
+            })
+        
+        return Response({
+            'results': formatted_results,
+            'statistics': {
+                'total_quizzes': total_quizzes,
+                'total_questions': total_questions,
+                'total_correct': total_correct,
+                'average_score': int(average_score),
+                'best_score': best_score_data,
+                'module_stats': module_stats
+            }
+        }, status=200)
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)

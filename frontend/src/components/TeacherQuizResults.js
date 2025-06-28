@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/axiosInstance';
 import './TeacherQuizResults.css';
+import { fetchWithAuth } from '../services/fetchWithAuth';
 
 const TeacherQuizResults = () => {
   const { quizId } = useParams();
@@ -12,17 +13,26 @@ const TeacherQuizResults = () => {
   const [quizTitle, setQuizTitle] = useState('');
 
   const handleExportCSV = () => {
-    fetch(`/api/teacher/quizzes/${quizId}/export/csv/`, {
+    fetchWithAuth(`/api/teacher/quizzes/${quizId}/export/csv/`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
     })
-      .then(res => res.blob())
-      .then(blob => {
+      .then(res => {
+        const disposition = res.headers.get('Content-Disposition');
+        let filename = 'results.csv';
+        if (disposition && disposition.indexOf('filename=') !== -1) {
+          filename = disposition
+            .split('filename=')[1]
+            .replace(/['"]/g, '');
+        }
+        return res.blob().then(blob => ({ blob, filename }));
+      })
+      .then(({ blob, filename }) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `quiz_${quizId}_results.csv`;
+        a.download = filename;
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -31,17 +41,26 @@ const TeacherQuizResults = () => {
   };
 
   const handleExportPDF = () => {
-    fetch(`/api/teacher/quizzes/${quizId}/export/pdf/`, {
+    fetchWithAuth(`/api/teacher/quizzes/${quizId}/export/pdf/`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
     })
-      .then(res => res.blob())
-      .then(blob => {
+      .then(res => {
+        const disposition = res.headers.get('Content-Disposition');
+        let filename = 'results.pdf';
+        if (disposition && disposition.indexOf('filename=') !== -1) {
+          filename = disposition
+            .split('filename=')[1]
+            .replace(/['"]/g, '');
+        }
+        return res.blob().then(blob => ({ blob, filename }));
+      })
+      .then(({ blob, filename }) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `quiz_${quizId}_results.pdf`;
+        a.download = filename;
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -51,7 +70,7 @@ const TeacherQuizResults = () => {
 
   useEffect(() => {
     // Récupérer les résultats
-    axios.get(`http://localhost:8000/api/teacher/quizzes/${quizId}/results/`, {
+    api.get(`http://localhost:8000/api/teacher/quizzes/${quizId}/results/`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
@@ -66,7 +85,7 @@ const TeacherQuizResults = () => {
     });
 
     // Récupérer le titre du quiz
-    axios.get(`http://localhost:8000/api/teacher/quizzes/${quizId}/`, {
+    api.get(`http://localhost:8000/api/teacher/quizzes/${quizId}/`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
@@ -90,26 +109,26 @@ const TeacherQuizResults = () => {
       </div>
       <div className="tqr-navbar-right">
         <button className="tqr-back-btn" onClick={() => navigate(-1)}>
-          Retour
+          Back
         </button>
       </div>
     </nav>
 
     <div className="tqr-content">
       <div className="tqr-header">
-        <h2>{quizTitle} - Résultats</h2>
+        <h2>{quizTitle} - Results</h2>
         {/* Afficher les boutons seulement si results.length > 0 */}
         {results.length > 0 && (
           <div className="tqr-actions">
-            <button onClick={handleExportCSV}>Exporter CSV</button>
-            <button onClick={handleExportPDF}>Exporter PDF</button>
+            <button onClick={handleExportCSV}>Export CSV</button>
+            <button onClick={handleExportPDF}>Export PDF</button>
           </div>
         )}
       </div>
 
       {results.length === 0 ? (
         <div className="tqr-no-results">
-          Aucun résultat pour ce quiz pour le moment.
+          No results for this quiz at the moment.
         </div>
       ) : (
         <div className="tqr-table-container">

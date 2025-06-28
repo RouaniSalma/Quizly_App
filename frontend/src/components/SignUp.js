@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
 import './SignUp.css';
-
+import { fetchWithAuth } from '../services/fetchWithAuth';
 const SignUp = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ const SignUp = () => {
   setIsSubmitting(true);
   
   try {
-    const response = await fetch('http://localhost:8000/api/auth/signup/', {
+    const response = await fetchWithAuth('http://localhost:8000/api/auth/signup/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

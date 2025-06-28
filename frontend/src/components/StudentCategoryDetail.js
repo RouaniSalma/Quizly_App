@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../services/axiosInstance';
 import { useParams, useNavigate } from 'react-router-dom';
 import './StudentCategorydetail.css';
-
+import { fetchWithAuth } from '../services/fetchWithAuth';
 const StudentCategoryDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -47,7 +47,7 @@ const accessToken = match[2];
     
     console.log('Extracted:', { quizId, accessToken }); // Debug
     
-    const response = await axios.get(
+    const response = await api.get(
       `http://localhost:8000/api/teacher/quiz/${quizId}/access/${accessToken}/`,
       {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
@@ -85,14 +85,15 @@ const accessToken = match[2];
 
 
   // Constantes pour les limites
-  const MAX_FILE_SIZE = 1048576; // 1 Mo en octets
-  const MAX_FILE_SIZE_MO = (MAX_FILE_SIZE / 1048576).toFixed(2);
+  // Configuration sécurisée pour la production
+const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3 Mo
+const MAX_FILE_SIZE_MO = (MAX_FILE_SIZE / 1048576).toFixed(2);
 
-  const fetchModuleData = useCallback(async () => {
+  const fetchWithAuthWithAuthModuleData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`http://localhost:8000/api/student/categories/${id}/`, {
+      const response = await api.get(`http://localhost:8000/api/student/categories/${id}/`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
       });
       setModule(response.data);
@@ -109,7 +110,7 @@ const accessToken = match[2];
         setFileUploaded(true);
       }
     } catch (error) {
-      console.error('Error fetching category data:', error);
+      console.error('Error fetchWithAuthWithAuthing category data:', error);
       setError('Failed to load category data');
     } finally {
       setIsLoading(false);
@@ -183,7 +184,7 @@ const accessToken = match[2];
     setIsLoading(true);
     try {
       if (!pdfFile.isNew) {
-        await axios.delete(
+        await api.delete(
           `http://localhost:8000/api/student/categories/${id}/pdfs/${pdfFile.id}/`, 
           {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
@@ -215,7 +216,7 @@ const accessToken = match[2];
       const formData = new FormData();
       formData.append('file', pdfFile.file);
 
-      const response = await axios.post(
+      const response = await api.post(
         `http://localhost:8000/api/student/categories/${id}/upload/`,
         formData,
         {
@@ -248,7 +249,7 @@ const accessToken = match[2];
     setIsLoading(true);
     setError(null);
     try {
-      const response = await axios.post(
+      const response = await api.post(
         `http://localhost:8000/api/student/categories/${id}/generate_quiz/`, 
         null,
         {
@@ -299,7 +300,7 @@ const accessToken = match[2];
   }
 
   try {
-    const response = await axios.post(
+    const response = await api.post(
       `http://localhost:8000/api/teacher/quiz/submit/${accessId}/`,
       {
         answers: userAnswers.map(answer => ({
@@ -334,7 +335,7 @@ const accessToken = match[2];
       ? `http://localhost:8000/api/student/shared-quiz/${quizId}/submit/`
       : `http://localhost:8000/api/student/quizzes/${quizId}/submit/`;
 
-    const response = await axios.post(
+    const response = await api.post(
       endpoint,
       {
         answers: userAnswers.map(answer => ({
@@ -366,13 +367,13 @@ const accessToken = match[2];
   };
 
   useEffect(() => {
-    fetchModuleData();
+    fetchWithAuthWithAuthModuleData();
     return () => {
       if (pdfFile && pdfFile.url && pdfFile.isNew) {
         URL.revokeObjectURL(pdfFile.url);
       }
     };
-  }, [fetchModuleData]);
+  }, [fetchWithAuthWithAuthModuleData]);
 
   if (isLoading && !module) return <div className="-loading">Loading module details...</div>;
   if (error) return <div className="-error">{error}</div>;
@@ -403,6 +404,9 @@ const accessToken = match[2];
 >
   Take Shared Quiz
 </button>
+ <button className= "dash_student" onClick={() => navigate('/student/dashboard')}>
+        Voir le Dashboard
+      </button>
           <button className="-logout-btn" onClick={handleLogout}>Logout</button>
         </div>
       </nav>
@@ -413,14 +417,15 @@ const accessToken = match[2];
         <div className="-pdf-section">
           <div className="-pdf-upload-section">
             <h2>Upload your PDF file</h2>
-            <div className="-upload-info">
-              <p><strong>File Requirements :</strong></p>
-              <ul>
-                <li>Format: PDF only</li>
-                <li>Maximum size: {MAX_FILE_SIZE_MO} Mo</li>
-                <li>Approximately 3000 words or 8 pages of text</li>
-              </ul>
-            </div>
+<div className="-upload-info">
+  <p><strong>File Requirements :</strong></p>
+  <ul>
+    <li>Format: PDF only</li>
+    <li>Maximum size: 3.00 Mo</li>
+    <li>Approximately 2000 words or 6-8 pages of text</li>
+    <li>We'll generate 5 questions from your document</li>
+  </ul>
+</div>
 
             {showErrorModal && (
               <div className="-error-modal-overlay">
@@ -601,11 +606,7 @@ const accessToken = match[2];
                         })}
                       </div>
                       
-                      {quizSubmitted && (
-                        <div className="-explanation">
-                          <p><strong>Explanation:</strong> {question.explanation || "No explanation provided."}</p>
-                        </div>
-                      )}
+                      {quizSubmitted }
                     </div>
                   ))}
                 </div>

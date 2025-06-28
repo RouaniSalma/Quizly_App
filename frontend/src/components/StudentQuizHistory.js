@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/axiosInstance';
 import './StudentQuizHistory.css';
-
+import { fetchWithAuth } from '../services/fetchWithAuth';
 const StudentQuizHistory = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -13,12 +13,12 @@ const StudentQuizHistory = () => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    fetchQuizzes();
+    fetchWithAuthQuizzes();
   }, [id]);
 
-  const fetchQuizzes = async () => {
+  const fetchWithAuthQuizzes = async () => {
     try {
-      const response = await axios.get(
+      const response = await api.get(
         `http://localhost:8000/api/student/categories/${id}/quizzes/`,
         {
           headers: {
@@ -28,7 +28,7 @@ const StudentQuizHistory = () => {
       );
       setQuizzes(response.data || []);
       
-      const moduleResponse = await axios.get(
+      const moduleResponse = await api.get(
         `http://localhost:8000/api/student/categories/${id}/`,
         {
           headers: {
@@ -57,7 +57,7 @@ const StudentQuizHistory = () => {
     if (window.confirm('Are you sure you want to delete this quiz? This action cannot be undone.')) {
       setIsDeleting(true);
       try {
-        await axios.delete(
+        await api.delete(
           `http://localhost:8000/api/student/categories/${id}/quizzes/${quizId}/delete/`,
           {
             headers: {
@@ -65,7 +65,7 @@ const StudentQuizHistory = () => {
             }
           }
         );
-        await fetchQuizzes();
+        await fetchWithAuthQuizzes();
       } catch (error) {
         setError(error.response?.data?.error || 'Failed to delete quiz');
       } finally {
@@ -184,17 +184,17 @@ const StudentQuizHistory = () => {
   onClick={() => {
     if (quiz.type === 'shared') {
       // Pour un quiz partagé
-      axios.delete(`http://localhost:8000/api/student/shared-quiz/${quiz.id.replace('shared-', '')}/delete/`, {
+      api.delete(`http://localhost:8000/api/student/shared-quiz/${quiz.id.replace('shared-', '')}/delete/`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       })
-      .then(() => fetchQuizzes()) // recharge la liste
+      .then(() => fetchWithAuthQuizzes()) // recharge la liste
       .catch(err => alert(err.response?.data?.error || 'Failed to delete shared quiz'));
     } else {
       // Pour un quiz classique
-      axios.delete(`http://localhost:8000/api/student/categories/${id}/quizzes/${quiz.id}/delete/`, {
+      api.delete(`http://localhost:8000/api/student/categories/${id}/quizzes/${quiz.id}/delete/`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       })
-      .then(() => fetchQuizzes())
+      .then(() => fetchWithAuthQuizzes())
       .catch(err => alert(err.response?.data?.error || 'Failed to delete quiz'));
     }
   }}

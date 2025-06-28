@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../services/axiosInstance';
 import './TeacherModules.css';
 import { useNavigate } from 'react-router-dom';
+import { fetchWithAuth } from '../services/fetchWithAuth';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const TeacherModules = () => {
   const [modules, setModules] = useState([]);
@@ -14,19 +16,18 @@ const TeacherModules = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Fetch modules function remains the same
-  const fetchModules = async () => {
+  const fetchWithAuthModules = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await axios.get('http://localhost:8000/api/teacher/modules/', {
+      const response = await api.get('http://localhost:8000/api/teacher/modules/', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         }
       });
       setModules(response.data);
     } catch (error) {
-      console.error('Error fetching modules:', error);
+      console.error('Error fetchWithAuthing modules:', error);
       setError('Failed to load subjects');
     } finally {
       setIsLoading(false);
@@ -34,10 +35,9 @@ const TeacherModules = () => {
   };
 
   useEffect(() => {
-    fetchModules();
+    fetchWithAuthModules();
   }, []);
 
-  // Create module function remains the same
   const handleCreateModule = async () => {
     if (!moduleName.trim()) {
       alert('Subject name cannot be empty.');
@@ -48,7 +48,7 @@ const TeacherModules = () => {
     setError(null);
     
     try {
-      await axios.post(
+      await api.post(
         'http://localhost:8000/api/teacher/modules/create/', 
         { name: moduleName },
         {
@@ -59,7 +59,7 @@ const TeacherModules = () => {
         }
       );
 
-      await fetchModules();
+      await fetchWithAuthModules();
       setShowModal(false);
       setModuleName('');
       
@@ -71,54 +71,46 @@ const TeacherModules = () => {
     }
   };
 
-  // New function to handle edit
   const handleEditModule = async () => {
-  if (!moduleName.trim()) {
-    alert('Subject name cannot be empty.');
-    return;
-  }
+    if (!moduleName.trim()) {
+      alert('Subject name cannot be empty.');
+      return;
+    }
 
-  setIsLoading(true);
-  setError(null);
-  
-  try {
-    console.log("Sending update request for subject:", currentModule.id);
-    console.log("New name:", moduleName);
+    setIsLoading(true);
+    setError(null);
     
-    const response = await axios.put(
-      `http://localhost:8000/api/teacher/modules/${currentModule.id}/update/`,
-      { name: moduleName },
-      {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
+    try {
+      const response = await api.put(
+        `http://localhost:8000/api/teacher/modules/${currentModule.id}/update/`,
+        { name: moduleName },
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          }
         }
-      }
-    );
+      );
+      
+      await fetchWithAuthModules();
+      setShowEditModal(false);
+      setModuleName('');
+      setCurrentModule(null);
+      
+    } catch (error) {
+      console.error('Error updating subject:', error.response?.data || error);
+      setError(error.response?.data?.error || 'Failed to update subject');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    console.log("Update response:", response.data);
-    
-    await fetchModules();
-    setShowEditModal(false);
-    setModuleName('');
-    setCurrentModule(null);
-    
-  } catch (error) {
-    console.error('Full error object:', error);
-    console.error('Error response data:', error.response?.data);
-    setError(error.response?.data?.error || 'Failed to update subject');
-  } finally {
-    setIsLoading(false);
-  }
-};
-
-  // New function to handle delete
   const handleDeleteModule = async () => {
     setIsLoading(true);
     setError(null);
     
     try {
-      await axios.delete(
+      await api.delete(
         `http://localhost:8000/api/teacher/modules/${currentModule.id}/delete/`, 
         {
           headers: {
@@ -127,7 +119,7 @@ const TeacherModules = () => {
         }
       );
 
-      await fetchModules();
+      await fetchWithAuthModules();
       setShowDeleteModal(false);
       setCurrentModule(null);
       
@@ -139,26 +131,22 @@ const TeacherModules = () => {
     }
   };
 
-  // Function to open edit modal
   const openEditModal = (module) => {
     setCurrentModule(module);
     setModuleName(module.name);
     setShowEditModal(true);
   };
 
-  // Function to open delete modal
   const openDeleteModal = (module) => {
     setCurrentModule(module);
     setShowDeleteModal(true);
   };
 
-  // Logout function remains the same
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/login');
   };
 
-  // Prevent event bubbling when clicking on module actions
   const handleModuleActionClick = (e, module, action) => {
     e.stopPropagation();
     if (action === 'edit') {
@@ -168,181 +156,343 @@ const TeacherModules = () => {
     }
   };
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        when: "beforeChildren",
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100
+      }
+    }
+  };
+
+  const modalVariants = {
+    hidden: { scale: 0.9, opacity: 0 },
+    visible: { 
+      scale: 1, 
+      opacity: 1,
+      transition: { type: "spring", damping: 25 }
+    },
+    exit: { scale: 0.9, opacity: 0 }
+  };
+
   return (
-    <div className="Teacher-modules">
-      {/* Navbar - remains the same */}
+    <motion.div 
+      className="Teacher-modules"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
       <nav className="Navbar">
         <div className="Navbar-left">
-          <span className="Logo">QUIZLY</span>
+          <motion.span 
+            className="Logo"
+            initial={{ x: -50 }}
+            animate={{ x: 0 }}
+            transition={{ type: "spring", stiffness: 100 }}
+          >
+            QUIZLY
+          </motion.span>
         </div>
         <div className="Navbar-right">
-          <button 
+          <motion.button 
             className="Add-button-navbar" 
             onClick={() => setShowModal(true)}
             disabled={isLoading}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
           >
             {isLoading ? '...' : '+'}
-          </button>
-          <button 
+          </motion.button>
+          <motion.button 
             className="Logout-btn"
             onClick={handleLogout}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             Logout
-          </button>
+          </motion.button>
         </div>
       </nav>
 
-      {/* Modules List */}
       <div className="Modules-container">
-        <h2 className="Modules-title">My Subjects</h2>
+        <motion.h2 
+          className="Modules-title"
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          My Subjects
+        </motion.h2>
         
         {isLoading && !modules.length ? (
-          <p>Loading subjects...</p>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <p>Loading subjects...</p>
+          </motion.div>
         ) : error ? (
-          <p className="error-message">{error}</p>
+          <motion.p 
+            className="error-message"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+          >
+            {error}
+          </motion.p>
         ) : modules.length === 0 ? (
-          <div className="Empty-state">
-            <p className="No-modules">No subjects yet.</p>
-            <button 
+          <motion.div 
+            className="Empty-state"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <motion.p className="No-modules" variants={itemVariants}>
+              No subjects yet.
+            </motion.p>
+            <motion.button 
               className="Create-first-module"
               onClick={() => setShowModal(true)}
+              variants={itemVariants}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               Create your first subject
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
         ) : (
-          <div className="Modules-grid">
+          <motion.div 
+            className="Modules-grid"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
             {modules.map(module => (
-              <div 
+              <motion.div 
                 className="Module-card" 
                 key={module.id}
                 onClick={() => navigate(`/teacher/modules/${module.id}`)}
+                variants={itemVariants}
+                whileHover={{ y: -5, boxShadow: "0 10px 20px rgba(0,0,0,0.1)" }}
+                transition={{ type: "spring", stiffness: 300 }}
               >
                 <div className="Module-header">
                   <h3>{module.name}</h3>
                   <div className="Module-actions">
-                    <button 
+                    <motion.button 
                       className="Edit-btn"
                       onClick={(e) => handleModuleActionClick(e, module, 'edit')}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                     >
                       Edit
-                    </button>
-                    <button 
+                    </motion.button>
+                    <motion.button 
                       className="Delete-btn"
                       onClick={(e) => handleModuleActionClick(e, module, 'delete')}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                     >
                       Delete
-                    </button>
+                    </motion.button>
                   </div>
                 </div>
                 <p>Created: {new Date(module.created_at).toLocaleDateString()}</p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
       </div>
 
-      {/* Create Modal - remains the same */}
-      {showModal && (
-        <div className="Modal-overlay">
-          <div className="Modal-content">
-            <h3>Create New subject</h3>
-            {error && <p className="Modal-error">{error}</p>}
-            <input
-              type="text"
-              placeholder="Subject Name"
-              value={moduleName}
-              onChange={e => setModuleName(e.target.value)}
-              disabled={isLoading}
-            />
-            <div className="Modal-buttons">
-              <button 
-                onClick={handleCreateModule}
-                disabled={isLoading || !moduleName.trim()}
+      <AnimatePresence>
+        {showModal && (
+          <motion.div 
+            className="Modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowModal(false)}
+          >
+            <motion.div 
+              className="Modal-content"
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3>Create New subject</h3>
+              {error && <motion.p 
+                className="Modal-error"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
               >
-                {isLoading ? 'Creating...' : 'Create'}
-              </button>
-              <button 
-                className="Close-btn" 
-                onClick={() => {
-                  setShowModal(false);
-                  setError(null);
-                }}
+                {error}
+              </motion.p>}
+              <motion.input
+                type="text"
+                placeholder="Subject Name"
+                value={moduleName}
+                onChange={e => setModuleName(e.target.value)}
                 disabled={isLoading}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+                whileFocus={{ scale: 1.02 }}
+              />
+              <div className="Modal-buttons">
+                <motion.button 
+                  onClick={handleCreateModule}
+                  disabled={isLoading || !moduleName.trim()}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {isLoading ? 'Creating...' : 'Create'}
+                </motion.button>
+                <motion.button 
+                  className="Close-btn" 
+                  onClick={() => {
+                    setShowModal(false);
+                    setError(null);
+                  }}
+                  disabled={isLoading}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Cancel
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Edit Modal */}
-      {showEditModal && (
-        <div className="Modal-overlay">
-          <div className="Modal-content">
-            <h3>Edit Subject</h3>
-            {error && <p className="Modal-error">{error}</p>}
-            <input
-              type="text"
-              placeholder="Subject Name"
-              value={moduleName}
-              onChange={e => setModuleName(e.target.value)}
-              disabled={isLoading}
-            />
-            <div className="Modal-buttons">
-              <button 
-                onClick={handleEditModule}
-                disabled={isLoading || !moduleName.trim()}
+      <AnimatePresence>
+        {showEditModal && (
+          <motion.div 
+            className="Modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowEditModal(false)}
+          >
+            <motion.div 
+              className="Modal-content"
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3>Edit Subject</h3>
+              {error && <motion.p 
+                className="Modal-error"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
               >
-                {isLoading ? 'Updating...' : 'Update'}
-              </button>
-              <button 
-                className="Close-btn" 
-                onClick={() => {
-                  setShowEditModal(false);
-                  setError(null);
-                }}
+                {error}
+              </motion.p>}
+              <motion.input
+                type="text"
+                placeholder="Subject Name"
+                value={moduleName}
+                onChange={e => setModuleName(e.target.value)}
                 disabled={isLoading}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+                whileFocus={{ scale: 1.02 }}
+              />
+              <div className="Modal-buttons">
+                <motion.button 
+                  onClick={handleEditModule}
+                  disabled={isLoading || !moduleName.trim()}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {isLoading ? 'Updating...' : 'Update'}
+                </motion.button>
+                <motion.button 
+                  className="Close-btn" 
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setError(null);
+                  }}
+                  disabled={isLoading}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Cancel
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="Modal-overlay">
-          <div className="Modal-content">
-            <h3>Delete Subject</h3>
-            {error && <p className="Modal-error">{error}</p>}
-            <p>Are you sure you want to delete "{currentModule?.name}"?</p>
-            <p className="Warning-text">This action cannot be undone.</p>
-            <div className="Modal-buttons">
-              <button 
-                className="Delete-confirm-btn"
-                onClick={handleDeleteModule}
-                disabled={isLoading}
+      <AnimatePresence>
+        {showDeleteModal && (
+          <motion.div 
+            className="Modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowDeleteModal(false)}
+          >
+            <motion.div 
+              className="Modal-content"
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3>Delete Subject</h3>
+              {error && <motion.p 
+                className="Modal-error"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
               >
-                {isLoading ? 'Deleting...' : 'Delete'}
-              </button>
-              <button 
-                className="Close-btn" 
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  setError(null);
-                }}
-                disabled={isLoading}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+                {error}
+              </motion.p>}
+              <p>Are you sure you want to delete "{currentModule?.name}"?</p>
+              <p className="Warning-text">This action cannot be undone.</p>
+              <div className="Modal-buttons">
+                <motion.button 
+                  className="Delete-confirm-btn"
+                  onClick={handleDeleteModule}
+                  disabled={isLoading}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {isLoading ? 'Deleting...' : 'Delete'}
+                </motion.button>
+                <motion.button 
+                  className="Close-btn" 
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setError(null);
+                  }}
+                  disabled={isLoading}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Cancel
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 };
 

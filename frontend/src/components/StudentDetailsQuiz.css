@@ -1,0 +1,280 @@
+/* Reset et styles de base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #f8f9fa !important;
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+  color: #212529;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Conteneur principal - Style professionnel */
+.student-quiz-details-containe-r {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+  position: relative;
+  z-index: 1;
+  border: 1px solid #e9ecef;
+}
+
+/* Barre de navigation améliorée */
+.navba-r {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid #dee2e6;
+  margin-bottom: 2rem;
+}
+
+.log-o {
+  font-family: "Times New Roman", Times, serif;
+    font-size: 30px;
+    font-weight: 700;
+    font-style: italic;
+    color: #7e57c2; /* Violet pour contraster avec le fond blanc */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-rendering: optimizeLegibility;
+    margin-bottom: 10px;
+    margin-left: 10px;
+}
+
+.back-butto-n {
+  background-color: transparent;
+    color: #7e57c2;
+    border: 1px solid #7e57c2;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-right: 20px;
+}
+
+.back-butto-n:hover {
+  background-color: #7e57c2;
+  color: white;
+}
+
+/* Contenu du quiz - Style professionnel */
+.quiz-details-conten-t {
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  padding: 2rem;
+}
+
+.header-sectio-n {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.header-sectio-n h1 {
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+  font-size: 1.75rem;
+  font-weight: 500;
+}
+
+.module-nam-e {
+  color: #6c757d;
+  font-size: 0.875rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Score summary - Design moderne */
+.score-summar-y {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 0.5rem;
+  border: 1px solid #e9ecef;
+}
+
+.score-displa-y {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+}
+
+.percentag-e {
+  font-size: 2.5rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #2c3e50;
+}
+
+.score-detail-s {
+  font-size: 1rem;
+  color: #6c757d;
+}
+
+/* Questions - Style professionnel */
+.questions-result-s {
+  margin-top: 2rem;
+}
+
+.question-resul-t {
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0.5rem;
+  border-left: 4px solid;
+  background-color: #ffffff;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.03);
+  border: 1px solid #e9ecef;
+}
+
+.question-resul-t.correc-t {
+  background-color: #f8f9fa;
+  border-left-color: #28a745;
+}
+
+.question-resul-t.incorrec-t {
+  background-color: #fff9fa;
+  border-left-color: #dc3545;
+}
+
+.question-resul-t h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+/* Choix de réponse - Style amélioré */
+.choices-lis-t {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.choice-ite-m {
+  padding: 1rem;
+  border-radius: 0.375rem;
+  background-color: #ffffff;
+  border: 1px solid #e9ecef;
+  position: relative;
+  transition: all 0.2s ease;
+  font-size: 0.9375rem;
+}
+
+.correct-choic-e {
+  background-color: #e8f5e9;
+  border-color: #c3e6cb;
+}
+
+.user-choic-e {
+  background-color: #e3f2fd;
+  border-color: #b8daff;
+}
+
+.wrong-choic-e {
+  background-color: #fde8e8;
+  border-color: #f5c6cb;
+}
+
+.choice-ite-m::before {
+  content: '○';
+  margin-right: 0.75rem;
+  color: #adb5bd;
+}
+
+.correct-choic-e::before {
+  content: '✓';
+  color: #28a745;
+}
+
+.wrong-choic-e::before {
+  content: '✗';
+  color: #dc3545;
+}
+
+.indicato-r {
+  position: absolute;
+  right: 1rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.indicato-r.correc-t {
+  color: #28a745;
+}
+
+.indicato-r.wron-g {
+  color: #dc3545;
+}
+
+/* Feedback - Style professionnel */
+.feedbac-k {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: #fff3cd;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  border-left: 3px solid #ffc107;
+  color: #856404;
+}
+
+/* Boutons - Design moderne */
+.quiz-action-s {
+  text-align: center;
+  margin-top: 3rem;
+}
+
+.btn-primar-y {
+  padding: 0.75rem 1.75rem;
+  background-color: #2c3e50;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.5px;
+}
+
+.btn-primar-y:hover {
+  background-color: #1a252f;
+  transform: translateY(-1px);
+}
+
+/* États de chargement */
+.loadin-g, .erro-r {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1rem;
+}
+
+.erro-r {
+  color: #dc3545;
+}
+
+/* Améliorations typographiques */
+h1, h2, h3, h4 {
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+/* Effets de hover subtils */
+.choice-ite-m:hover {
+  transform: translateX(2px);
+}

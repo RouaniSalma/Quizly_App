@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/axiosInstance';
 import './ResendVerification.css';
 
 const ResendVerification = () => {
@@ -18,7 +18,7 @@ const ResendVerification = () => {
     setMessage('');
 
     try {
-      const response = await axios.post(
+      const response = await api.post(
         'http://localhost:8000/api/auth/resend-verification/',
         { email },
         {

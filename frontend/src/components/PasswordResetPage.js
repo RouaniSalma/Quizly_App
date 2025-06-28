@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/axiosInstance';
 import './PasswordResetPage.css';
 
 const PasswordResetPage = () => {
@@ -28,7 +28,7 @@ const PasswordResetPage = () => {
       }
 
       try {
-        const response = await axios.get(
+        const response = await api.get(
           `${process.env.REACT_APP_API_URL}/auth/password/reset/verify-token/${tokenParam}/`
         );
 
@@ -65,7 +65,7 @@ const PasswordResetPage = () => {
     }
 
     try {
-      await axios.post(
+      await api.post(
         `${process.env.REACT_APP_API_URL}/auth/password/reset/complete/`,
         { token, new_password: password }
       );
@@ -110,9 +110,7 @@ const PasswordResetPage = () => {
             >
               Request New Reset Link
             </button>
-            <p className="support-text">
-              Need help? <a href="/contact-support">Contact support</a>
-            </p>
+            
           </div>
         </div>
       </div>

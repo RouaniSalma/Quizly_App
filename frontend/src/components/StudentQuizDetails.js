@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/axiosInstance';
 import './StudentQuizDetails.css';
-
+import { fetchWithAuth } from '../services/fetchWithAuth';
 const StudentQuizDetails = () => {
   const { id, quiz_id } = useParams();
   const navigate = useNavigate();
@@ -20,10 +20,10 @@ const StudentQuizDetails = () => {
   const [moduleName, setModuleName] = useState('');
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchWithAuthData = async () => {
       try {
-        // Fetch module name
-        const moduleResponse = await axios.get(
+        // fetchWithAuth module name
+        const moduleResponse = await api.get(
           `http://localhost:8000/api/student/categories/${id}/`,
           {
             headers: {
@@ -33,8 +33,8 @@ const StudentQuizDetails = () => {
         );
         setModuleName(moduleResponse.data.name);
 
-        // Fetch quiz details
-        const quizResponse = await axios.get(
+        // fetchWithAuth quiz details
+        const quizResponse = await api.get(
           `http://localhost:8000/api/student/categories/${id}/quizzes/${quiz_id}/`,
           {
             headers: {
@@ -43,8 +43,8 @@ const StudentQuizDetails = () => {
           }
         );
 
-        // Fetch user answers
-        const answersResponse = await axios.get(
+        // fetchWithAuth user answers
+        const answersResponse = await api.get(
           `http://localhost:8000/api/student/quizzes/${quiz_id}/answers/`,
           {
             headers: {
@@ -53,8 +53,8 @@ const StudentQuizDetails = () => {
           }
         );
 
-        // Fetch latest result
-        const resultResponse = await axios.get(
+        // fetchWithAuth latest result
+        const resultResponse = await api.get(
           `http://localhost:8000/api/student/quizzes/${quiz_id}/results/latest/`,
           {
             headers: {
@@ -80,7 +80,7 @@ const StudentQuizDetails = () => {
       }
     };
 
-    fetchData();
+    fetchWithAuthData();
   }, [id, quiz_id]);
 
   const handleBack = () => {

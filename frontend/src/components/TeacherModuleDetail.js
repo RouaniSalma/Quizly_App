@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../services/axiosInstance';
 import { useParams, useNavigate } from 'react-router-dom';
 import './TeacherModuleDetail.css';
-
+import { fetchWithAuth } from '../services/fetchWithAuth';
 const TeacherModuleDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -21,21 +21,21 @@ const TeacherModuleDetail = () => {
   const [fileUploaded, setFileUploaded] = useState(false);
 
   // Constantes pour les limites
-  const MAX_FILE_SIZE = 1048576; // 1 Mo en octets
-  const MAX_FILE_SIZE_MO = (MAX_FILE_SIZE / 1048576).toFixed(2);
+const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3 Mo
+const MAX_FILE_SIZE_MO = (MAX_FILE_SIZE / 1048576).toFixed(2);
 
-  const fetchModuleData = useCallback(async () => {
+  const fetchWithAuthModuleData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`http://localhost:8000/api/teacher/modules/${id}/`, {
+      const response = await api.get(`http://localhost:8000/api/teacher/modules/${id}/`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
       });
       setModule(response.data);
       setPdfFile(null);
       setFileUploaded(false);
     } catch (error) {
-      console.error('Error fetching module data:', error);
+      console.error('Error fetchWithAuthing module data:', error);
       setError('Failed to load module data');
     } finally {
       setIsLoading(false);
@@ -110,7 +110,7 @@ const TeacherModuleDetail = () => {
     setIsLoading(true);
     try {
       if (!pdfFile.isNew) {
-        await axios.delete(`http://localhost:8000/api/teacher/modules/${id}/pdfs/${pdfFile.id}/`, {
+        await api.delete(`http://localhost:8000/api/teacher/modules/${id}/pdfs/${pdfFile.id}/`, {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
         });
       }
@@ -142,7 +142,7 @@ const TeacherModuleDetail = () => {
       const formData = new FormData();
       formData.append('file', pdfFile.file);
   
-      const response = await axios.post(
+      const response = await api.post(
         `http://localhost:8000/api/teacher/modules/${id}/upload/`,
         formData,
         {
@@ -180,7 +180,7 @@ const TeacherModuleDetail = () => {
     setError(null);
     
     try {
-      const response = await axios.post(
+      const response = await api.post(
         `http://localhost:8000/api/teacher/modules/${id}/generate_quiz/`, 
         null,
         {
@@ -246,7 +246,7 @@ const TeacherModuleDetail = () => {
       setIsLoading(true);
       
       if (questionToRemove.id) {
-        await axios.delete(
+        await api.delete(
           `http://localhost:8000/api/teacher/questions/${questionToRemove.id}/delete/`,
           {
             headers: {
@@ -291,7 +291,7 @@ const TeacherModuleDetail = () => {
         }))
       };
   
-      const response = await axios.put(
+      const response = await api.put(
         `http://localhost:8000/api/teacher/quizzes/${generatedQuiz.id}/update/`,
         quizData,
         {
@@ -302,7 +302,7 @@ const TeacherModuleDetail = () => {
         }
       );
   
-      const updatedQuiz = await axios.get(
+      const updatedQuiz = await api.get(
         `http://localhost:8000/api/teacher/quizzes/${generatedQuiz.id}/`,
         {
           headers: {
@@ -330,13 +330,13 @@ const TeacherModuleDetail = () => {
   };
 
   useEffect(() => {
-    fetchModuleData();
+    fetchWithAuthModuleData();
     return () => {
       if (pdfFile && pdfFile.url) {
         URL.revokeObjectURL(pdfFile.url);
       }
     };
-  }, [fetchModuleData]);
+  }, [fetchWithAuthModuleData]);
 
   if (isLoading && !module) return <div className="lo-ading">Loading subject details...</div>;
   if (error) return <div className="er-ror">{error}</div>;
@@ -372,12 +372,14 @@ const TeacherModuleDetail = () => {
           <div className="pdf-Upload-section">
             <h2>Upload your PDF file</h2>
             <div className="Upload-info">
-              <p><strong>File Requirements :</strong></p>
-              <ul>
-                <li>Format: PDF only</li>
-                <li>Maximum size: {MAX_FILE_SIZE_MO} Mo</li>
-                <li>Approximately 3000 words or 8 pages of text</li>
-              </ul>
+  <p><strong>File Requirements :</strong></p>
+  <ul>
+    <li>Format: PDF only</li>
+    <li>Maximum size: 3.00 Mo</li>
+    <li>Approximately 2000 words or 6-8 pages of text</li>
+    <li>We'll generate 5 questions from your document</li>
+  </ul>
+
               {showErrorModal && (
                 <div className="Error-modal-overlay">
                   <div className="Error-modal">

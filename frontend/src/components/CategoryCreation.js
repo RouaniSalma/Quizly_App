@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import './CategoryCreation.css';
 import { useNavigate } from 'react-router-dom';
-
+import api from '../services/axiosInstance';
 const CategoryCreation = () => {
   const navigate = useNavigate();
   const [moduleName, setModuleName] = useState('');
@@ -25,7 +24,7 @@ const CategoryCreation = () => {
     }
 
     try {
-    const response = await axios.post(
+    const response = await api.post(
         'http://localhost:8000/api/student/categories/create/',
         { name: moduleName.trim() },
         {

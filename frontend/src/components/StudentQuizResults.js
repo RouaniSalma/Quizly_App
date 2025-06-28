@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/axiosInstance';
 import './StudentQuizResults.css';
-
+import { fetchWithAuth } from '../services/fetchWithAuth';
 const StudentQuizResults = () => {
   const { id, quizId } = useParams();
   const navigate = useNavigate();
@@ -13,10 +13,10 @@ const StudentQuizResults = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchResults = async () => {
+    const fetchWithAuthResults = async () => {
       try {
         // Récupérer les résultats
-        const resultsResponse = await axios.get(
+        const resultsResponse = await api.get(
           `http://localhost:8000/api/student/quizzes/${quizId}/results/latest/`,
           {
             headers: {
@@ -27,7 +27,7 @@ const StudentQuizResults = () => {
         setResults(resultsResponse.data);
 
         // Récupérer les réponses de l'utilisateur
-        const answersResponse = await axios.get(
+        const answersResponse = await api.get(
           `http://localhost:8000/api/student/quizzes/${quizId}/answers/`,
           {
             headers: {
@@ -38,7 +38,7 @@ const StudentQuizResults = () => {
         setUserAnswers(answersResponse.data);
 
         // Récupérer les détails du quiz
-        const quizResponse = await axios.get(
+        const quizResponse = await api.get(
           `http://localhost:8000/api/student/categories/${id}/quizzes/${quizId}/`,
           {
             headers: {
@@ -55,7 +55,7 @@ const StudentQuizResults = () => {
       }
     };
 
-    fetchResults();
+    fetchWithAuthResults();
   }, [id, quizId]);
 
   const handleBack = () => {

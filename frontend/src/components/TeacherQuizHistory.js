@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/axiosInstance';
 import './TeacherQuizHistory.css';
-
+import { fetchWithAuth } from '../services/fetchWithAuth';
 const TeacherQuizHistory = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -11,9 +11,9 @@ const TeacherQuizHistory = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchQuizzes = async () => {
+    const fetchWithAuthQuizzes = async () => {
       try {
-        const response = await axios.get(
+        const response = await api.get(
           `http://localhost:8000/api/teacher/modules/${id}/quizzes/`,
           {
             headers: {
@@ -30,7 +30,7 @@ const TeacherQuizHistory = () => {
       }
     };
 
-    fetchQuizzes();
+    fetchWithAuthQuizzes();
   }, [id]);
 
   const handleBack = () => {

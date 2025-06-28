@@ -30,4 +30,5 @@ path('categories/<int:module_id>/quiz/<int:quiz_id>/', views.student_quiz_detail
     path('shared-quiz/<int:quiz_id>/submit/', views.submit_shared_quiz, name='submit_shared_quiz'),
     path('shared-quiz/<int:quiz_id>/details/', views.shared_quiz_detail, name='shared-quiz-detail'),
     path('shared-quiz/<int:quiz_id>/delete/', views.delete_shared_quiz_result, name='delete-shared-quiz'),
+    path('dashboard/', views.student_quiz_results, name='student_dashboard'),
 ]

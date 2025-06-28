@@ -570,7 +570,15 @@
   background-color: #7e57c2;
   color: white;
 }
-
+.dash_student{
+  background-color: transparent;
+  color: #7e57c2;
+  border-color: #7e57c2;
+}
+.dash_student:hover{
+  background-color: #7e57c2;
+  color: white;
+}
 .-quiz-link-modal-overlay {
   position: fixed;
   top: 0;

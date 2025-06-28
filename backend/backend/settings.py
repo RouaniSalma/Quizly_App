@@ -45,9 +45,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'rest_framework_simplejwt',
+    # 'rest_framework_simplejwt.token_blacklist',  # Commenté pour éviter les problèmes MySQL
     'auth_app',  # l'application pour l'authentification
     'teacher_space',
     'student_space',
+    'quizly',
 ]
 
 MIDDLEWARE = [
@@ -106,6 +108,7 @@ DATABASES = {
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES', innodb_strict_mode=1",
             'charset': 'utf8mb4',
+            'sql_mode': 'STRICT_TRANS_TABLES',
         },
         'NAME': 'quizly',
         'USER': 'root',
@@ -157,6 +160,12 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Configuration pour résoudre le problème de clé trop longue avec MySQL
+import sys
+if 'makemigrations' not in sys.argv and 'migrate' not in sys.argv:
+    # Cette configuration n'est appliquée que si on ne fait pas de migrations
+    pass
+
 # configure le backend pour utiliser JWT
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -182,14 +191,14 @@ STATICFILES_DIRS = [
 ]
 
 # Remplacez la configuration SIMPLE_JWT par :
-SIMPLE_JWT = {
-    'AUTH_HEADER_TYPES': ('Bearer',),
-    'USER_ID_FIELD': 'id',
-    'USER_ID_CLAIM': 'user_id',
-}
+# SIMPLE_JWT = {
+#     'AUTH_HEADER_TYPES': ('Bearer',),
+#     'USER_ID_FIELD': 'id',
+#     'USER_ID_CLAIM': 'user_id',
+# }
 AUTHENTICATION_BACKENDS = [
+    'auth_app.backends.EmailBackend',
     'django.contrib.auth.backends.ModelBackend',
-    # Add any custom backends if you're using them
 ]
 
 
@@ -217,9 +226,9 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 FRONTEND_URL = 'http://localhost:3000'
 # JWT settings (si vous utilisez SimpleJWT)
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
+    'ROTATE_REFRESH_TOKENS': False,  # Désactivé pour éviter les problèmes MySQL
+    'BLACKLIST_AFTER_ROTATION': False,  # Désactivé pour éviter les problèmes MySQL
 }
 REMEMBER_ME_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 jours en secondes

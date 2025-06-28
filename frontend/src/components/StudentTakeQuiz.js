@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/axiosInstance';
 import './StudentTakeQuiz.css'
+import { fetchWithAuth } from '../services/fetchWithAuth';
 const StudentTakeQuiz = () => {
   const { id, quizId } = useParams();
   const navigate = useNavigate();
@@ -12,9 +13,9 @@ const StudentTakeQuiz = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const fetchQuiz = async () => {
+    const fetchWithAuthQuiz = async () => {
       try {
-        const response = await axios.get(
+        const response = await api.get(
           `http://localhost:8000/api/student/categories/${id}/quizzes/${quizId}/`,
           {
             headers: {
@@ -37,7 +38,7 @@ const StudentTakeQuiz = () => {
       }
     };
 
-    fetchQuiz();
+    fetchWithAuthQuiz();
   }, [id, quizId]);
 
   const handleChoiceSelect = (questionId, choiceIndex) => {
@@ -57,7 +58,7 @@ const StudentTakeQuiz = () => {
       selected_choice_index: selectedChoices[question.id]
     }));
 
-    await axios.post(
+    await api.post(
       `http://localhost:8000/api/student/quizzes/${quizId}/submit/`,
       { answers },
       {
