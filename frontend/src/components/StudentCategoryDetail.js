@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../services/axiosInstance';
 import { useParams, useNavigate } from 'react-router-dom';
-import './StudentCategorydetail.css';
+import './StudentCategoryDetail.css';
 import { fetchWithAuth } from '../services/fetchWithAuth';
 const StudentCategoryDetail = () => {
   const { id } = useParams();

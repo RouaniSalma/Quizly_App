@@ -24,7 +24,7 @@ const SharedQuizDetail = () => {
     <div className="shared-quiz-detail-container">
       <nav className="shared-quiz-navbar">
         <span className="shared-quiz-logo" onClick={() => navigate('/student/categories')}>Quizly</span>
-        <button className="shared-quiz-back-btn" onClick={() => navigate(-1)}>Retour</button>
+        <button className="shared-quiz-back-btn" onClick={() => navigate(-1)}>Back</button>
       </nav>
       <div className="shared-quiz-header">
         <h1>{quiz.titre}</h1>
