@@ -675,12 +675,12 @@ const MAX_FILE_SIZE_MO = (MAX_FILE_SIZE / 1048576).toFixed(2);
       
       <div className="-modal-actions">
         <button
-          className="-submit-link-btn"
-          onClick={handleQuizLinkSubmit}
-          disabled={sharedQuizLoading}
-        >
-          {sharedQuizLoading ? 'Loading...' : 'Start Quiz'}
-        </button>
+  className="-submit-link-btn"
+  onClick={handleQuizLinkSubmit}
+  disabled={sharedQuizLoading || sharedQuizError} // Désactive le bouton si erreur ou chargement
+>
+  {sharedQuizLoading ? 'Loading...' : 'Start Quiz'}
+</button>
       </div>
     </div>
   </div>
